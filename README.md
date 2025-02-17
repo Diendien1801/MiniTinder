@@ -11,7 +11,7 @@ Cấu trúc thư mục dự án Android (Kotlin + Jetpack Compose + MVC)
 📂 features        # Chia các tính năng theo mô hình MVC
 │── 📂 feature1    
 │   │── 📂 controller # Điều khiển luồng dữ liệu và logic
-│   │── 📂 model      # Định nghĩa data class, ViewModel liên quan đến feature này
+│   │── 📂 model      # Định nghĩa data class liên quan đến feature này
 │   │── 📂 view       # Giao diện Jetpack Compose của tính năng
 │
 │── 📂 feature2    
