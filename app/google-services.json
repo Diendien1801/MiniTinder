@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "757343138080",
+    "project_id": "minitinder",
+    "storage_bucket": "minitinder.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:757343138080:android:be285bb04d2ec3a9bd6745",
+        "android_client_info": {
+          "package_name": "com.hd.minitinder"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCPb1RTDpZToB9-zmIxvUcexiVNij-mlE4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

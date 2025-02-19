@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.hd.minitinder" />
+                  <option name="mobileSdkAppId" value="1:757343138080:android:be285bb04d2ec3a9bd6745" />
+                  <option name="projectId" value="minitinder" />
+                  <option name="projectNumber" value="757343138080" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />
