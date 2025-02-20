@@ -12,7 +12,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MiniTinder"
         tools:targetApi="31">
-
+        <activity
+            android:name=".LayoutHome"
+            android:exported="false"
+            android:label="@string/title_activity_layout_home"
+            android:theme="@style/Theme.MiniTinder" />
+        <activity
+            android:name=".screens.profile.view.ProfileAcitivity"
+            android:exported="false"
+            android:label="@string/title_activity_profile_acitivity"
+            android:theme="@style/Theme.MiniTinder" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -20,11 +29,10 @@
             android:theme="@style/Theme.MiniTinder">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-
     </application>
 
 </manifest>

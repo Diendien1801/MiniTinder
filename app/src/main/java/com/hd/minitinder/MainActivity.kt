@@ -28,5 +28,4 @@ fun MainApp()
 
     val navController = rememberNavController()
     AppNavHost(navController = navController)
-
 }

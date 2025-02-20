@@ -5,9 +5,10 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.hd.minitinder.features.home.view.HomeScreen
-import com.hd.minitinder.features.login.view.LoginScreen
-import com.hd.minitinder.features.register.view.RegisterScreen
+import com.hd.minitinder.screens.home.view.HomeScreen
+import com.hd.minitinder.screens.login.view.LoginScreen
+import com.hd.minitinder.screens.profile.view.ProfileScreen
+import com.hd.minitinder.screens.register.view.RegisterScreen
 
 @Composable
 fun AppNavHost(
@@ -28,6 +29,12 @@ fun AppNavHost(
         }
         composable(NavigationItem.Login.route) {
             LoginScreen(navController)
+        }
+        composable(NavigationItem.Profile.route){
+            ProfileScreen(navController)
+        }
+        composable(NavigationItem.Main.route){
+            MainScreen()
         }
     }
 }
