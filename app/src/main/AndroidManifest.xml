@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -13,15 +15,18 @@
         android:theme="@style/Theme.MiniTinder"
         tools:targetApi="31">
         <activity
-            android:name=".LayoutHome"
+            android:name=".screens.resetPassword.view.ResetPasswordActivity"
             android:exported="false"
-            android:label="@string/title_activity_layout_home"
+            android:label="@string/title_activity_reset_password"
             android:theme="@style/Theme.MiniTinder" />
-        <activity
-            android:name=".screens.profile.view.ProfileAcitivity"
-            android:exported="false"
-            android:label="@string/title_activity_profile_acitivity"
-            android:theme="@style/Theme.MiniTinder" />
+
+        <meta-data
+            android:name="com.facebook.sdk.ApplicationId"
+            android:value="@string/facebook_app_id" />
+        <meta-data
+            android:name="com.facebook.sdk.ClientToken"
+            android:value="@string/facebook_client_token" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true"

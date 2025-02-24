@@ -8,7 +8,14 @@ plugins {
 android {
     namespace = "com.hd.minitinder"
     compileSdk = 35
-
+    signingConfigs {
+        create("release") {
+            storeFile = file("keystore/release.keystore")
+            storePassword = "android"
+            keyAlias = "my_release_key"
+            keyPassword = "android"
+        }
+    }
     defaultConfig {
         applicationId = "com.hd.minitinder"
         minSdk = 27
@@ -83,4 +90,7 @@ dependencies {
     // Navigation
     val nav_version = "2.8.7"
     implementation("androidx.navigation:navigation-compose:$nav_version")
+
+    // Facebook Login
+    implementation("com.facebook.android:facebook-android-sdk:latest.release")
 }

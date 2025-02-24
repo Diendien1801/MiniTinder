@@ -6,6 +6,9 @@
     <string name="title_activity_main">MainActivity</string>
     <string name="title_activity_profile_acitivity">ProfileAcitivity</string>
     <string name="title_activity_layout_home">LayoutHome</string>
-
+    <string name="facebook_app_id">1680758335909974</string>
+    <string name="facebook_client_token">25ade7d4f043fe152b1d5bf7f7f67b1a</string>
+    <string name="fb_login_protocol_scheme">fb1680758335909974</string>
+    <string name="title_activity_reset_password">ResetPasswordActivity</string>
 
 </resources>

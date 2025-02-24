@@ -7,6 +7,7 @@ enum class Screen{
     LOGIN,
     PROFILE,
     MAIN,
+    RESETPASS,
 
 }
 
@@ -17,5 +18,7 @@ sealed class NavigationItem (val route: String)
     object Login: NavigationItem(Screen.LOGIN.name)
     object Profile: NavigationItem(Screen.PROFILE.name)
     object Main: NavigationItem(Screen.MAIN.name)
+    object ResetPass: NavigationItem(Screen.RESETPASS.name)
+
 
 }
