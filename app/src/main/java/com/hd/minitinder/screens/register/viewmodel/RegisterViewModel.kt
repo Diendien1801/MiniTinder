@@ -22,28 +22,54 @@ class RegisterViewModel : ViewModel() {
     private val _errorMessage = mutableStateOf("")
     val errorMessage: State<String> = _errorMessage
 
+    private val _emailError = mutableStateOf("")
+    val emailError: State<String> = _emailError
+
+    private val _passwordError = mutableStateOf("")
+    val passwordError: State<String> = _passwordError
+
+    private val _confirmPasswordError = mutableStateOf("")
+    val confirmPasswordError: State<String> = _confirmPasswordError
+
     fun onEmailChange(newEmail: String) {
         _email.value = newEmail
+        _emailError.value = "" // Reset lỗi khi người dùng nhập
     }
 
     fun onPasswordChange(newPassword: String) {
         _password.value = newPassword
+        _passwordError.value = ""
     }
 
     fun onConfirmPasswordChange(newConfirmPassword: String) {
         _confirmPassword.value = newConfirmPassword
+        _confirmPasswordError.value = ""
     }
 
     fun register() {
-        if (_email.value.isBlank() || _password.value.isBlank() || _confirmPassword.value.isBlank()) {
-            _errorMessage.value = "All fields are required!"
-            return
+        var isValid = true
+
+        if (_email.value.isBlank()) {
+            _emailError.value = "Email is required!"
+            isValid = false
+        }
+
+        if (_password.value.isBlank()) {
+            _passwordError.value = "Password is required!"
+            isValid = false
+        }
+
+        if (_confirmPassword.value.isBlank()) {
+            _confirmPasswordError.value = "Confirm Password is required!"
+            isValid = false
         }
 
         if (_password.value != _confirmPassword.value) {
-            _errorMessage.value = "Passwords do not match!"
-            return
+            _confirmPasswordError.value = "Passwords do not match!"
+            isValid = false
         }
+
+        if (!isValid) return // Dừng nếu có lỗi
 
         viewModelScope.launch {
             auth.createUserWithEmailAndPassword(_email.value, _password.value)

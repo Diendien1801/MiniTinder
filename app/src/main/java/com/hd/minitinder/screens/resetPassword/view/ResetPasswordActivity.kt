@@ -26,15 +26,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.hd.minitinder.screens.resetpassword.viewmodel.ResetPasswordViewModel
 
 @Composable
-fun ResetPasswordScreen(navController: NavController) {
+fun ResetPasswordScreen(navController: NavController, resetPasswordViewModel: ResetPasswordViewModel = viewModel()) {
     var email by remember { mutableStateOf("") }
     val isButtonEnabled = email.isNotBlank()
 
     val gradientColors = listOf(Color(0xFFFD267A), Color(0xFFFF6036))
-
+    var message by remember { mutableStateOf("") }
+    var isSuccess by remember { mutableStateOf(false) }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -75,7 +78,12 @@ fun ResetPasswordScreen(navController: NavController) {
         )
         Spacer(modifier = Modifier.weight(1f))
         Button(
-            onClick = { /* Xử lý gửi email */ },
+            onClick = {
+                resetPasswordViewModel.resetPassword(email) { success, msg ->
+                    isSuccess = success
+                    message = msg
+                }
+            },
             enabled = isButtonEnabled,
             modifier = Modifier
                 .fillMaxWidth()

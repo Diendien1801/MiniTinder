@@ -35,6 +35,7 @@ fun MainScreen() {
         NavigationItem.Login.route,
         NavigationItem.Register.route,
         NavigationItem.ResetPass.route,
+        NavigationItem.AuthenOption.route
     )
 
     Scaffold(

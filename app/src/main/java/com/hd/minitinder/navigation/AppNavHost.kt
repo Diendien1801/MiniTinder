@@ -7,6 +7,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.facebook.CallbackManager
+import com.hd.minitinder.screens.authenOption.view.AuthenOptionActivity
 import com.hd.minitinder.screens.home.view.HomeScreen
 import com.hd.minitinder.screens.login.view.LoginScreen
 import com.hd.minitinder.screens.profile.view.ProfileScreen
@@ -17,7 +18,7 @@ fun AppNavHost(
     navController: NavHostController,
     modifier: Modifier = Modifier,
     callbackManager: CallbackManager,
-    startDestination: String = NavigationItem.Register.route
+    startDestination: String = NavigationItem.AuthenOption.route
 ) {
     NavHost(
         navController = navController,
@@ -42,5 +43,10 @@ fun AppNavHost(
         composable(NavigationItem.ResetPass.route){
             ResetPasswordScreen(navController)
         }
+        composable(NavigationItem.AuthenOption.route) {
+            AuthenOptionActivity(navController)
+        }
     }
 }
+
+
