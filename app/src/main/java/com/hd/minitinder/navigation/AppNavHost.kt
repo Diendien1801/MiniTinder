@@ -1,10 +1,12 @@
 package com.hd.minitinder.navigation
 
+import DetailChatActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.hd.minitinder.screens.chatList.view.ChatListActivity
 import com.hd.minitinder.screens.home.view.HomeScreen
 import com.hd.minitinder.screens.login.view.LoginScreen
 import com.hd.minitinder.screens.profile.view.ProfileScreen
@@ -35,6 +37,12 @@ fun AppNavHost(
         }
         composable(NavigationItem.Main.route){
             MainScreen()
+        }
+        composable(NavigationItem.Chat.route){
+            ChatListActivity(navController)
+        }
+        composable(NavigationItem.DetailChat.route){
+            DetailChatActivity(navController)
         }
     }
 }

@@ -3,6 +3,7 @@ package com.hd.minitinder.navigation
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.MailOutline
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -21,7 +22,8 @@ fun MainScreen() {
 
     val navItems = listOf(
         NavigationItem.Home to Icons.Default.Home,
-        NavigationItem.Profile to Icons.Default.Person
+        NavigationItem.Profile to Icons.Default.Person,
+        NavigationItem.Chat to Icons.Default.MailOutline,
     )
 
     // Lấy trạng thái điều hướng hiện tại
@@ -31,7 +33,8 @@ fun MainScreen() {
     // Kiểm tra nếu màn hình hiện tại là Login hoặc Register thì ẩn Bottom Navigation
     val shouldShowBottomBar = currentDestination?.route !in listOf(
         NavigationItem.Login.route,
-        NavigationItem.Register.route
+        NavigationItem.Register.route,
+        NavigationItem.DetailChat.route
     )
 
     Scaffold(
