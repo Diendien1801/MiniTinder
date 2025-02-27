@@ -53,6 +53,7 @@ class LoginViewModel : ViewModel() {
                 _isLoading.value = false
                 if (task.isSuccessful) {
                     _loginSuccess.value = true
+                    _errorMessage.value = "Login successful!"
                 } else {
                     _errorMessage.value = task.exception?.message ?: "Login failed!"
                 }
@@ -89,6 +90,7 @@ class LoginViewModel : ViewModel() {
                 _isLoading.value = false
                 if (task.isSuccessful) {
                     _loginSuccess.value = true
+                    _errorMessage.value = "Facebook login successful!"
                 } else {
                     _errorMessage.value = task.exception?.message ?: "Authentication failed!"
                 }

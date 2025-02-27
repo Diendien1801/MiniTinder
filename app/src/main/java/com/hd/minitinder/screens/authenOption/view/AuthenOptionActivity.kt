@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.hd.minitinder.R
 import com.hd.minitinder.common.fragments.button.ButtonBlackWhite
+import com.hd.minitinder.common.fragments.logo.LogoTinder
 
 @Composable
 fun AuthenOptionActivity(navController: NavController) {
@@ -42,10 +43,10 @@ fun AuthenOptionActivity(navController: NavController) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .align(Alignment.Center) // Căn giữa theo chiều dọc
-                .padding(bottom = 100.dp), // Để có khoảng trống ở dưới
+                .align(Alignment.Center)
+                .padding(bottom = 100.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top // UI bắt đầu từ giữa màn hình đổ xuống
+            verticalArrangement = Arrangement.Top
         ) {
             // Spacer
             Spacer(
@@ -55,20 +56,7 @@ fun AuthenOptionActivity(navController: NavController) {
                     .height(screenHeight * 0.3f)
             )
             // Logo Tinder
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Image(
-                    painter = painterResource(id = R.drawable.logo_tinder),
-                    contentDescription = "Logo",
-                    modifier = Modifier.size(40.dp)
-                )
-                Text(
-                    text = "tinder",
-                    fontSize = 50.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White,
-                    modifier = Modifier.padding(start = 8.dp)
-                )
-            }
+            LogoTinder()
 
             Spacer(modifier = Modifier.height(60.dp)) //
 

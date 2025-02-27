@@ -1,9 +1,10 @@
 package com.hd.minitinder.screens.register.viewmodel
 
-import androidx.lifecycle.ViewModel
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.State
-import androidx.lifecycle.viewModelScope
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.lifecycle.*
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
@@ -31,6 +32,7 @@ class RegisterViewModel : ViewModel() {
     private val _confirmPasswordError = mutableStateOf("")
     val confirmPasswordError: State<String> = _confirmPasswordError
 
+
     fun onEmailChange(newEmail: String) {
         _email.value = newEmail
         _emailError.value = "" // Reset lỗi khi người dùng nhập
@@ -46,7 +48,7 @@ class RegisterViewModel : ViewModel() {
         _confirmPasswordError.value = ""
     }
 
-    fun register() {
+    fun register(onResult: (Boolean) -> Unit) {
         var isValid = true
 
         if (_email.value.isBlank()) {
@@ -69,17 +71,21 @@ class RegisterViewModel : ViewModel() {
             isValid = false
         }
 
-        if (!isValid) return // Dừng nếu có lỗi
+        if (!isValid) return
 
         viewModelScope.launch {
             auth.createUserWithEmailAndPassword(_email.value, _password.value)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
                         _errorMessage.value = "Registration successful!"
+
+                        onResult(true) // Đăng ký thành công
                     } else {
                         _errorMessage.value = task.exception?.message ?: "Registration failed!"
+                        onResult(false) // Đăng ký thất bại
                     }
                 }
         }
     }
+
 }

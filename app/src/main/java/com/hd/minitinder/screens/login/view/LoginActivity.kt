@@ -36,8 +36,11 @@ import androidx.navigation.NavController
 import com.facebook.CallbackManager
 import com.hd.minitinder.R
 import com.hd.minitinder.common.fragments.button.ButtonGradient
+import com.hd.minitinder.common.fragments.edittext.CustomOutlinedTextField
+import com.hd.minitinder.common.fragments.popup.SlidingPopup
 import com.hd.minitinder.navigation.NavigationItem
 import com.hd.minitinder.screens.login.viewmodel.LoginViewModel
+import kotlinx.coroutines.delay
 
 @Composable
 fun LoginScreen(
@@ -58,11 +61,30 @@ fun LoginScreen(
 
     var passwordVisible by remember { mutableStateOf(false) }
 
+    // State điều khiển popup
+    var showPopup by remember { mutableStateOf(false) }
+    var popupMessage by remember { mutableStateOf("") }
+
+    LaunchedEffect(errorMessage) {
+        if (errorMessage.isNotEmpty()) {
+            popupMessage = errorMessage
+            showPopup = true
+        }
+    }
     LaunchedEffect(loginSuccess) {
         if (loginSuccess) {
+            popupMessage = errorMessage
+
+            delay(3000)
             navController.navigate(NavigationItem.Main.route) {
                 popUpTo(NavigationItem.Login.route) { inclusive = true }
             }
+
+        }
+        else
+        {
+            popupMessage = errorMessage
+
         }
     }
 
@@ -109,69 +131,28 @@ fun LoginScreen(
             ) {
                 Spacer(modifier = Modifier.height(36.dp))
 
-                // Email Field
-                OutlinedTextField(
+                CustomOutlinedTextField(
                     value = email,
                     onValueChange = { loginViewModel.onEmailChange(it) },
-                    placeholder = { Text("ex: abc@cdf.com", color = Color.Gray.copy(alpha = 0.6f)) },
-                    leadingIcon = {
-                        Icon(imageVector = Icons.Default.Email, contentDescription = "Email Icon", tint = primaryColor)
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .drawBehind {
-                            val strokeWidth = 1.dp.toPx() // Độ dày của viền
-                            val y = size.height - strokeWidth / 2  // Vẽ ở dưới cùng
-                            drawLine(
-                                color = primaryColor,
-                                start = Offset(36f, y),
-                                end = Offset(size.width - 36f, y),
-                                strokeWidth = strokeWidth
-                            )
-                        },
-                    textStyle = LocalTextStyle.current.copy(color = Color.Black),
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = Color.Transparent,
-                        unfocusedContainerColor = Color.Transparent,
-                        cursorColor = primaryColor,
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent
-                    ),
-                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Email)
+                    placeholderText = "ex: abc@cdf.com",
+                    leadingIcon = Icons.Default.Email,
+                    contentDescription = "Email Icon",
                 )
 
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Password Field
-                OutlinedTextField(
+                CustomOutlinedTextField(
                     value = password,
                     onValueChange = { loginViewModel.onPasswordChange(it) },
-                    placeholder = { Text("Password", color = Color.Gray.copy(alpha = 0.6f)) },
-                    leadingIcon = {
-                        Icon(imageVector = Icons.Default.Lock, contentDescription = "Password Icon", tint = primaryColor)
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .drawBehind {
-                            val strokeWidth = 1.dp.toPx() // Độ dày của viền
-                            val y = size.height - strokeWidth / 2  // Vẽ ở dưới cùng
-                            drawLine(
-                                color = primaryColor,
-                                start = Offset(36f, y),
-                                end = Offset(size.width - 36f, y),
-                                strokeWidth = strokeWidth
-                            )
-                        },
-                    textStyle = LocalTextStyle.current.copy(color = Color.Black),
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = Color.Transparent,
-                        unfocusedContainerColor = Color.Transparent,
-                        cursorColor = primaryColor,
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent
-                    ),
-                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation()
+                    placeholderText = "Password",
+                    leadingIcon = Icons.Default.Lock,
+                    contentDescription = "Password Icon",
+                    isPassword = true,
+                    passwordVisible = passwordVisible,
+                    onPasswordVisibilityToggle = { passwordVisible = !passwordVisible },
+
                 )
                 Spacer(
                     modifier = Modifier
@@ -196,54 +177,23 @@ fun LoginScreen(
                 Spacer(modifier = Modifier.height(36.dp))
 
                 // Register Button
-                ButtonGradient("Login") {
-                    loginViewModel.login()
-                }
+                ButtonGradient("Login",
+                    onClick = {loginViewModel.login()}
+                    )
                 Spacer(modifier = Modifier.height(16.dp))
-                Button(
-                    onClick = {},
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(50.dp)
-                        .shadow(8.dp, shape = RoundedCornerShape(50)), // Thêm bóng đổ
-                    shape = RoundedCornerShape(50),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.Transparent, // Để dùng background gradient
-                        contentColor = Color.White
-                    ),
-                    contentPadding = PaddingValues() // Để gradient bao toàn bộ nút
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(
-                                brush = Brush.horizontalGradient(
-                                    colors = listOf(Color(0xFFFC5B6B), Color(0xFFFF4458)) // Gradient ngang
-                                ),
-                                shape = RoundedCornerShape(50)
-                            ),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center,
-                            modifier = Modifier.padding(horizontal = 16.dp)
-                        ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.logo_facebook), // Icon Facebook
-                                contentDescription = "Facebook Icon",
-                                tint = Color.White,
-                                modifier = Modifier.size(16.dp)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = "Login with Facebook",
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
+                ButtonGradient("" +
+                        "Login with Facebook",
+                    onClick = {
+                        activity?.let { loginViewModel.loginWithFacebook(it, callbackManager) }
+                    },
+                    icon = {
+                        Image(
+                            painter = painterResource(id = R.drawable.logo_facebook),
+                            contentDescription = "Facebook Icon",
+                            modifier = Modifier.size(20.dp)
+                        )
                     }
-                }
+                )
 
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -258,13 +208,24 @@ fun LoginScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Register Button
-                ButtonGradient("Register") {
-                    // pop login screen
-                    navController.navigate(NavigationItem.Register.route) {
-                        popUpTo(NavigationItem.Login.route) { inclusive = true }
+                ButtonGradient("Register",
+                    onClick = {
+                        // pop login screen
+                        navController.navigate(NavigationItem.Register.route) {
+                            popUpTo(NavigationItem.Login.route) { inclusive = true }
+                        }
                     }
-                }
+                )
             }
+        }
+        Box(
+            modifier = Modifier.padding(top = 24.dp, start = 24.dp, end = 24.dp)
+        ) {
+            SlidingPopup(
+                message = popupMessage,
+                isVisible = showPopup,
+                onDismiss = { showPopup = false }
+            )
         }
     }
 }

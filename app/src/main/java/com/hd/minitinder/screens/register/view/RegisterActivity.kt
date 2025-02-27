@@ -1,5 +1,7 @@
 package com.hd.minitinder.screens.register.view
 
+import android.os.Handler
+import android.os.Looper
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -16,50 +18,48 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
+
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.lint.kotlin.metadata.Visibility
 import androidx.navigation.NavController
 import com.hd.minitinder.R
 import com.hd.minitinder.screens.register.viewmodel.RegisterViewModel
 import com.hd.minitinder.navigation.NavigationItem
 
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.filled.Build
-import androidx.compose.material.icons.filled.Done
+
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.ui.unit.dp
-import androidx.compose.runtime.*
-import androidx.compose.material3.*
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.unit.sp
+
 import com.hd.minitinder.common.fragments.button.ButtonGradient
+import com.hd.minitinder.common.fragments.edittext.CustomOutlinedTextField
+import com.hd.minitinder.common.fragments.popup.SlidingPopup
 
 @Composable
 fun RegisterScreen(navController: NavController, registerViewModel: RegisterViewModel = viewModel()) {
     val email by registerViewModel.email
     val password by registerViewModel.password
     val confirmPassword by registerViewModel.confirmPassword
-    val primaryColor = Color(0xFFFF4458)
+    val emailError by registerViewModel.emailError
+    val passwordError by registerViewModel.passwordError
+    val confirmPasswordError by registerViewModel.confirmPasswordError
+
     val gradientColors = listOf(Color(0xFFFF4458), Color(0xFFFC5B6B))
 
     var passwordVisible by remember { mutableStateOf(false) }
     var confirmPasswordVisible by remember { mutableStateOf(false) }
 
+    // State điều khiển popup
+    var showPopup by remember { mutableStateOf(false) }
+    var popupMessage by remember { mutableStateOf("") }
+
     Box(modifier = Modifier.fillMaxSize()) {
+        // Hiển thị SlidingPopup
+
+
+
+
         // Phần tiêu đề với nền gradient
         Box(
             modifier = Modifier
@@ -68,21 +68,12 @@ fun RegisterScreen(navController: NavController, registerViewModel: RegisterView
                 .background(Brush.horizontalGradient(colors = gradientColors)),
             contentAlignment = Alignment.TopStart
         ) {
-            Column(horizontalAlignment = Alignment.Start,
-                modifier = Modifier.padding(36.dp)) {
-                Text(
-                    text = "Create Your",
-                    fontSize = 32.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = Color.White
-                )
-                Text(
-                    text = "Account",
-                    fontSize = 32.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = Color.White
-                )
-
+            Column(
+                horizontalAlignment = Alignment.Start,
+                modifier = Modifier.padding(36.dp)
+            ) {
+                Text("Create Your", fontSize = 32.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
+                Text("Account", fontSize = 32.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
             }
         }
 
@@ -103,109 +94,71 @@ fun RegisterScreen(navController: NavController, registerViewModel: RegisterView
                 Spacer(modifier = Modifier.height(36.dp))
 
                 // Email Field
-                OutlinedTextField(
+                CustomOutlinedTextField(
                     value = email,
                     onValueChange = { registerViewModel.onEmailChange(it) },
-                    placeholder = { Text("ex: abc@cdf.com", color = Color.Gray.copy(alpha = 0.6f)) },
-                    leadingIcon = {
-                        Icon(imageVector = Icons.Default.Email, contentDescription = "Email Icon", tint = primaryColor)
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .drawBehind {
-                            val strokeWidth = 1.dp.toPx() // Độ dày của viền
-                            val y = size.height - strokeWidth / 2  // Vẽ ở dưới cùng
-                            drawLine(
-                                color = primaryColor,
-                                start = Offset(36f, y),
-                                end = Offset(size.width - 36f, y),
-                                strokeWidth = strokeWidth
-                            )
-                        },
-                    textStyle = LocalTextStyle.current.copy(color = Color.Black),
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = Color.Transparent,
-                        unfocusedContainerColor = Color.Transparent,
-                        cursorColor = primaryColor,
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent
-                    ),
-                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Email)
+                    placeholderText = "ex: abc@cdf.com",
+                    leadingIcon = Icons.Default.Email,
+                    contentDescription = "Email Icon",
+                    errorMessage = emailError
                 )
-
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Password Field
-                OutlinedTextField(
+                CustomOutlinedTextField(
                     value = password,
                     onValueChange = { registerViewModel.onPasswordChange(it) },
-                    placeholder = { Text("Password", color = Color.Gray.copy(alpha = 0.6f)) },
-                    leadingIcon = {
-                        Icon(imageVector = Icons.Default.Lock, contentDescription = "Password Icon", tint = primaryColor)
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .drawBehind {
-                            val strokeWidth = 1.dp.toPx() // Độ dày của viền
-                            val y = size.height - strokeWidth / 2  // Vẽ ở dưới cùng
-                            drawLine(
-                                color = primaryColor,
-                                start = Offset(36f, y),
-                                end = Offset(size.width - 36f, y),
-                                strokeWidth = strokeWidth
-                            )
-                        },
-                    textStyle = LocalTextStyle.current.copy(color = Color.Black),
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = Color.Transparent,
-                        unfocusedContainerColor = Color.Transparent,
-                        cursorColor = primaryColor,
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent
-                    ),
-                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation()
+                    placeholderText = "Password",
+                    leadingIcon = Icons.Default.Lock,
+                    contentDescription = "Password Icon",
+                    isPassword = true,
+                    passwordVisible = passwordVisible,
+                    onPasswordVisibilityToggle = { passwordVisible = !passwordVisible },
+                    errorMessage = passwordError
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Confirm Password Field
-                OutlinedTextField(
+                CustomOutlinedTextField(
                     value = confirmPassword,
                     onValueChange = { registerViewModel.onConfirmPasswordChange(it) },
-                    placeholder = { Text("Confirm Password", color = Color.Gray.copy(alpha = 0.6f)) },
-                    leadingIcon = {
-                        Icon(imageVector = Icons.Default.Lock, contentDescription = "Confirm Password Icon", tint = primaryColor)
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .drawBehind {
-                            val strokeWidth = 1.dp.toPx() // Độ dày của viền
-                            val y = size.height - strokeWidth / 2 // Vẽ ở dưới cùng
-                            drawLine(
-                                color = primaryColor,
-                                start = Offset(36f, y),
-                                end = Offset(size.width - 36f, y),
-                                strokeWidth = strokeWidth
-                            )
-                        },
-                    textStyle = LocalTextStyle.current.copy(color = Color.Black),
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = Color.Transparent,
-                        unfocusedContainerColor = Color.Transparent,
-                        cursorColor = primaryColor,
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent
-                    ),
-                    visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation()
+                    placeholderText = "Confirm Password",
+                    leadingIcon = Icons.Default.Lock,
+                    contentDescription = "Confirm Password Icon",
+                    isPassword = true,
+                    passwordVisible = confirmPasswordVisible,
+                    onPasswordVisibilityToggle = { confirmPasswordVisible = !confirmPasswordVisible },
+                    errorMessage = confirmPasswordError
                 )
 
                 Spacer(modifier = Modifier.height(44.dp))
 
                 // Register Button
-                ButtonGradient("Register") {
-                    registerViewModel.register()
-                }
+                ButtonGradient("Register",
+                    onClick = {
+                        registerViewModel.register { success ->
+                            if (success) {
+
+                                popupMessage = registerViewModel.errorMessage.value
+                                showPopup = true
+
+
+
+                                Handler(Looper.getMainLooper()).postDelayed({
+                                    navController.navigate(NavigationItem.Login.route) {
+                                        popUpTo(NavigationItem.Register.route) { inclusive = true }
+                                    }
+                                }, 3000) // Delay 3 giây
+
+                            } else {
+                                popupMessage = registerViewModel.errorMessage.value
+                                showPopup = true
+                            }
+                        }
+                    }
+                    )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -219,13 +172,24 @@ fun RegisterScreen(navController: NavController, registerViewModel: RegisterView
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Login Button
-                ButtonGradient("Login") {
-                    navController.navigate(NavigationItem.Login.route) {
-                        popUpTo(NavigationItem.Register.route) { inclusive = true }
-                    }
-                }
+                ButtonGradient("Login",
+                    onClick = {
+                        navController.navigate(NavigationItem.Login.route) {
+                            popUpTo(NavigationItem.Register.route) { inclusive = true }
+                        }
+
+                })
             }
+
+        }
+        Box(
+            modifier = Modifier.padding(top = 24.dp, start = 24.dp, end = 24.dp)
+        ) {
+            SlidingPopup(
+                message = popupMessage,
+                isVisible = showPopup,
+                onDismiss = { showPopup = false }
+            )
         }
     }
 }
-
