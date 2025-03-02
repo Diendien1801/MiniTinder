@@ -12,17 +12,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-private val DarkColorScheme = darkColorScheme(
-    primary = primaryColor,
-    secondary = primaryColor,
-    tertiary = primaryColor
-)
 
-private val LightColorScheme = lightColorScheme(
-    primary = primaryColor,
-    secondary = primaryColor,
-    tertiary = primaryColor
-)
 
 @Composable
 fun MiniTinderTheme(
