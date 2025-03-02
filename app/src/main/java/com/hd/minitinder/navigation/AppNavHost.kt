@@ -12,8 +12,12 @@ import com.hd.minitinder.screens.authenOption.view.AuthenOptionActivity
 import com.hd.minitinder.screens.chatList.view.ChatListActivity
 import com.hd.minitinder.screens.home.view.HomeScreen
 import com.hd.minitinder.screens.login.view.LoginScreen
+import com.hd.minitinder.screens.payment.view.PaymentQRScreen
+import com.hd.minitinder.screens.payment.view.PaymentSuccessScreen
+import com.hd.minitinder.screens.payment.view.TinderGoldScreen
 import com.hd.minitinder.screens.profile.view.ProfileScreen
 import com.hd.minitinder.screens.register.view.RegisterScreen
+import com.hd.minitinder.screens.swipe.view.SwipeScreen
 
 @Composable
 fun AppNavHost(
@@ -53,6 +57,19 @@ fun AppNavHost(
         }
         composable(NavigationItem.DetailChat.route){
             DetailChatActivity(navController)
+        }
+        composable(NavigationItem.Swipe.route){
+            SwipeScreen(navController)
+        }
+        composable(NavigationItem.PaymentQR.route){
+            PaymentQRScreen(navController)
+        }
+        composable(NavigationItem.PaymentSuccess.route) {
+            PaymentSuccessScreen(navController)
+        }
+        composable(NavigationItem.TinderGold.route) {
+            TinderGoldScreen(navController)
+
         }
     }
 }

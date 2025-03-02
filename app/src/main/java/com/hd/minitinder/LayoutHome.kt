@@ -2,6 +2,7 @@ package com.hd.minitinder.navigation
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.MailOutline
 import androidx.compose.material.icons.filled.Person
@@ -22,9 +23,11 @@ fun MainScreen() {
     var selectedItem by rememberSaveable { mutableStateOf(0) }
 
     val navItems = listOf(
-        NavigationItem.Home to Icons.Default.Home,
+        NavigationItem.Swipe to Icons.Default.Home,
+        NavigationItem.TinderGold to Icons.Default.Favorite,
         NavigationItem.Chat to Icons.Default.MailOutline,
         NavigationItem.Profile to Icons.Default.Person,
+
 
         )
 
@@ -67,7 +70,7 @@ fun MainScreen() {
         AppNavHost(
             navController = navController,
             modifier = Modifier.padding(paddingValues),
-            startDestination = NavigationItem.Home.route,// Mặc định vào Home
+            startDestination = NavigationItem.Swipe.route,// Mặc định vào Home
             callbackManager = CallbackManager.Factory.create()
 
         )

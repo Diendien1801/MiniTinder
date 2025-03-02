@@ -10,11 +10,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import kotlinx.coroutines.delay
 
 @Composable
-fun PaymentQRScreen() {
+fun PaymentQRScreen(navController: NavController) {
     var timeLeft by remember { mutableIntStateOf(900) }
 
     LaunchedEffect(Unit) {

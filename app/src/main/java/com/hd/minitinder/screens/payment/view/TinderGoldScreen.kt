@@ -16,9 +16,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.ui.text.font.FontWeight
+import androidx.navigation.NavController
+import com.hd.minitinder.navigation.NavigationItem
 
 @Composable
-fun TinderGoldScreen() {
+fun TinderGoldScreen(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -65,7 +67,10 @@ fun TinderGoldScreen() {
                 .fillMaxWidth()
                 .height(50.dp)
         ) {
-            Text(text = "Continue", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            Text(text = "Continue", fontSize = 18.sp, fontWeight = FontWeight.Bold,
+                modifier = Modifier.clickable(
+                    onClick = { navController.navigate(NavigationItem.PaymentQR.route) }
+                ))
         }
 
     }

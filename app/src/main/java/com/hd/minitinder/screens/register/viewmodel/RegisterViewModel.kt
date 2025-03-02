@@ -6,6 +6,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.*
 import com.google.firebase.auth.FirebaseAuth
+import com.hd.minitinder.data.model.UserModel
+import com.hd.minitinder.data.repositories.UserRepository
 import kotlinx.coroutines.launch
 
 class RegisterViewModel : ViewModel() {
@@ -31,7 +33,7 @@ class RegisterViewModel : ViewModel() {
 
     private val _confirmPasswordError = mutableStateOf("")
     val confirmPasswordError: State<String> = _confirmPasswordError
-
+    private val userRepository: UserRepository = UserRepository()
 
     fun onEmailChange(newEmail: String) {
         _email.value = newEmail
@@ -47,6 +49,8 @@ class RegisterViewModel : ViewModel() {
         _confirmPassword.value = newConfirmPassword
         _confirmPasswordError.value = ""
     }
+
+
 
     fun register(onResult: (Boolean) -> Unit) {
         var isValid = true
@@ -77,15 +81,32 @@ class RegisterViewModel : ViewModel() {
             auth.createUserWithEmailAndPassword(_email.value, _password.value)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
-                        _errorMessage.value = "Registration successful!"
+                        val firebaseUser = task.result?.user
+                        if (firebaseUser != null) {
+                            val user = UserModel(
+                                id = firebaseUser.uid,
+                                imageUrls = listOf(),
+                                isPremium = false
+                            )
 
-                        onResult(true) // Đăng ký thành công
+                            userRepository.saveUserToFirestore(user,
+                                onSuccess = {
+                                    _errorMessage.value = "Registration successful!"
+                                    onResult(true)
+                                },
+                                onFailure = { exception ->
+                                    _errorMessage.value = "Failed to save user: ${exception.message}"
+                                    onResult(false)
+                                }
+                            )
+                        }
                     } else {
                         _errorMessage.value = task.exception?.message ?: "Registration failed!"
-                        onResult(false) // Đăng ký thất bại
+                        onResult(false)
                     }
                 }
         }
     }
+
 
 }

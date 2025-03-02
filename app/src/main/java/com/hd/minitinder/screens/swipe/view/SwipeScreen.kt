@@ -23,6 +23,7 @@ import kotlinx.coroutines.launch
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.navigation.NavController
 import kotlin.math.roundToInt
 
 
@@ -37,7 +38,7 @@ data class UserProfile(
 
 @SuppressLint("NewApi")
 @Composable
-fun SwipeScreen() {
+fun SwipeScreen(navController: NavController) {
     val density = LocalDensity.current
     val users = remember {
         mutableStateListOf(

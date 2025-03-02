@@ -12,6 +12,10 @@ import com.facebook.login.LoginManager
 import com.facebook.login.LoginResult
 import com.google.firebase.auth.FacebookAuthProvider
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.firestore.FirebaseFirestore
+import com.hd.minitinder.data.model.UserModel
+import com.hd.minitinder.data.repositories.UserRepository
 import kotlinx.coroutines.launch
 
 class LoginViewModel : ViewModel() {
@@ -31,6 +35,7 @@ class LoginViewModel : ViewModel() {
     private val _loginSuccess = mutableStateOf(false)
     val loginSuccess: State<Boolean> = _loginSuccess
 
+    private val userRepository: UserRepository = UserRepository()
     fun onEmailChange(newEmail: String) {
         _email.value = newEmail
     }
@@ -60,7 +65,6 @@ class LoginViewModel : ViewModel() {
             }
     }
 
-    // ✅ Thêm chức năng đăng nhập Facebook
     fun loginWithFacebook(activity: Activity, callbackManager: CallbackManager) {
         _isLoading.value = true
         _errorMessage.value = ""
@@ -89,6 +93,10 @@ class LoginViewModel : ViewModel() {
             .addOnCompleteListener { task ->
                 _isLoading.value = false
                 if (task.isSuccessful) {
+                    val firebaseUser = auth.currentUser
+                    firebaseUser?.let {
+                        userRepository.checkAndSaveUser(it)
+                    }
                     _loginSuccess.value = true
                     _errorMessage.value = "Facebook login successful!"
                 } else {
@@ -96,4 +104,7 @@ class LoginViewModel : ViewModel() {
                 }
             }
     }
+
+
+
 }

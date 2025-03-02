@@ -96,4 +96,11 @@ dependencies {
 
     // Facebook Login
     implementation("com.facebook.android:facebook-android-sdk:latest.release")
+
+    //
+    implementation("io.coil-kt:coil-compose:2.5.0")
+
+    // firebase cloud firestore
+    implementation("com.google.firebase:firebase-firestore-ktx")
+
 }
