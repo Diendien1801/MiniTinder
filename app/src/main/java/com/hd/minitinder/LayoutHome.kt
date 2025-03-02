@@ -3,6 +3,7 @@ package com.hd.minitinder.navigation
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.MailOutline
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -11,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.facebook.CallbackManager
 
 @Composable
 fun MainScreen() {
@@ -21,8 +23,10 @@ fun MainScreen() {
 
     val navItems = listOf(
         NavigationItem.Home to Icons.Default.Home,
-        NavigationItem.Profile to Icons.Default.Person
-    )
+        NavigationItem.Chat to Icons.Default.MailOutline,
+        NavigationItem.Profile to Icons.Default.Person,
+
+        )
 
     // Lấy trạng thái điều hướng hiện tại
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -31,7 +35,10 @@ fun MainScreen() {
     // Kiểm tra nếu màn hình hiện tại là Login hoặc Register thì ẩn Bottom Navigation
     val shouldShowBottomBar = currentDestination?.route !in listOf(
         NavigationItem.Login.route,
-        NavigationItem.Register.route
+        NavigationItem.Register.route,
+        NavigationItem.ResetPass.route,
+        NavigationItem.AuthenOption.route,
+        NavigationItem.DetailChat.route
     )
 
     Scaffold(
@@ -60,7 +67,9 @@ fun MainScreen() {
         AppNavHost(
             navController = navController,
             modifier = Modifier.padding(paddingValues),
-            startDestination = NavigationItem.Home.route  // Mặc định vào Home
+            startDestination = NavigationItem.Home.route,// Mặc định vào Home
+            callbackManager = CallbackManager.Factory.create()
+
         )
     }
 }
