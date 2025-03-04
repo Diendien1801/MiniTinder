@@ -27,7 +27,9 @@ sealed class NavigationItem (val route: String)
     object ResetPass: NavigationItem(Screen.RESETPASS.name)
     object AuthenOption: NavigationItem(Screen.AUTHENOPTION.name)
     object Chat: NavigationItem(Screen.CHAT.name)
-    object DetailChat: NavigationItem(Screen.DETAILCHAT.name)
+    object DetailChat : NavigationItem("detail_chat/{chatId}/{receiverId}") {
+        fun createRoute(chatId: String, receiverId: String) = "detail_chat/$chatId/$receiverId"
+    }
     object Swipe: NavigationItem(Screen.SWIPE.name)
     object PaymentQR: NavigationItem(Screen.PAYMENTQR.name)
     object PaymentSuccess: NavigationItem(Screen.PAYMENTSUCCESS.name)

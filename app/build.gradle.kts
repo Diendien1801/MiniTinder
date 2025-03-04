@@ -103,4 +103,6 @@ dependencies {
     // firebase cloud firestore
     implementation("com.google.firebase:firebase-firestore-ktx")
 
+    // firebase messaging
+    implementation("com.google.firebase:firebase-messaging-ktx:24.1.0")
 }

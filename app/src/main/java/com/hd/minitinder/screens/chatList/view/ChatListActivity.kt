@@ -23,6 +23,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,12 +34,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.hd.minitinder.R
 import com.hd.minitinder.navigation.NavigationItem
+import com.hd.minitinder.screens.chatList.viewmodel.ChatListViewModel
 
 @Composable
-fun ChatListActivity(navController: NavController) {
+fun ChatListActivity(navController: NavController,chatListViewModel: ChatListViewModel = viewModel()) {
+
+
+
+    LaunchedEffect(Unit) {
+        chatListViewModel.getChatList()  // Thay "userId_here" bằng userId thực tế
+    }
     Box(
         modifier = Modifier.fillMaxSize().background(Color.Black)
     ) {
@@ -59,7 +68,7 @@ fun ChatListActivity(navController: NavController) {
 
             // New Matches - LazyRow (horizontal scrolling)
             LazyRow {
-                items(sampleMatches) { match ->
+                items(chatListViewModel.chatList.value) { match ->
                     MatchItem(match)
                 }
             }
@@ -74,11 +83,12 @@ fun ChatListActivity(navController: NavController) {
             Spacer(modifier = Modifier.height(8.dp))
 
             // Messages - LazyColumn (vertical scrolling)
+            // message hiện tại là ID của người receive
             LazyColumn {
-                items(sampleMessages) { message ->
+                items(chatListViewModel.chatList.value) { message ->
                     MessageItem(message)
                     {
-                        navController.navigate(NavigationItem.DetailChat.route)
+                        navController.navigate(NavigationItem.DetailChat.createRoute(message, message))
                     }
                 }
             }
@@ -162,6 +172,3 @@ fun MessageItem(message: String, onClick: () -> Unit) {
 }
 
 
-// Sample data
-    val sampleMatches = listOf("Sachia", "Alex", "Lena", "John", "Emily")
-    val sampleMessages = listOf("Hey, what's up?", "How's your day?", "Let's meet up!", "Good morning!", "Nice to meet you!")

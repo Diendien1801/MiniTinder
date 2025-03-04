@@ -20,6 +20,11 @@ import kotlinx.coroutines.launch
 
 class LoginViewModel : ViewModel() {
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
+
+    private var _currentUser = mutableStateOf<FirebaseUser?>(null)
+    var currentUser: State<FirebaseUser?> = _currentUser
+
+
     private val _email = mutableStateOf("")
     val email: State<String> = _email
 
@@ -57,6 +62,7 @@ class LoginViewModel : ViewModel() {
             .addOnCompleteListener { task ->
                 _isLoading.value = false
                 if (task.isSuccessful) {
+                    _currentUser.value = auth.currentUser  // Cập nhật user hiện tại
                     _loginSuccess.value = true
                     _errorMessage.value = "Login successful!"
                 } else {
@@ -93,9 +99,13 @@ class LoginViewModel : ViewModel() {
             .addOnCompleteListener { task ->
                 _isLoading.value = false
                 if (task.isSuccessful) {
-                    val firebaseUser = auth.currentUser
-                    firebaseUser?.let {
-                        userRepository.checkAndSaveUser(it)
+                    _currentUser.value = auth.currentUser
+
+                    Log.d("LoginViewModel", "User ID: ${_currentUser.value?.uid}")
+                    _currentUser.value.let {
+                        if (it != null) {
+                            userRepository.checkAndSaveUser(it)
+                        }
                     }
                     _loginSuccess.value = true
                     _errorMessage.value = "Facebook login successful!"
