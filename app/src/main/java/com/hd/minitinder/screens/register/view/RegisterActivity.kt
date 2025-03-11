@@ -54,6 +54,7 @@ fun RegisterScreen(navController: NavController, registerViewModel: RegisterView
     var showPopup by remember { mutableStateOf(false) }
     var popupMessage by remember { mutableStateOf("") }
 
+    val context = LocalContext.current
     Box(modifier = Modifier.fillMaxSize()) {
         // Hiển thị SlidingPopup
 
@@ -138,7 +139,7 @@ fun RegisterScreen(navController: NavController, registerViewModel: RegisterView
                 // Register Button
                 ButtonGradient("Register",
                     onClick = {
-                        registerViewModel.register { success ->
+                        registerViewModel.register(context){ success ->
                             if (success) {
 
                                 popupMessage = registerViewModel.errorMessage.value

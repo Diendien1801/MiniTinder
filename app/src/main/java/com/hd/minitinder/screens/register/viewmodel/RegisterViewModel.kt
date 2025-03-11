@@ -1,14 +1,18 @@
 package com.hd.minitinder.screens.register.viewmodel
 
+import android.content.Context
+import android.util.Base64
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.lifecycle.*
 import com.google.firebase.auth.FirebaseAuth
 import com.hd.minitinder.data.model.UserModel
 import com.hd.minitinder.data.repositories.UserRepository
 import kotlinx.coroutines.launch
+import java.security.KeyPairGenerator
 
 class RegisterViewModel : ViewModel() {
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
@@ -52,7 +56,7 @@ class RegisterViewModel : ViewModel() {
 
 
 
-    fun register(onResult: (Boolean) -> Unit) {
+    fun register(context: Context, onResult: (Boolean) -> Unit) {
         var isValid = true
 
         if (_email.value.isBlank()) {
@@ -83,10 +87,17 @@ class RegisterViewModel : ViewModel() {
                     if (task.isSuccessful) {
                         val firebaseUser = task.result?.user
                         if (firebaseUser != null) {
+                            // Tạo khóa RSA
+                            val keyPair = KeyPairGenerator.getInstance("RSA").apply { initialize(2048) }.generateKeyPair()
+                            // Lưu khóa private vào share preferences
+                            SharedPreferencesManager.savePrivateKey( context, firebaseUser.uid, keyPair.private.encoded)
+                            // Lưu khóa RSA vào Firestore
+                            val publicKey = Base64.encodeToString(keyPair.public.encoded, Base64.DEFAULT)
                             val user = UserModel(
                                 id = firebaseUser.uid,
                                 imageUrls = listOf(),
-                                isPremium = false
+                                isPremium = false,
+                                publicKey = publicKey,
                             )
 
                             userRepository.saveUserToFirestore(user,
