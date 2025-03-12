@@ -1,6 +1,8 @@
 package com.hd.minitinder.navigation
 
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
@@ -10,10 +12,15 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.facebook.CallbackManager
+import com.hd.minitinder.R
+import com.hd.minitinder.ui.theme.PrimaryColor
 
 @Composable
 fun MainScreen() {
@@ -23,13 +30,12 @@ fun MainScreen() {
     var selectedItem by rememberSaveable { mutableStateOf(0) }
 
     val navItems = listOf(
-        NavigationItem.Swipe to Icons.Default.Home,
-        NavigationItem.TinderGold to Icons.Default.Favorite,
-        NavigationItem.Chat to Icons.Default.MailOutline,
-        NavigationItem.Profile to Icons.Default.Person,
+        NavigationItem.Swipe to R.drawable.logo_tinder, // Icon tùy chỉnh từ drawable
+        NavigationItem.TinderGold to R.drawable.tinder_gold,
+        NavigationItem.Chat to R.drawable.chat,
+        NavigationItem.Profile to R.drawable.profile
+    )
 
-
-        )
 
     // Lấy trạng thái điều hướng hiện tại
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -47,11 +53,24 @@ fun MainScreen() {
     Scaffold(
         bottomBar = {
             if (shouldShowBottomBar) {
-                NavigationBar {
+                NavigationBar(
+                    containerColor = Color.Black,
+                    modifier = Modifier.height(60.dp)
+                ) {
+
                     navItems.forEachIndexed { index, item ->
                         NavigationBarItem(
-                            icon = { Icon(item.second, contentDescription = item.first.route) },
-                            label = { Text(item.first.route) },
+
+                            icon = {
+                                Icon(
+                                    painter = painterResource(id = item.second),
+                                    contentDescription = item.first.route,
+                                    tint = if (selectedItem == index) PrimaryColor else Color.Gray,
+                                    modifier =  if (index == 1) Modifier.size(30.dp) else Modifier.size(24.dp)
+                                )
+                            },
+
+                            //label = { Text(item.first.route) },
                             selected = selectedItem == index,
                             onClick = {
                                 selectedItem = index
@@ -59,7 +78,15 @@ fun MainScreen() {
                                     launchSingleTop = true
                                     restoreState = true
                                 }
-                            }
+                            },
+                            colors = NavigationBarItemDefaults.colors(
+                                selectedIconColor = Color.Black,  // Màu icon khi chọn
+                                unselectedIconColor = Color.Gray, // Màu icon khi chưa chọn
+                                selectedTextColor = Color.Black,  // Màu text khi chọn
+                                unselectedTextColor = Color.Gray, // Màu text khi chưa chọn
+                                indicatorColor = Color.Transparent // Tắt viền (màu nền khi chọn)
+                            )
+
                         )
                     }
                 }

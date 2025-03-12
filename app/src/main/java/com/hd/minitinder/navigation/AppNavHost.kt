@@ -24,7 +24,7 @@ fun AppNavHost(
     navController: NavHostController,
     modifier: Modifier = Modifier,
     callbackManager: CallbackManager,
-    startDestination: String = NavigationItem.AuthenOption.route
+    startDestination: String = NavigationItem.Main.route
 ) {
     NavHost(
         navController = navController,
