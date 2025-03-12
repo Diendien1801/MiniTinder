@@ -10,6 +10,7 @@ import androidx.navigation.compose.composable
 import com.facebook.CallbackManager
 import com.hd.minitinder.screens.authenOption.view.AuthenOptionActivity
 import com.hd.minitinder.screens.chatList.view.ChatListActivity
+import com.hd.minitinder.screens.history.view.HistoryScreen
 import com.hd.minitinder.screens.home.view.HomeScreen
 import com.hd.minitinder.screens.login.view.LoginScreen
 import com.hd.minitinder.screens.payment.view.PaymentQRScreen
@@ -24,7 +25,7 @@ fun AppNavHost(
     navController: NavHostController,
     modifier: Modifier = Modifier,
     callbackManager: CallbackManager,
-    startDestination: String = NavigationItem.AuthenOption.route
+    startDestination: String = NavigationItem.History.route
 ) {
     NavHost(
         navController = navController,
@@ -70,6 +71,9 @@ fun AppNavHost(
         composable(NavigationItem.TinderGold.route) {
             TinderGoldScreen(navController)
 
+        }
+        composable(NavigationItem.History.route) {
+            HistoryScreen(navController)
         }
     }
 }
