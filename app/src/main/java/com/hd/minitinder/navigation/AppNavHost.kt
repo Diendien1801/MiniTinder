@@ -1,31 +1,34 @@
 package com.hd.minitinder.navigation
 
-import DetailChatActivity
 import ResetPasswordScreen
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.facebook.CallbackManager
 import com.hd.minitinder.screens.authenOption.view.AuthenOptionActivity
 import com.hd.minitinder.screens.chatList.view.ChatListActivity
+import com.hd.minitinder.screens.detailChat.DetailChatActivity
 import com.hd.minitinder.screens.history.view.HistoryScreen
 import com.hd.minitinder.screens.home.view.HomeScreen
 import com.hd.minitinder.screens.login.view.LoginScreen
 import com.hd.minitinder.screens.payment.view.PaymentQRScreen
 import com.hd.minitinder.screens.payment.view.PaymentSuccessScreen
-import com.hd.minitinder.screens.payment.view.TinderGoldScreen
+import com.hd.minitinder.screens.payment.view.TinderGoldOptionScreen
 import com.hd.minitinder.screens.profile.view.ProfileScreen
 import com.hd.minitinder.screens.register.view.RegisterScreen
 import com.hd.minitinder.screens.swipe.view.SwipeScreen
+import com.hd.minitinder.screens.tinderGold.view.TinderGoldActivity
 
 @Composable
 fun AppNavHost(
     navController: NavHostController,
     modifier: Modifier = Modifier,
     callbackManager: CallbackManager,
-    startDestination: String = NavigationItem.History.route
+    startDestination: String = NavigationItem.AuthenOption.route
 ) {
     NavHost(
         navController = navController,
@@ -56,8 +59,17 @@ fun AppNavHost(
         composable(NavigationItem.Chat.route){
             ChatListActivity(navController)
         }
-        composable(NavigationItem.DetailChat.route){
-            DetailChatActivity(navController)
+        composable(
+            route = NavigationItem.DetailChat.route,
+            arguments = listOf(
+                navArgument("chatId") { type = NavType.StringType },
+                navArgument("receiverId") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val chatId = backStackEntry.arguments?.getString("chatId") ?: ""
+            val receiverId = backStackEntry.arguments?.getString("receiverId") ?: ""
+
+            DetailChatActivity(navController, chatId, receiverId)
         }
         composable(NavigationItem.Swipe.route){
             SwipeScreen(navController)
@@ -69,11 +81,13 @@ fun AppNavHost(
             PaymentSuccessScreen(navController)
         }
         composable(NavigationItem.TinderGold.route) {
-            TinderGoldScreen(navController)
-
+            TinderGoldActivity(navController)
         }
         composable(NavigationItem.History.route) {
             HistoryScreen(navController)
+        }
+        composable(NavigationItem.PaymentOption.route) {
+            TinderGoldOptionScreen(navController)
         }
     }
 }

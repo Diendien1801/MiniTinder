@@ -48,7 +48,8 @@ fun TinderGoldActivity(navController: NavController? = null) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.background)
+                    //.background(MaterialTheme.colorScheme.background)
+                    .background(Color.Black)
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -65,7 +66,8 @@ fun TinderGoldActivity(navController: NavController? = null) {
                     text = "Upgrade to Gold to see people \n who already liked you",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSecondary,
+                    color = Color.White,
+                    // MaterialTheme.colorScheme.onSecondary,
                     modifier = Modifier.padding(16.dp),
                     textAlign = TextAlign.Center
                 )

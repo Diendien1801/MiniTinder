@@ -10,13 +10,15 @@ val SecondaryColor = Color(0xFFFF6036)
 val GradientColors = listOf(Color(0xFFFF4458), Color(0xFFFC5B6B))
 val GradientColorsForButton = listOf(Color(0xFFFD267A), Color(0xFFFF6036))
 
+// Tinder Gold
+
 // Text Colors
-val TextColorDark = Color(0xFF333333)
+val TextColorDark = Color(0xFF000000)
 val TextColorLight = Color(0xFFFFFFFF)
 
 // Background Colors
 val LightBackgroundColor = Color(0xFFFFFFFF)
-val DarkBackgroundColor = Color(0xFF222222)
+val DarkBackgroundColor = Color(0xFF000000)
 
 // Surface Colors
 val LightSurface = Color(0xFFF5F5F5)
