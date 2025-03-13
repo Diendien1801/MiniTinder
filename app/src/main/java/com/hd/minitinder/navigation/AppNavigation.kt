@@ -16,6 +16,7 @@ enum class Screen{
     PAYMENTSUCCESS,
     PAYMENTOPTION,
     TINDERGOLD,
+    HISTORY
 }
 
 sealed class NavigationItem (val route: String)
@@ -36,6 +37,7 @@ sealed class NavigationItem (val route: String)
     object PaymentSuccess: NavigationItem(Screen.PAYMENTSUCCESS.name)
     object PaymentOption: NavigationItem(Screen.PAYMENTOPTION.name)
     object TinderGold: NavigationItem(Screen.TINDERGOLD.name)
+    object History: NavigationItem(Screen.HISTORY.name)
 
 
 
