@@ -35,7 +35,8 @@ val LightColorScheme = lightColorScheme(
     onPrimary = OnPrimaryLight,
     onSecondary = TextColorDark,
     onBackground = TextColorDark,
-    onSurface = TextColorDark
+    onSurface = TextColorDark,
+
 )
 
 // Dark Theme Color Scheme

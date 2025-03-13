@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -19,7 +20,9 @@ import com.hd.minitinder.R
 fun LogoTinder(
     modifier: Modifier = Modifier,
     logoSize: Dp = 40.dp,
-    textSize: TextUnit = 50.sp
+    textSize: TextUnit = 50.sp,
+    color: Color = Color.White,
+    colorLogo: Color = Color.White
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -28,13 +31,14 @@ fun LogoTinder(
         Image(
             painter = painterResource(id = R.drawable.logo_tinder),
             contentDescription = "Logo",
-            modifier = Modifier.size(logoSize)
+            modifier = Modifier.size(logoSize),
+            colorFilter = ColorFilter.tint(colorLogo)
         )
         Text(
-            text = "Tinder",
+            text = "tinder",
             fontSize = textSize,
             fontWeight = FontWeight.Bold,
-            color = Color.White,
+            color = color,
             modifier = Modifier.padding(start = 8.dp)
         )
     }

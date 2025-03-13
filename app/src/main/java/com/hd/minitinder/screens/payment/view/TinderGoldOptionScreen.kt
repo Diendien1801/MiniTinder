@@ -20,7 +20,7 @@ import androidx.navigation.NavController
 import com.hd.minitinder.navigation.NavigationItem
 
 @Composable
-fun TinderGoldScreen(navController: NavController) {
+fun TinderGoldOptionScreen(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
