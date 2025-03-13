@@ -1,15 +1,18 @@
 package com.hd.minitinder.navigation
 
-import DetailChatActivity
+import DetailChatViewModel
 import ResetPasswordScreen
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.facebook.CallbackManager
 import com.hd.minitinder.screens.authenOption.view.AuthenOptionActivity
 import com.hd.minitinder.screens.chatList.view.ChatListActivity
+import com.hd.minitinder.screens.detailChat.DetailChatActivity
 import com.hd.minitinder.screens.home.view.HomeScreen
 import com.hd.minitinder.screens.login.view.LoginScreen
 import com.hd.minitinder.screens.payment.view.PaymentQRScreen
@@ -55,9 +58,19 @@ fun AppNavHost(
         composable(NavigationItem.Chat.route){
             ChatListActivity(navController)
         }
-        composable(NavigationItem.DetailChat.route){
-            DetailChatActivity(navController)
+        composable(
+            route = NavigationItem.DetailChat.route,
+            arguments = listOf(
+                navArgument("chatId") { type = NavType.StringType },
+                navArgument("receiverId") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val chatId = backStackEntry.arguments?.getString("chatId") ?: ""
+            val receiverId = backStackEntry.arguments?.getString("receiverId") ?: ""
+
+            DetailChatActivity(navController, chatId, receiverId)
         }
+
         composable(NavigationItem.Swipe.route){
             SwipeScreen(navController)
         }

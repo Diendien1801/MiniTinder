@@ -17,7 +17,8 @@ data class UserModel(
     val weight: Double = 0.0,
     val phoneNumber: String = "",
     val bio: String = "",
-    val isPremium: Boolean = false
+    val isPremium: Boolean = false,
+    val publicKey: String = ""
 ) {
     // Chuyển đối tượng UserModel thành Map để lưu lên Firestore
     fun toJson(): Map<String, Any> {
@@ -34,7 +35,8 @@ data class UserModel(
             "weight" to weight,
             "phoneNumber" to phoneNumber,
             "bio" to bio,
-            "isPremium" to isPremium
+            "isPremium" to isPremium,
+            "publicKey" to publicKey
         )
     }
 
@@ -54,7 +56,8 @@ data class UserModel(
                 weight = snapshot.getDouble("weight") ?: 0.0,
                 phoneNumber = snapshot.getString("phoneNumber") ?: "",
                 bio = snapshot.getString("bio") ?: "",
-                isPremium = snapshot.getBoolean("isPremium") ?: false
+                isPremium = snapshot.getBoolean("isPremium") ?: false,
+                publicKey = snapshot.getString("publicKey") ?: ""
             )
         }
     }

@@ -4,15 +4,19 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.navigation.compose.rememberNavController
+import com.cloudinary.Cloudinary
 import com.facebook.CallbackManager
 import com.hd.minitinder.navigation.AppNavHost
+import com.hd.minitinder.service.CloudinaryManager
 import com.hd.minitinder.ui.theme.MiniTinderTheme
+
 
 class MainActivity : ComponentActivity() {
     private lateinit var callbackManager: CallbackManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val cloudinary = CloudinaryManager.cloudinary
 
         callbackManager = CallbackManager.Factory.create()
 
