@@ -49,3 +49,5 @@ val DarkColorScheme = darkColorScheme(
     onBackground = TextColorLight,
     onSurface = TextColorLight
 )
+
+val LightGray = Color(0xFFF0F2F4)

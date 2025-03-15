@@ -16,6 +16,8 @@ import com.hd.minitinder.screens.payment.view.PaymentQRScreen
 import com.hd.minitinder.screens.payment.view.PaymentSuccessScreen
 import com.hd.minitinder.screens.payment.view.TinderGoldScreen
 import com.hd.minitinder.screens.profile.view.ProfileScreen
+import com.hd.minitinder.screens.profile.view.EditProfileScreen
+import com.hd.minitinder.screens.profile.view.EditInterestsScreen
 import com.hd.minitinder.screens.register.view.RegisterScreen
 import com.hd.minitinder.screens.swipe.view.SwipeScreen
 
@@ -24,7 +26,7 @@ fun AppNavHost(
     navController: NavHostController,
     modifier: Modifier = Modifier,
     callbackManager: CallbackManager,
-    startDestination: String = NavigationItem.AuthenOption.route
+    startDestination: String = NavigationItem.EditProfile.route
 ) {
     NavHost(
         navController = navController,
@@ -42,6 +44,12 @@ fun AppNavHost(
         }
         composable(NavigationItem.Profile.route){
             ProfileScreen(navController)
+        }
+        composable(NavigationItem.EditProfile.route){
+            EditProfileScreen(navController, )
+        }
+        composable(NavigationItem.EditInterest.route){
+            EditInterestsScreen(navController, )
         }
         composable(NavigationItem.Main.route){
             MainScreen()
@@ -69,7 +77,6 @@ fun AppNavHost(
         }
         composable(NavigationItem.TinderGold.route) {
             TinderGoldScreen(navController)
-
         }
     }
 }
