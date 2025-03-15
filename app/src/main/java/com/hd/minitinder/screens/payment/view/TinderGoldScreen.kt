@@ -16,9 +16,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.ui.text.font.FontWeight
+import androidx.navigation.NavHostController
+import com.hd.minitinder.navigation.NavigationItem
 
 @Composable
-fun TinderGoldScreen() {
+fun TinderGoldScreen(navController: NavHostController) {
+    var paymentValue by remember { mutableStateOf("100") } // Giá trị payment
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -26,7 +30,7 @@ fun TinderGoldScreen() {
             .padding(16.dp)
     ) {
         IconButton(
-            onClick = { /* Handle close action */ },
+            onClick = { navController.navigate(NavigationItem.PaymentQR.createRoute("1000")) },
             modifier = Modifier.align(Alignment.Start)
         ) {
             Icon(Icons.Default.Close, contentDescription = "Close")
@@ -50,7 +54,10 @@ fun TinderGoldScreen() {
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        PlanSelection()
+        // Truyền callback để cập nhật giá trị payment
+        PlanSelection { selectedPrice ->
+            paymentValue = selectedPrice
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -59,7 +66,7 @@ fun TinderGoldScreen() {
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
-            onClick = {  },
+            onClick = { navController.navigate("paymentQR/$paymentValue") },
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFC107)),
             modifier = Modifier
                 .fillMaxWidth()
@@ -67,15 +74,14 @@ fun TinderGoldScreen() {
         ) {
             Text(text = "Continue", fontSize = 18.sp, fontWeight = FontWeight.Bold)
         }
-
     }
 }
 
 @Composable
-fun PlanSelection() {
+fun PlanSelection(onPlanSelected: (String) -> Unit) {
     val plans = listOf(
-        "1 month" to "₹573.21/mth",
-        "6 months" to "₹368.83/mth"
+        "1 month" to "100",
+        "6 months" to "60"
     )
     var selectedPlan by remember { mutableStateOf(plans[0]) }
 
@@ -90,13 +96,21 @@ fun PlanSelection() {
                         if (plan == selectedPlan) Color.Black else Color.Gray,
                         RoundedCornerShape(8.dp)
                     )
-                    .clickable { selectedPlan = plan }
+                    .clickable {
+                        selectedPlan = plan
+                        val finalValue = if (plan.first == "6 months") {
+                            (plan.second.toInt() * 6).toString() // Nhân với 6
+                        } else {
+                            plan.second
+                        }
+                        onPlanSelected(finalValue) // Gửi giá trị đã nhân vào TinderGoldScreen
+                    }
                     .padding(16.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(text = plan.first, fontWeight = FontWeight.Bold)
-                    Text(text = plan.second, color = Color.Gray)
+                    Text(text = "$${plan.second}/mth", color = Color.Gray)
                 }
             }
         }
