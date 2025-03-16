@@ -1,7 +1,10 @@
 package com.hd.minitinder.data.repositories
 
 import android.util.Log
+import com.google.android.gms.tasks.Task
+import com.google.android.gms.tasks.Tasks
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.hd.minitinder.data.model.UserModel
 
@@ -86,41 +89,38 @@ class UserRepository {
         likesRef.get()
             .addOnSuccessListener { documents ->
                 val likedUsers = mutableListOf<UserModel>()
+                val tasks = mutableListOf<Task<DocumentSnapshot>>() // Danh sách các task để chờ tất cả hoàn tất
 
                 for (document in documents) {
                     val idUser2 = document.getString("idUser2") ?: ""
-                    Log.d("Firestore", "Processing like document: ${document.id}, idUser2: $idUser2")
-
                     if (idUser2 == userId) {
                         val idUser1 = document.getString("idUser1") ?: ""
                         Log.d("Firestore", "User $idUser1 liked $userId, fetching details...")
 
-                        getUserById(idUser1) { user ->
-                            if (user != null) {
-                                likedUsers.add(user)
-                                Log.d("Firestore", "Added user: ${user.name} to likedUsers list")
+                        val task = db.collection("users").document(idUser1).get()
+                            .addOnSuccessListener { userDoc ->
+                                if (userDoc.exists()) {
+                                    val user = UserModel.fromJson(userDoc)
+                                    likedUsers.add(user)
+                                    Log.d("Firestore", "Added user: ${user.name} to likedUsers list")
+                                }
                             }
-
-                            // Nếu đã xử lý xong danh sách, gọi `onResult`
-                            if (likedUsers.size == documents.size()) {
-                                Log.d("Firestore", "Returning liked users list of size: ${likedUsers.size}")
-                                onResult(likedUsers)
-                            }
-                        }
+                        tasks.add(task)
                     }
                 }
 
-                // Nếu không có ai thích userId
-                if (likedUsers.isEmpty()) {
-                    Log.d("Firestore", "No users liked $userId")
-                    onResult(emptyList())
-                }
+                Tasks.whenAllSuccess<DocumentSnapshot>(tasks)
+                    .addOnSuccessListener {
+                        Log.d("Firestore", "Returning liked users list of size: ${likedUsers.size}")
+                        onResult(likedUsers)
+                    }
             }
             .addOnFailureListener { e ->
                 Log.e("Firestore", "Error fetching liked users for $userId", e)
                 onResult(emptyList())
             }
     }
+
 
     fun isPremium(userId: String): Boolean {
         val db = FirebaseFirestore.getInstance()
