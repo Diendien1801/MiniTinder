@@ -24,18 +24,25 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.navigation.NavController
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.ui.draw.clip
+import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
 
 
 data class UserProfile(
     val name: String,
     val age: Int,
-    val imageUrl: String,
+    val imageUrls: List<String>, // Changed to list of image URLs
+    val tags: List<String>,
     val address: String,
     val occupation: String,
     val bio: String
 )
 
+@OptIn(ExperimentalLayoutApi::class)
 @SuppressLint("NewApi")
 @Composable
 fun SwipeScreen(navController: NavController) {
@@ -45,7 +52,12 @@ fun SwipeScreen(navController: NavController) {
             UserProfile(
                 name = "Alice",
                 age = 24,
-                imageUrl = "https://randomuser.me/api/portraits/women/1.jpg",
+                imageUrls = listOf(
+                    "https://randomuser.me/api/portraits/women/1.jpg",
+                    "https://randomuser.me/api/portraits/women/11.jpg",
+                    "https://randomuser.me/api/portraits/women/21.jpg"
+                ),
+                tags = listOf("badminton", "coffee", "travel", "photography", "cooking", "hiking"),
                 address = "1234 Elm Street, Springfield",
                 occupation = "Software Developer",
                 bio = "Passionate about coding and tech innovations. Alice has been working in the tech industry for over 5 years and enjoys experimenting with new technologies like AI and machine learning. In her free time, she loves to contribute to open-source projects and stay up-to-date with the latest developments in the world of programming."
@@ -53,7 +65,12 @@ fun SwipeScreen(navController: NavController) {
             UserProfile(
                 name = "Bob",
                 age = 27,
-                imageUrl = "https://randomuser.me/api/portraits/men/2.jpg",
+                imageUrls = listOf(
+                    "https://randomuser.me/api/portraits/men/2.jpg",
+                    "https://randomuser.me/api/portraits/men/12.jpg",
+                    "https://randomuser.me/api/portraits/men/22.jpg"
+                ),
+                tags = listOf("badminton", "coffee", "travel", "photography", "cooking", "hiking"),
                 address = "5678 Oak Avenue, Seattle",
                 occupation = "Graphic Designer",
                 bio = "Loves creating beautiful visual designs. Bob is passionate about transforming concepts into compelling visuals that resonate with audiences. With over 6 years of experience in graphic design, he has worked on various branding projects, advertising campaigns, and digital art. His creative journey is driven by his desire to merge aesthetics with functionality in every project."
@@ -61,7 +78,12 @@ fun SwipeScreen(navController: NavController) {
             UserProfile(
                 name = "Charlie",
                 age = 22,
-                imageUrl = "https://randomuser.me/api/portraits/women/3.jpg",
+                imageUrls = listOf(
+                    "https://randomuser.me/api/portraits/women/3.jpg",
+                    "https://randomuser.me/api/portraits/women/13.jpg",
+                    "https://randomuser.me/api/portraits/women/23.jpg"
+                ),
+                tags = listOf("badminton", "coffee", "travel", "photography", "cooking", "hiking"),
                 address = "9102 Pine Road, Miami",
                 occupation = "Marketing Specialist",
                 bio = "Creative thinker, always striving to bring fresh ideas. Charlie has been working in marketing for the past 3 years, specializing in digital marketing strategies. She thrives on finding innovative ways to engage with target audiences and loves analyzing data to measure the success of campaigns. When she's not brainstorming new marketing ideas, she enjoys exploring the latest trends in social media and content creation."
@@ -69,7 +91,12 @@ fun SwipeScreen(navController: NavController) {
             UserProfile(
                 name = "David",
                 age = 29,
-                imageUrl = "https://randomuser.me/api/portraits/men/4.jpg",
+                imageUrls = listOf(
+                    "https://randomuser.me/api/portraits/men/4.jpg",
+                    "https://randomuser.me/api/portraits/men/14.jpg",
+                    "https://randomuser.me/api/portraits/men/24.jpg"
+                ),
+                tags = listOf("badminton", "coffee", "travel", "photography", "cooking", "hiking"),
                 address = "4321 Maple Lane, San Francisco",
                 occupation = "Project Manager",
                 bio = "Focused on delivering projects on time with excellent team coordination. David has managed diverse projects across multiple industries, ensuring they are completed successfully while maintaining high standards. He believes in effective communication, teamwork, and problem-solving to tackle challenges. With a background in both engineering and management, he enjoys bridging the gap between technical and non-technical teams to drive results."
@@ -85,6 +112,9 @@ fun SwipeScreen(navController: NavController) {
     val thresholdDp = cw / 2
     val previousUser = remember { mutableStateListOf<UserProfile?>() }
 
+    // Current image index for each user
+    var currentImageIndex by remember { mutableIntStateOf(0) }
+
     suspend fun animateOffsetX(target: Float, duration: Long = 300) {
         val startTime = System.currentTimeMillis()
         val startValue = offsetX
@@ -99,7 +129,7 @@ fun SwipeScreen(navController: NavController) {
                 val currentValue = startValue + (target - startValue) * progress
                 offsetX = currentValue
             }
-            kotlinx.coroutines.delay(16)
+            delay(16)
         }
     }
 
@@ -123,7 +153,7 @@ fun SwipeScreen(navController: NavController) {
             val user = users.first()
             Card(
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .width(LocalConfiguration.current.screenWidthDp.dp * 0.98f)
                     .height(LocalConfiguration.current.screenHeightDp.dp * 0.8f)
                     .offset {
                         val offsetXPx = with(density) { offsetX.dp.toPx() }
@@ -152,6 +182,7 @@ fun SwipeScreen(navController: NavController) {
                                         previousUser.add(users.removeFirst())
                                         swipeCount++
                                         offsetX = 0f
+                                        currentImageIndex = 0 // Reset image index for new user
                                         isAnimating = false
                                     }
                                 } else if (offsetX > thresholdDp) {
@@ -161,6 +192,7 @@ fun SwipeScreen(navController: NavController) {
                                         previousUser.add(users.removeFirst())
                                         swipeCount++
                                         offsetX = 0f
+                                        currentImageIndex = 0 // Reset image index for new user
                                         isAnimating = false
                                     }
                                 } else {
@@ -182,12 +214,87 @@ fun SwipeScreen(navController: NavController) {
                 shape = RoundedCornerShape(16.dp)
             ) {
                 Box {
+                    // Display current image based on currentImageIndex
                     Image(
-                        painter = rememberAsyncImagePainter(user.imageUrl),
-                        contentDescription = user.name,
+                        painter = rememberAsyncImagePainter(user.imageUrls[currentImageIndex]),
+                        contentDescription = "${user.name} - Photo ${currentImageIndex + 1}",
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop
                     )
+
+                    Row(
+                        modifier = Modifier
+                            .align(Alignment.TopCenter)
+                            .padding(top = 16.dp, start = 8.dp, end = 8.dp)
+                            .fillMaxWidth(0.9f) // Đặt chiều rộng khoảng 80% màn hình
+                            .height(6.dp) // Giảm chiều cao của các thanh
+                            .clip(RoundedCornerShape(3.dp))
+                        ,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        repeat(3) { index ->
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxHeight()
+                                    .weight(1f)
+                                    .background(
+                                        if (index == currentImageIndex) Color.White else Color.Gray
+                                    )
+                                    .clip(RoundedCornerShape(3.dp)) // Bo góc các thanh
+                            )
+                        }
+                    }
+
+
+
+                    // Image navigation controls
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp)
+                            .align(Alignment.Center),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        // Previous image button
+                        IconButton(
+                            onClick = {
+                                if (currentImageIndex > 0) {
+                                    currentImageIndex--
+                                }
+                            },
+                            modifier = Modifier.size(40.dp),
+                            colors = IconButtonDefaults.iconButtonColors(
+                                containerColor = Color.White.copy(alpha = 0.7f)
+                            )
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.KeyboardArrowLeft,
+                                contentDescription = "Previous Image",
+                                tint = Color.Black
+                            )
+                        }
+
+
+                        // Next image button
+                        IconButton(
+                            onClick = {
+                                if (currentImageIndex < user.imageUrls.size - 1) {
+                                    currentImageIndex++
+                                }
+                            },
+                            modifier = Modifier.size(40.dp),
+                            colors = IconButtonDefaults.iconButtonColors(
+                                containerColor = Color.White.copy(alpha = 0.7f)
+                            )
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.KeyboardArrowRight,
+                                contentDescription = "Next Image",
+                                tint = Color.Black
+                            )
+                        }
+                    }
+
                     Column(
                         modifier = Modifier
                             .align(Alignment.BottomStart)
@@ -199,27 +306,18 @@ fun SwipeScreen(navController: NavController) {
                             fontWeight = FontWeight.Bold,
                             color = Color.White
                         )
+                        Spacer(modifier = Modifier.height(8.dp))
 
-                        Text(
-                            text = "Address: ${user.address}",
-                            fontSize = 16.sp,
-                            color = Color.White,
-                            modifier = Modifier.padding(top = 4.dp)
-                        )
-
-                        Text(
-                            text = "Occupation: ${user.occupation}",
-                            fontSize = 16.sp,
-                            color = Color.White,
-                            modifier = Modifier.padding(top = 4.dp)
-                        )
-
-                        Text(
-                            text = "Bio: ${user.bio}",
-                            fontSize = 14.sp,
-                            color = Color.White,
-                            modifier = Modifier.padding(top = 4.dp)
-                        )
+                        // Tags horizontal scrollable row
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            maxItemsInEachRow = Int.MAX_VALUE
+                        ) {
+                            user.tags.forEach { tag ->
+                                TagChip(tag = tag)
+                            }
+                        }
                     }
                 }
             }
@@ -239,6 +337,7 @@ fun SwipeScreen(navController: NavController) {
                             previousUser.add(users.removeFirst())
                             swipeCount++
                             offsetX = 0f
+                            currentImageIndex = 0 // Reset image index for new user
                             isAnimating = false
                         }
                     },
@@ -255,6 +354,7 @@ fun SwipeScreen(navController: NavController) {
                             previousUser.add(users.removeFirst())
                             swipeCount++
                             offsetX = 0f
+                            currentImageIndex = 0 // Reset image index for new user
                             isAnimating = false
                         }
                     },
@@ -267,6 +367,7 @@ fun SwipeScreen(navController: NavController) {
                     onClick = {
                         if (previousUser.isNotEmpty()) {
                             previousUser.removeLast()?.let { users.add(0, it) }
+                            currentImageIndex = 0 // Reset image index for restored user
                         }
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Gray)
@@ -283,7 +384,6 @@ fun SwipeScreen(navController: NavController) {
                 color = Color.Black
             )
         }
-
         Text(
             text = "MiniTinder",
             fontSize = 16.sp,
@@ -294,6 +394,18 @@ fun SwipeScreen(navController: NavController) {
                 .padding(16.dp)
         )
     }
-
-
+}
+@Composable
+fun TagChip(tag: String) {
+    Surface(
+        shape = RoundedCornerShape(50),
+        color = Color.White.copy(alpha = 0.2f),
+        contentColor = Color.White
+    ) {
+        Text(
+            text = tag,
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+            fontSize = 14.sp
+        )
+    }
 }

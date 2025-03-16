@@ -15,7 +15,9 @@ import coil.compose.rememberAsyncImagePainter
 import kotlinx.coroutines.delay
 
 @Composable
-fun PaymentQRScreen(navController: NavController) {
+fun PaymentQRScreen(navController: NavHostController, payment: String) {
+    val totalPayment = payment
+    var paymentStatus by remember { mutableStateOf("pending") }
     var timeLeft by remember { mutableIntStateOf(900) }
 
     LaunchedEffect(Unit) {
@@ -61,6 +63,25 @@ fun PaymentQRScreen(navController: NavController) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Total Payment: ",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black
+            )
+            Text(
+                text = "$$totalPayment",
+                fontSize = 18.sp, // Điều chỉnh để phù hợp với dòng
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF1976D2)
+            )
+        }
+
+
+        Spacer(modifier = Modifier.height(16.dp))
         Text(
             text = "Time Remaining:",
             fontSize = 18.sp,
