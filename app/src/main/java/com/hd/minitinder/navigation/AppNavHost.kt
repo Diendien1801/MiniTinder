@@ -74,8 +74,12 @@ fun AppNavHost(
         composable(NavigationItem.Swipe.route){
             SwipeScreen(navController)
         }
-        composable(NavigationItem.PaymentQR.route){
-            PaymentQRScreen(navController)
+        composable(
+            route = NavigationItem.PaymentQR.route,
+            arguments = listOf(navArgument("payment") { type = NavType.StringType }) // Khai báo tham số
+        ) { backStackEntry ->
+            val payment = backStackEntry.arguments?.getString("payment") ?: "0"
+            PaymentQRScreen(navController, payment)
         }
         composable(NavigationItem.PaymentSuccess.route) {
             PaymentSuccessScreen(navController)
