@@ -1,6 +1,7 @@
 package com.hd.minitinder.screens.login.view
 
 import android.app.Activity
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -178,7 +179,9 @@ fun LoginScreen(
 
                 // Register Button
                 ButtonGradient("Login",
-                    onClick = {loginViewModel.login()}
+                    onClick = {loginViewModel.login();
+                        Log.d("cli","dsadsd")
+                    }
                     )
                 Spacer(modifier = Modifier.height(16.dp))
                 ButtonGradient("" +

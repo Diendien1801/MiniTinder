@@ -1,27 +1,25 @@
 package com.hd.minitinder.navigation
 
+import DetailChatActivity
 import ResetPasswordScreen
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.navArgument
 import com.facebook.CallbackManager
 import com.hd.minitinder.screens.authenOption.view.AuthenOptionActivity
 import com.hd.minitinder.screens.chatList.view.ChatListActivity
-import com.hd.minitinder.screens.detailChat.DetailChatActivity
-import com.hd.minitinder.screens.history.view.HistoryScreen
 import com.hd.minitinder.screens.home.view.HomeScreen
 import com.hd.minitinder.screens.login.view.LoginScreen
 import com.hd.minitinder.screens.payment.view.PaymentQRScreen
 import com.hd.minitinder.screens.payment.view.PaymentSuccessScreen
-import com.hd.minitinder.screens.payment.view.TinderGoldOptionScreen
+import com.hd.minitinder.screens.payment.view.TinderGoldScreen
 import com.hd.minitinder.screens.profile.view.ProfileScreen
+import com.hd.minitinder.screens.profile.view.EditProfileScreen
+import com.hd.minitinder.screens.profile.view.EditInterestsScreen
 import com.hd.minitinder.screens.register.view.RegisterScreen
 import com.hd.minitinder.screens.swipe.view.SwipeScreen
-import com.hd.minitinder.screens.tinderGold.view.TinderGoldActivity
 
 @Composable
 fun AppNavHost(
@@ -46,6 +44,12 @@ fun AppNavHost(
         }
         composable(NavigationItem.Profile.route){
             ProfileScreen(navController)
+        }
+        composable(NavigationItem.EditProfile.route){
+            EditProfileScreen(navController, )
+        }
+        composable(NavigationItem.EditInterest.route){
+            EditInterestsScreen(navController, )
         }
         composable(NavigationItem.Main.route){
             MainScreen()

@@ -65,6 +65,7 @@ dependencies {
     implementation("androidx.compose.animation:animation-core-lint:1.8.0-beta02")
     implementation("com.google.android.apps.common.testing.accessibility.framework:accessibility-test-framework:4.1.1")
     implementation("androidx.security:security-crypto:1.0.0")
+    implementation("org.jetbrains:annotations:15.0")
 
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
@@ -73,7 +74,7 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
 
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
-    androidTestImplementation(platform("androidx.compose:compose-bom:2024.04.01"))
+//    androidTestImplementation(platform("androidx.compose:compose-bom:2024.04.01"))
 
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
@@ -98,6 +99,11 @@ dependencies {
 
     // firebase cloud firestore
     implementation("com.google.firebase:firebase-firestore-ktx")
+
+    // Thư viện cho các icon
+    implementation("androidx.compose.material:material-icons-extended")
+
+//    implementation("com.google.accompanist:accompanist-flowlayout")
 
     // firebase messaging
     implementation("com.google.firebase:firebase-messaging-ktx:24.1.0")

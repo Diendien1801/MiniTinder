@@ -6,6 +6,8 @@ enum class Screen{
     REGISTER,
     LOGIN,
     PROFILE,
+    EDITPROFILE,
+    EDITINTEREST,
     MAIN,
     RESETPASS,
     AUTHENOPTION,
@@ -25,6 +27,8 @@ sealed class NavigationItem (val route: String)
     object Register: NavigationItem(Screen.REGISTER.name)
     object Login: NavigationItem(Screen.LOGIN.name)
     object Profile: NavigationItem(Screen.PROFILE.name)
+    object EditProfile: NavigationItem(Screen.EDITPROFILE.name)
+    object EditInterest: NavigationItem(Screen.EDITINTEREST.name)
     object Main: NavigationItem(Screen.MAIN.name)
     object ResetPass: NavigationItem(Screen.RESETPASS.name)
     object AuthenOption: NavigationItem(Screen.AUTHENOPTION.name)
