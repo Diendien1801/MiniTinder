@@ -12,18 +12,19 @@ import com.hd.minitinder.screens.login.viewmodel.LoginViewModel
 class ChatListViewModel: ViewModel() {
 
     var chatList = mutableStateOf<List<String>>(emptyList())  // Dùng State để UI cập nhật
-
+    var chatIdList = mutableStateOf<List<String>>(emptyList())
 
 
     val currentUser = FirebaseAuth.getInstance().currentUser
 
     private val chatListRepository = ChatListRepository()
 
-    fun getChatList(userId: String = currentUser?.uid ?: "")  {
+    fun getChatList(userId: String = currentUser?.uid ?: "") {
         Log.d("ChatListViewModel", "getChatList called with userId: ${currentUser?.uid}")
         currentUser?.let {
             chatListRepository.getListChat(it.uid) { list ->
-                chatList.value = list
+                chatList.value = list.map { it.first }  // Lấy danh sách userId
+                chatIdList.value = list.map { it.second }  // Lấy danh sách documentId
             }
         }
     }

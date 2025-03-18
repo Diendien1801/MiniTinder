@@ -11,6 +11,9 @@ object Utils {
         return dateFormat.format(date)
     }
 
-
+    fun toDateString(timestamp: Long): String {
+        val sdf = java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault())
+        return sdf.format(java.util.Date(timestamp))
+    }
 
 }

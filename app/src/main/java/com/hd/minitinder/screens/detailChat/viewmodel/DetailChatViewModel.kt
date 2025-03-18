@@ -58,7 +58,7 @@ class DetailChatViewModel() : ViewModel() {
             message = message,
             type = "text"
         )
-        repository.sendMessage("1", chatMessage, sender,receiver)
+        repository.sendMessage(chat, chatMessage, sender,receiver)
     }
 
     private fun listenForMessages(context: Context) {

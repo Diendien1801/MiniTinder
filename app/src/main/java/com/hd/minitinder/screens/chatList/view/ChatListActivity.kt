@@ -44,7 +44,7 @@ import com.hd.minitinder.screens.chatList.viewmodel.ChatListViewModel
 fun ChatListActivity(navController: NavController,chatListViewModel: ChatListViewModel = viewModel()) {
 
 
-
+    val listId = chatListViewModel.chatIdList.value
     LaunchedEffect(Unit) {
         chatListViewModel.getChatList()  // Thay "userId_here" bằng userId thực tế
     }
@@ -85,13 +85,13 @@ fun ChatListActivity(navController: NavController,chatListViewModel: ChatListVie
             // Messages - LazyColumn (vertical scrolling)
             // message hiện tại là ID của người receive
             LazyColumn {
-                items(chatListViewModel.chatList.value) { message ->
-                    MessageItem(message)
-                    {
-                        navController.navigate(NavigationItem.DetailChat.createRoute(message, message))
+                items(chatListViewModel.chatList.value.zip(chatListViewModel.chatIdList.value)) { (idUser, chatId) ->
+                    MessageItem(idUser) {
+                        navController.navigate(NavigationItem.DetailChat.createRoute(chatId, idUser))
                     }
                 }
             }
+
         }
     }
 }

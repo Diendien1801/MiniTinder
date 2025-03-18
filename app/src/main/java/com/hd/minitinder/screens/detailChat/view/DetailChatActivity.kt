@@ -34,6 +34,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.hd.minitinder.R
+import com.hd.minitinder.screens.detailChat.components.DateSeparator
 import com.hd.minitinder.screens.detailChat.model.ChatMessageModel
 import com.hd.minitinder.ui.theme.PrimaryColor
 import com.hd.minitinder.utils.Utils
@@ -52,7 +53,7 @@ fun DetailChatActivity(navController: NavController , chatId: String, receiverId
     LaunchedEffect(chatId, receiverId,context) {
         val currentUserId = viewModel.userId.value // Lấy userId hiện tại
         if (currentUserId != null) {
-            viewModel.initChat("1", currentUserId, receiverId, context)
+            viewModel.initChat(chatId, currentUserId, receiverId, context)
         } else {
             Log.e("DetailChatActivity", "UserId is null!")
         }
@@ -127,11 +128,21 @@ fun DetailChatActivity(navController: NavController , chatId: String, receiverId
                 .weight(1f)
                 .padding(horizontal = 12.dp)
         ) {
-            items(messages) { message ->
-                ChatBubble(message, isMe = message.senderId == viewModel.getUserId())
+            var lastDate: String? = null
 
+            items(messages) { message ->
+                val messageDate = Utils.toDateString(message.timestamp)
+
+                if (messageDate != lastDate) {
+
+                    DateSeparator(messageDate)
+                    lastDate = messageDate
+                }
+
+                ChatBubble(message, isMe = message.senderId == viewModel.getUserId())
             }
         }
+
 
 
         // ✅ Thanh nhập tin nhắn
