@@ -17,6 +17,9 @@ import java.security.KeyPairGenerator
 class RegisterViewModel : ViewModel() {
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
 
+    private val _isLoading = mutableStateOf<Boolean>(false)
+    var isLoading: State<Boolean> = _isLoading
+
     private val _email = mutableStateOf("")
     val email: State<String> = _email
 
@@ -58,7 +61,7 @@ class RegisterViewModel : ViewModel() {
 
     fun register(context: Context, onResult: (Boolean) -> Unit) {
         var isValid = true
-
+        _isLoading.value = true
         if (_email.value.isBlank()) {
             _emailError.value = "Email is required!"
             isValid = false
@@ -104,16 +107,19 @@ class RegisterViewModel : ViewModel() {
                                 onSuccess = {
                                     _errorMessage.value = "Registration successful!"
                                     onResult(true)
+                                    _isLoading.value = false
                                 },
                                 onFailure = { exception ->
                                     _errorMessage.value = "Failed to save user: ${exception.message}"
                                     onResult(false)
+                                    _isLoading.value = false
                                 }
                             )
                         }
                     } else {
                         _errorMessage.value = task.exception?.message ?: "Registration failed!"
                         onResult(false)
+                        _isLoading.value = false
                     }
                 }
         }

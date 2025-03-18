@@ -56,7 +56,7 @@ fun LoginScreen(
     val errorMessage by loginViewModel.errorMessage
     val isLoading by loginViewModel.isLoading
     val loginSuccess by loginViewModel.loginSuccess
-
+    val isLoadingFaceBook by loginViewModel.isLoadingFace
     val primaryColor = Color(0xFFFF4458)
     val gradientColors = listOf(Color(0xFFFF4458), Color(0xFFFC5B6B))
 
@@ -75,8 +75,7 @@ fun LoginScreen(
     LaunchedEffect(loginSuccess) {
         if (loginSuccess) {
             popupMessage = errorMessage
-
-            delay(3000)
+            delay(1000)
             navController.navigate(NavigationItem.Main.route) {
                 popUpTo(NavigationItem.Login.route) { inclusive = true }
             }
@@ -178,11 +177,13 @@ fun LoginScreen(
                 Spacer(modifier = Modifier.height(36.dp))
 
                 // Register Button
-                ButtonGradient("Login",
-                    onClick = {loginViewModel.login();
-                        Log.d("cli","dsadsd")
-                    }
-                    )
+                ButtonGradient(
+                    buttonText = "Login",
+                    onClick = { loginViewModel.login() },
+                    isLoading = isLoading // ✅ Truyền trạng thái loading vào
+                )
+
+
                 Spacer(modifier = Modifier.height(16.dp))
                 ButtonGradient("" +
                         "Login with Facebook",
@@ -195,7 +196,8 @@ fun LoginScreen(
                             contentDescription = "Facebook Icon",
                             modifier = Modifier.size(20.dp)
                         )
-                    }
+                    },
+                    isLoading = isLoadingFaceBook
                 )
 
 

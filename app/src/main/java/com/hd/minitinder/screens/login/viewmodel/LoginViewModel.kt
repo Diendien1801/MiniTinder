@@ -42,6 +42,9 @@ class LoginViewModel : ViewModel() {
     private val _isLoading = mutableStateOf(false)
     val isLoading: State<Boolean> = _isLoading
 
+    private val _isLoadingFace = mutableStateOf(false)
+    val isLoadingFace: State<Boolean> = _isLoadingFace
+
     private val _loginSuccess = mutableStateOf(false)
     val loginSuccess: State<Boolean> = _loginSuccess
 
@@ -77,7 +80,7 @@ class LoginViewModel : ViewModel() {
     }
 
     fun loginWithFacebook(activity: Activity, callbackManager: CallbackManager) {
-        _isLoading.value = true
+        _isLoadingFace.value = true
         _errorMessage.value = ""
 
         LoginManager.getInstance().logInWithReadPermissions(activity, listOf("email", "public_profile"))
@@ -87,12 +90,12 @@ class LoginViewModel : ViewModel() {
             }
 
             override fun onCancel() {
-                _isLoading.value = false
+                _isLoadingFace.value = false
                 _errorMessage.value = "Facebook login canceled!"
             }
 
             override fun onError(error: FacebookException) {
-                _isLoading.value = false
+                _isLoadingFace.value = false
                 _errorMessage.value = error.message ?: "Facebook login failed!"
             }
         })
@@ -102,7 +105,7 @@ class LoginViewModel : ViewModel() {
         val credential = FacebookAuthProvider.getCredential(token.token)
         auth.signInWithCredential(credential)
             .addOnCompleteListener { task ->
-                _isLoading.value = false
+                _isLoadingFace.value = false
                 if (task.isSuccessful) {
                     _currentUser.value = auth.currentUser
                     Log.d("LoginViewModel", "User ID: ${_currentUser.value?.uid}")

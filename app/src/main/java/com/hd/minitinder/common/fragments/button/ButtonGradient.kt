@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,7 +33,12 @@ import androidx.compose.ui.unit.sp
 import com.hd.minitinder.R
 
 @Composable
-fun ButtonGradient(buttonText: String, onClick:  () -> Unit,icon: (@Composable () -> Unit)? = null ) {
+fun ButtonGradient(
+    buttonText: String,
+    onClick: () -> Unit,
+    icon: (@Composable () -> Unit)? = null,
+    isLoading: Boolean = false // ✅ Thêm trạng thái loading
+) {
     val gradientColors = listOf(Color(0xFFFD267A), Color(0xFFFF6036))
 
     Button(
@@ -41,8 +47,8 @@ fun ButtonGradient(buttonText: String, onClick:  () -> Unit,icon: (@Composable (
             .fillMaxWidth()
             .height(50.dp)
             .shadow(
-                elevation = 16.dp, // Độ cao của bóng
-                shape = RoundedCornerShape(50) // Hình dạng bo góc
+                elevation = 16.dp,
+                shape = RoundedCornerShape(50)
             ),
         shape = RoundedCornerShape(50),
         colors = ButtonDefaults.buttonColors(
@@ -56,27 +62,28 @@ fun ButtonGradient(buttonText: String, onClick:  () -> Unit,icon: (@Composable (
             modifier = Modifier
                 .fillMaxSize()
                 .clip(RoundedCornerShape(50))
-                .background(
-                    brush = Brush.horizontalGradient(gradientColors)
-                ) ,
-                    verticalAlignment = Alignment.CenterVertically,
+                .background(brush = Brush.horizontalGradient(gradientColors)),
+            verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center,
         ) {
-            icon?.let {
-                it() // Hiển thị icon nếu có
+            if (isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp),
+                    color = Color.White,
+                    strokeWidth = 2.dp
+                )
+            } else {
+                icon?.let {
+                    it()
+                    Spacer(modifier = Modifier.width(8.dp))
+                }
+                Text(
+                    text = buttonText,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(16.dp)
+                )
             }
-            if( icon != null)
-            {
-                Spacer(modifier = Modifier.width(8.dp))
-            }
-            Text(
-                text = buttonText,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier
-                    .padding(16.dp)
-
-            )
         }
     }
 }
