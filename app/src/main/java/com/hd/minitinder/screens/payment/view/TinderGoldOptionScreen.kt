@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavHostController
 import com.hd.minitinder.navigation.NavigationItem
@@ -26,7 +27,14 @@ fun TinderGoldOptionScreen(navController: NavHostController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFFFF8E1))
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(Color(0xFFE6AF16), Color(0xFFFFFCF3)), // Gradient từ vàng đậm xuống vàng nhạt
+                    startY = 0f,
+                    endY = 200f
+                )
+            )
+
             .padding(16.dp)
     ) {
         IconButton(
@@ -88,29 +96,44 @@ fun PlanSelection(onPlanSelected: (String) -> Unit) {
 
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
         plans.forEach { plan ->
+            val isSelected = plan == selectedPlan
             Box(
                 modifier = Modifier
                     .weight(1f)
                     .padding(4.dp)
                     .border(
                         2.dp,
-                        if (plan == selectedPlan) Color.Black else Color.Gray,
+                        if (isSelected) Color(0xFFFFC107) else Color.Gray, // Yellow border when selected
                         RoundedCornerShape(8.dp)
                     )
                     .clickable {
                         selectedPlan = plan
                         val finalValue = if (plan.first == "6 months") {
-                            (plan.second.toInt() * 6).toString() // Nhân với 6
+                            (plan.second.toInt() * 6).toString() // Multiply by 6
                         } else {
                             plan.second
                         }
-                        onPlanSelected(finalValue) // Gửi giá trị đã nhân vào TinderGoldScreen
+                        onPlanSelected(finalValue)
                     }
                     .padding(16.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(text = plan.first, fontWeight = FontWeight.Bold)
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Text(text = plan.first, fontWeight = FontWeight.Bold)
+                        if (isSelected) {
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Icon(
+                                Icons.Default.Check,
+                                contentDescription = "Selected",
+                                tint = Color.Green,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+                    }
                     Text(text = "$${plan.second}/mth", color = Color.Gray)
                 }
             }
