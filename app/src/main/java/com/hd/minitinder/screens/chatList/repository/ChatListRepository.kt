@@ -34,4 +34,37 @@ class ChatListRepository {
                     }
             }
     }
+
+    fun getListUser(chatListId: List<String>, onResult: (List<UserModel>) -> Unit) {
+        val usersList = mutableListOf<UserModel>()
+        if (chatListId.isEmpty()) {
+            onResult(emptyList()) // Nếu danh sách rỗng, trả về
+            return
+        }
+
+        val dbRef = db.collection("users")
+
+        var remaining = chatListId.size
+
+        for (userId in chatListId) {
+            dbRef.document(userId).get()
+                .addOnSuccessListener { document ->
+                    if (document.exists()) {
+                        val user = UserModel(
+                            id = document.getString("id") ?: "",
+                            name = document.getString("name") ?: "Unknown",
+                            imageUrls = document.get("imageUrls") as? List<String> ?: emptyList()
+                        )
+                        usersList.add(user)
+                    }
+                }
+                .addOnCompleteListener {
+                    remaining--
+                    if (remaining == 0) {
+                        onResult(usersList)
+                    }
+                }
+        }
+    }
+
 }
