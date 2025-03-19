@@ -1,15 +1,21 @@
 package com.hd.minitinder.screens.swipe.view
 
 import android.annotation.SuppressLint
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
@@ -28,7 +34,21 @@ import androidx.navigation.NavController
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.rounded.Refresh
+import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.Favorite
+import androidx.compose.material.icons.rounded.ThumbUp
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.style.TextAlign
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.hd.minitinder.common.fragments.logo.LogoTinder
+import com.hd.minitinder.screens.swipe.viewmodel.SwipeViewModel
 import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
 
@@ -36,7 +56,7 @@ import kotlin.math.roundToInt
 data class UserProfile(
     val name: String,
     val age: Int,
-    val imageUrls: List<String>, // Changed to list of image URLs
+    val imageUrls: List<String>,
     val tags: List<String>,
     val address: String,
     val occupation: String,
@@ -46,64 +66,9 @@ data class UserProfile(
 @OptIn(ExperimentalLayoutApi::class)
 @SuppressLint("NewApi")
 @Composable
-fun SwipeScreen(navController: NavController) {
+fun SwipeScreen(navController: NavController, SwipeViewModel: SwipeViewModel = viewModel()) {
     val density = LocalDensity.current
-    val users = remember {
-        mutableStateListOf(
-            UserProfile(
-                name = "Alice",
-                age = 24,
-                imageUrls = listOf(
-                    "https://randomuser.me/api/portraits/women/1.jpg",
-                    "https://randomuser.me/api/portraits/women/11.jpg",
-                    "https://randomuser.me/api/portraits/women/21.jpg"
-                ),
-                tags = listOf("badminton", "coffee", "travel", "photography", "cooking", "hiking"),
-                address = "1234 Elm Street, Springfield",
-                occupation = "Software Developer",
-                bio = "Passionate about coding and tech innovations. Alice has been working in the tech industry for over 5 years and enjoys experimenting with new technologies like AI and machine learning. In her free time, she loves to contribute to open-source projects and stay up-to-date with the latest developments in the world of programming."
-            ),
-            UserProfile(
-                name = "Bob",
-                age = 27,
-                imageUrls = listOf(
-                    "https://randomuser.me/api/portraits/men/2.jpg",
-                    "https://randomuser.me/api/portraits/men/12.jpg",
-                    "https://randomuser.me/api/portraits/men/22.jpg"
-                ),
-                tags = listOf("badminton", "coffee", "travel", "photography", "cooking", "hiking"),
-                address = "5678 Oak Avenue, Seattle",
-                occupation = "Graphic Designer",
-                bio = "Loves creating beautiful visual designs. Bob is passionate about transforming concepts into compelling visuals that resonate with audiences. With over 6 years of experience in graphic design, he has worked on various branding projects, advertising campaigns, and digital art. His creative journey is driven by his desire to merge aesthetics with functionality in every project."
-            ),
-            UserProfile(
-                name = "Charlie",
-                age = 22,
-                imageUrls = listOf(
-                    "https://randomuser.me/api/portraits/women/3.jpg",
-                    "https://randomuser.me/api/portraits/women/13.jpg",
-                    "https://randomuser.me/api/portraits/women/23.jpg"
-                ),
-                tags = listOf("badminton", "coffee", "travel", "photography", "cooking", "hiking"),
-                address = "9102 Pine Road, Miami",
-                occupation = "Marketing Specialist",
-                bio = "Creative thinker, always striving to bring fresh ideas. Charlie has been working in marketing for the past 3 years, specializing in digital marketing strategies. She thrives on finding innovative ways to engage with target audiences and loves analyzing data to measure the success of campaigns. When she's not brainstorming new marketing ideas, she enjoys exploring the latest trends in social media and content creation."
-            ),
-            UserProfile(
-                name = "David",
-                age = 29,
-                imageUrls = listOf(
-                    "https://randomuser.me/api/portraits/men/4.jpg",
-                    "https://randomuser.me/api/portraits/men/14.jpg",
-                    "https://randomuser.me/api/portraits/men/24.jpg"
-                ),
-                tags = listOf("badminton", "coffee", "travel", "photography", "cooking", "hiking"),
-                address = "4321 Maple Lane, San Francisco",
-                occupation = "Project Manager",
-                bio = "Focused on delivering projects on time with excellent team coordination. David has managed diverse projects across multiple industries, ensuring they are completed successfully while maintaining high standards. He believes in effective communication, teamwork, and problem-solving to tackle challenges. With a background in both engineering and management, he enjoys bridging the gap between technical and non-technical teams to drive results."
-            )
-        )
-    }
+    val users = SwipeViewModel.users;
 
     var swipeCount by remember { mutableIntStateOf(0) }
     var offsetX by remember { mutableFloatStateOf(0f) }
@@ -115,6 +80,93 @@ fun SwipeScreen(navController: NavController) {
 
     // Current image index for each user
     var currentImageIndex by remember { mutableIntStateOf(0) }
+
+    // Animation states for feedback effects
+    var showLikeEffect by remember { mutableStateOf(false) }
+    var showDislikeEffect by remember { mutableStateOf(false) }
+    var showUndoEffect by remember { mutableStateOf(false) }
+
+    // Animation values
+    val likeIconScale by animateFloatAsState(
+        targetValue = if (showLikeEffect) 1.5f else 0f,
+        animationSpec = keyframes {
+            durationMillis = 500
+            0f at 0
+            1.5f at 150
+            1.2f at 300
+            1.5f at 500
+        },
+        label = "likeIconScale"
+    )
+
+    val likeIconAlpha by animateFloatAsState(
+        targetValue = if (showLikeEffect) 1f else 0f,
+        animationSpec = tween(durationMillis = 500),
+        label = "likeIconAlpha"
+    )
+
+    val dislikeIconScale by animateFloatAsState(
+        targetValue = if (showDislikeEffect) 1.5f else 0f,
+        animationSpec = keyframes {
+            durationMillis = 500
+            0f at 0
+            1.5f at 150
+            1.2f at 300
+            1.5f at 500
+        },
+        label = "dislikeIconScale"
+    )
+
+    val dislikeIconAlpha by animateFloatAsState(
+        targetValue = if (showDislikeEffect) 1f else 0f,
+        animationSpec = tween(durationMillis = 500),
+        label = "dislikeIconAlpha"
+    )
+
+    val undoIconScale by animateFloatAsState(
+        targetValue = if (showUndoEffect) 1.5f else 0f,
+        animationSpec = keyframes {
+            durationMillis = 500
+            0f at 0
+            1.5f at 150
+            1.2f at 300
+            1.5f at 500
+        },
+        label = "undoIconScale"
+    )
+
+    val undoIconAlpha by animateFloatAsState(
+        targetValue = if (showUndoEffect) 1f else 0f,
+        animationSpec = tween(durationMillis = 500),
+        label = "undoIconAlpha"
+    )
+
+    // Function to trigger feedback animation
+    fun showFeedbackEffect(effect: String) {
+        when (effect) {
+            "like" -> {
+                showLikeEffect = true
+                coroutineScope.launch {
+                    delay(800)
+                    showLikeEffect = false
+                }
+            }
+            "dislike" -> {
+                showDislikeEffect = true
+                coroutineScope.launch {
+                    delay(800)
+                    showDislikeEffect = false
+                }
+            }
+            "undo" -> {
+                showUndoEffect = true
+                coroutineScope.launch {
+                    delay(800)
+                    showUndoEffect = false
+                }
+            }
+        }
+    }
 
     suspend fun animateOffsetX(target: Float, duration: Long = 300) {
         val startTime = System.currentTimeMillis()
@@ -149,13 +201,13 @@ fun SwipeScreen(navController: NavController) {
         return abs(offsetX) / 10f
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier.fillMaxSize().background(Color(0xFF121212))) {
         if (users.isNotEmpty()) {
             val user = users.first()
             Card(
                 modifier = Modifier
-                    .width(LocalConfiguration.current.screenWidthDp.dp * 0.98f)
-                    .height(LocalConfiguration.current.screenHeightDp.dp * 0.8f)
+                    .width(LocalConfiguration.current.screenWidthDp.dp * 0.94f)
+                    .height(LocalConfiguration.current.screenHeightDp.dp * 0.78f)
                     .offset {
                         val offsetXPx = with(density) { offsetX.dp.toPx() }
                         IntOffset(offsetXPx.roundToInt(), 0)
@@ -185,6 +237,7 @@ fun SwipeScreen(navController: NavController) {
                                         offsetX = 0f
                                         currentImageIndex = 0 // Reset image index for new user
                                         isAnimating = false
+                                        showFeedbackEffect("dislike")
                                     }
                                 } else if (offsetX > thresholdDp) {
                                     isAnimating = true
@@ -195,6 +248,7 @@ fun SwipeScreen(navController: NavController) {
                                         offsetX = 0f
                                         currentImageIndex = 0 // Reset image index for new user
                                         isAnimating = false
+                                        showFeedbackEffect("like")
                                     }
                                 } else {
                                     isAnimating = true
@@ -210,9 +264,10 @@ fun SwipeScreen(navController: NavController) {
                             }
                         )
                     }
-                    .shadow(elevation = 4.dp, shape = RoundedCornerShape(16.dp))
+                    .shadow(elevation = 8.dp, shape = RoundedCornerShape(20.dp), spotColor = Color.Black)
                     .align(Alignment.Center),
-                shape = RoundedCornerShape(16.dp)
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.Black)
             ) {
                 Box {
                     // Display current image based on currentImageIndex
@@ -223,36 +278,52 @@ fun SwipeScreen(navController: NavController) {
                         contentScale = ContentScale.Crop
                     )
 
+                    // Add subtle gradient overlay at the top for better visibility
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(100.dp)
+                            .align(Alignment.TopCenter)
+                            .background(
+                                Brush.verticalGradient(
+                                    colors = listOf(
+                                        Color.Black.copy(alpha = 0.4f),
+                                        Color.Transparent
+                                    )
+                                )
+                            )
+                    )
+
+                    // Image indicators at the top
                     Row(
                         modifier = Modifier
                             .align(Alignment.TopCenter)
-                            .padding(top = 16.dp, start = 8.dp, end = 8.dp)
-                            .fillMaxWidth(0.9f) // Đặt chiều rộng khoảng 80% màn hình
-                            .height(6.dp) // Giảm chiều cao của các thanh
-                            .clip(RoundedCornerShape(3.dp))
-                        ,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            .padding(top = 12.dp, start = 12.dp, end = 12.dp)
+                            .fillMaxWidth(0.95f)
+                            .height(4.dp),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
-                        repeat(3) { index ->
+                        for (i in user.imageUrls.indices) {
                             Box(
                                 modifier = Modifier
-                                    .fillMaxHeight()
                                     .weight(1f)
+                                    .fillMaxHeight()
+                                    .clip(RoundedCornerShape(4.dp))
                                     .background(
-                                        if (index == currentImageIndex) Color.White else Color.Gray
+                                        if (i == currentImageIndex)
+                                            Color.White
+                                        else
+                                            Color.White.copy(alpha = 0.4f)
                                     )
-                                    .clip(RoundedCornerShape(3.dp)) // Bo góc các thanh
                             )
                         }
                     }
-
-
 
                     // Image navigation controls
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(8.dp)
+                            .padding(horizontal = 4.dp)
                             .align(Alignment.Center),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
@@ -263,18 +334,21 @@ fun SwipeScreen(navController: NavController) {
                                     currentImageIndex--
                                 }
                             },
-                            modifier = Modifier.size(40.dp),
+                            modifier = Modifier
+                                .size(48.dp)
+                                .clip(CircleShape)
+                                .background(Color.Black.copy(alpha = 0.3f)),
                             colors = IconButtonDefaults.iconButtonColors(
-                                containerColor = Color.White.copy(alpha = 0.7f)
+                                containerColor = Color.Transparent
                             )
                         ) {
                             Icon(
                                 imageVector = Icons.Default.KeyboardArrowLeft,
                                 contentDescription = "Previous Image",
-                                tint = Color.Black
+                                tint = Color.White,
+                                modifier = Modifier.size(28.dp)
                             )
                         }
-
 
                         // Next image button
                         IconButton(
@@ -283,33 +357,65 @@ fun SwipeScreen(navController: NavController) {
                                     currentImageIndex++
                                 }
                             },
-                            modifier = Modifier.size(40.dp),
+                            modifier = Modifier
+                                .size(48.dp)
+                                .clip(CircleShape)
+                                .background(Color.Black.copy(alpha = 0.3f)),
                             colors = IconButtonDefaults.iconButtonColors(
-                                containerColor = Color.White.copy(alpha = 0.7f)
+                                containerColor = Color.Transparent
                             )
                         ) {
                             Icon(
                                 imageVector = Icons.Default.KeyboardArrowRight,
                                 contentDescription = "Next Image",
-                                tint = Color.Black
+                                tint = Color.White,
+                                modifier = Modifier.size(28.dp)
                             )
                         }
                     }
 
+                    // Gradient overlay at the bottom for better text visibility
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(180.dp)
+                            .align(Alignment.BottomCenter)
+                            .background(
+                                Brush.verticalGradient(
+                                    colors = listOf(
+                                        Color.Transparent,
+                                        Color.Black.copy(alpha = 0.6f),
+                                        Color.Black.copy(alpha = 0.8f)
+                                    )
+                                )
+                            )
+                    )
+
+                    // User info at the bottom
                     Column(
                         modifier = Modifier
                             .align(Alignment.BottomStart)
-                            .padding(16.dp)
+                            .padding(start = 16.dp, end = 16.dp, bottom = 20.dp, top = 8.dp)
+                            .fillMaxWidth()
                     ) {
+                        // Name and age with shadow
                         Text(
                             text = "${user.name}, ${user.age}",
-                            fontSize = 24.sp,
+                            fontSize = 26.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color.White
+                            color = Color.White,
+                            modifier = Modifier.padding(bottom = 4.dp)
                         )
-                        Spacer(modifier = Modifier.height(8.dp))
 
-                        // Tags horizontal scrollable row
+                        // Location and occupation
+                        Text(
+                            text = "${user.occupation} • ${user.address}",
+                            fontSize = 16.sp,
+                            color = Color.White.copy(alpha = 0.9f),
+                            modifier = Modifier.padding(bottom = 10.dp)
+                        )
+
+                        // Tags in a flow layout
                         FlowRow(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                             verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -320,82 +426,243 @@ fun SwipeScreen(navController: NavController) {
                             }
                         }
                     }
+
+                    // Like and dislike indicators that appear when swiping
+                    if (offsetX > 60) {
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.TopEnd)
+                                .padding(top = 36.dp, end = 36.dp)
+                                .size(80.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(Color(0xFF4CAF50))
+                                .border(2.dp, Color.White, RoundedCornerShape(8.dp)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "LIKE",
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 18.sp
+                            )
+                        }
+                    } else if (offsetX < -60) {
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.TopStart)
+                                .padding(top = 36.dp, start = 36.dp)
+                                .size(80.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(Color(0xFFFF5252))
+                                .border(2.dp, Color.White, RoundedCornerShape(8.dp)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "NOPE",
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 18.sp
+                            )
+                        }
+                    }
                 }
             }
 
-            Row(
+            // Action buttons at the bottom
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp)
-                    .align(Alignment.BottomCenter),
-                horizontalArrangement = Arrangement.SpaceEvenly
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 24.dp)
+                    .height(80.dp)
+                    .background(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                Color.Transparent,
+                                Color.Black.copy(alpha = 0.7f)
+                            )
+                        )
+                    ),
+                contentAlignment = Alignment.Center
             ) {
-                Button(
-                    onClick = {
-                        isAnimating = true
-                        coroutineScope.launch {
-                            animateOffsetX(1000f)
-                            previousUser.add(users.removeFirst())
-                            swipeCount++
-                            offsetX = 0f
-                            currentImageIndex = 0 // Reset image index for new user
-                            isAnimating = false
-                        }
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.Green)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Like")
-                }
+                    // Undo button
+                    IconButton(
+                        onClick = {
+                            if (previousUser.isNotEmpty()) {
+                                previousUser.removeLast()?.let { users.add(0, it) }
+                                currentImageIndex = 0 // Reset image index for restored user
+                                showFeedbackEffect("undo")
+                            }
+                        },
+                        modifier = Modifier
+                            .size(54.dp)
+                            .clip(CircleShape)
+                            .background(Color.Transparent)
+                            .border(2.dp, Color(0xFFFFEB3B), CircleShape)
+                            .padding(4.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.Refresh,
+                            contentDescription = "Undo",
+                            tint = Color(0xFFFFEB3B),
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
 
-                Button(
-                    onClick = {
-                        isAnimating = true
-                        coroutineScope.launch {
-                            animateOffsetX(-1000f)
-                            previousUser.add(users.removeFirst())
-                            swipeCount++
-                            offsetX = 0f
-                            currentImageIndex = 0 // Reset image index for new user
-                            isAnimating = false
-                        }
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
-                ) {
-                    Text("No Like")
-                }
+                    // Dislike button
+                    IconButton(
+                        onClick = {
+                            isAnimating = true
+                            coroutineScope.launch {
+                                animateOffsetX(-1000f)
+                                previousUser.add(users.removeFirst())
+                                swipeCount++
+                                offsetX = 0f
+                                currentImageIndex = 0 // Reset image index for new user
+                                isAnimating = false
+                                showFeedbackEffect("dislike")
+                            }
+                        },
+                        modifier = Modifier
+                            .size(72.dp)
+                            .clip(CircleShape)
+                            .background(Color.Transparent)
+                            .border(3.dp, Color(0xFFFF5252), CircleShape)
+                            .padding(8.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.Close,
+                            contentDescription = "Dislike",
+                            tint = Color(0xFFFF5252),
+                            modifier = Modifier.size(32.dp)
+                        )
+                    }
 
-                Button(
-                    onClick = {
-                        if (previousUser.isNotEmpty()) {
-                            previousUser.removeLast()?.let { users.add(0, it) }
-                            currentImageIndex = 0 // Reset image index for restored user
-                        }
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.Gray)
-                ) {
-                    Text("Undo")
+                    // Like button
+                    IconButton(
+                        onClick = {
+                            isAnimating = true
+                            coroutineScope.launch {
+                                animateOffsetX(1000f)
+                                previousUser.add(users.removeFirst())
+                                swipeCount++
+                                offsetX = 0f
+                                currentImageIndex = 0 // Reset image index for new user
+                                isAnimating = false
+                                showFeedbackEffect("like")
+                            }
+                        },
+                        modifier = Modifier
+                            .size(72.dp)
+                            .clip(CircleShape)
+                            .background(Color.Transparent)
+                            .border(3.dp, Color(0xFF4CAF50), CircleShape)
+                            .padding(8.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.Favorite,
+                            contentDescription = "Like",
+                            tint = Color(0xFF4CAF50),
+                            modifier = Modifier.size(32.dp)
+                        )
+                    }
                 }
             }
+
+            // Feedback Effects Overlay
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                // Like feedback effect
+                Icon(
+                    imageVector = Icons.Rounded.Favorite,
+                    contentDescription = null,
+                    tint = Color(0xFF4CAF50),
+                    modifier = Modifier
+                        .size(200.dp)
+                        .scale(likeIconScale)
+                        .alpha(likeIconAlpha)
+                        .graphicsLayer {
+                            transformOrigin = TransformOrigin(0.5f, 0.5f)
+                        }
+                )
+
+                // Dislike feedback effect
+                Icon(
+                    imageVector = Icons.Rounded.Close,
+                    contentDescription = null,
+                    tint = Color(0xFFFF5252),
+                    modifier = Modifier
+                        .size(200.dp)
+                        .scale(dislikeIconScale)
+                        .alpha(dislikeIconAlpha)
+                        .graphicsLayer {
+                            transformOrigin = TransformOrigin(0.5f, 0.5f)
+                        }
+                )
+
+                // Undo feedback effect
+                Icon(
+                    imageVector = Icons.Rounded.Refresh,
+                    contentDescription = null,
+                    tint = Color(0xFFFFEB3B),
+                    modifier = Modifier
+                        .size(160.dp)
+                        .scale(undoIconScale)
+                        .alpha(undoIconAlpha)
+                        .graphicsLayer {
+                            transformOrigin = TransformOrigin(0.5f, 0.5f)
+                        }
+                )
+            }
         } else {
-            Text(
-                text = "No more profiles left!",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.align(Alignment.Center),
-                color = Color.Black
-            )
+            // No more profiles
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(32.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "No more profiles left!",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = "Check back later for new matches",
+                    fontSize = 16.sp,
+                    color = Color.White.copy(alpha = 0.7f),
+                    textAlign = TextAlign.Center
+                )
+            }
         }
-        Text(
-            text = "MiniTinder",
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.Black,
+
+        // Keep the logo at the top
+        Box(
             modifier = Modifier
-                .align(Alignment.TopCenter)
-                .padding(16.dp)
-        )
+                .fillMaxWidth()
+                .padding(top = 16.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            LogoTinder(color = Color(0xFFFF7854), colorLogo = Color(0xFFFF7854), logoSize = 30.dp, textSize = 35.sp)
+        }
     }
 }
+
 @Composable
 fun TagChip(tag: String) {
     Surface(
@@ -406,7 +673,9 @@ fun TagChip(tag: String) {
         Text(
             text = tag,
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-            fontSize = 14.sp
+            fontSize = 14.sp,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
         )
     }
 }
