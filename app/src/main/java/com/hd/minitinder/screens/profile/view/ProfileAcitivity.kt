@@ -18,9 +18,13 @@ import androidx.compose.ui.layout.ContentScale
 import com.hd.minitinder.R
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.hd.minitinder.screens.profile.viewmodel.ProfileViewModel
 
 import com.hd.minitinder.navigation.NavigationItem
 
@@ -28,7 +32,13 @@ val gradientColors = listOf(Color(0xFFFF4458), Color(0xFFFC5B6B))
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileScreen(navController: NavController) {
+fun ProfileScreen(
+    navController: NavController,
+    viewModel: ProfileViewModel = viewModel()
+) {
+
+    val userState by viewModel.userState.collectAsStateWithLifecycle()
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -69,12 +79,12 @@ fun ProfileScreen(navController: NavController) {
             // Tên
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = "Unknown",
+                    text = userState.name,
                     style = MaterialTheme.typography.headlineMedium
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Icon(
-                    imageVector = Icons.Filled.CheckCircle, // Verified Icon
+                    imageVector = Icons.Filled.CheckCircle,
                     contentDescription = "Verified",
                     tint = Color.Gray
                 )
@@ -121,7 +131,9 @@ fun ProfileScreen(navController: NavController) {
                 }
                 // Nút thêm hình ảnh
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    IconButton (onClick = {     },
+                    IconButton (onClick = {
+                        navController.navigate(NavigationItem.AddImage.route)
+                    },
                         modifier = Modifier
                             .background(
                                 brush = Brush.radialGradient(

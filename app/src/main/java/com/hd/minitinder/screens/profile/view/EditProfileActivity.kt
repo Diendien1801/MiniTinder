@@ -1,43 +1,41 @@
 package com.hd.minitinder.screens.profile.view
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.*
-//import androidx.compose.material3.icons.filled.*
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.hd.minitinder.data.model.UserModel
 import com.hd.minitinder.navigation.NavigationItem
 import com.hd.minitinder.screens.profile.viewmodel.ProfileViewModel
 
@@ -46,7 +44,8 @@ import com.hd.minitinder.ui.theme.*
 data class InfoButton(
     val label: String,
     val rightLabel: String,
-    val onClick: () -> Unit
+    val icon: ImageVector,
+    val onClick: () -> Unit,
 )
 
 @Composable
@@ -96,7 +95,7 @@ fun InfoSection(
                     .fillMaxWidth()
                     .height(52.dp)
                     .background(Color.White)
-                    .clickable{ infoButton.onClick() },
+                    .clickable { infoButton.onClick() },
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
@@ -105,13 +104,13 @@ fun InfoSection(
                 ) {
                     Spacer(modifier = Modifier.padding(start = 12.dp))
                     Icon(
-                        imageVector = Icons.Filled.Home,
-                        contentDescription = "Icon"
+                        imageVector = infoButton.icon,
+                        contentDescription = "${infoButton.label} icon"
                     )
                     Text(
                         modifier = Modifier
                             .padding(start = 4.dp),
-                        text = "${infoButton.label}",
+                        text = infoButton.label,
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color.Black
                     )
@@ -122,7 +121,7 @@ fun InfoSection(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = if (infoButton.rightLabel.isEmpty()) "Add" else infoButton.rightLabel,
+                        text = if (infoButton.rightLabel.isEmpty() or infoButton.rightLabel.isBlank()) "Add" else infoButton.rightLabel,
                         color = Color.DarkGray,
                         style = MaterialTheme.typography.bodyMedium
                     )
@@ -144,19 +143,44 @@ fun InfoSection(
 }
 
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditProfileScreen(
-    navController: NavController,
-    viewModel: ProfileViewModel = viewModel()
+    navController: NavController
 ) {
     // Lấy state của user từ ViewModel
+    val viewModel: ProfileViewModel = viewModel()
     val userState by viewModel.userState.collectAsStateWithLifecycle()
 
-    // Biến tạm để hiển thị dialog
-    var showEditDialog by remember { mutableStateOf(false) }
-    var dialogField by remember { mutableStateOf("") }      // Tên trường đang edit
-    var dialogValue by remember { mutableStateOf("") }      // Giá trị tạm cho dialog
+    var biographyText by remember(userState.bio) { mutableStateOf(userState.bio ?: "") }
+
+    // Quản lý hiển thị Bottom Sheet
+    var showSheet by remember { mutableStateOf(false) }
+    var selectedField by remember { mutableStateOf("") }
+
+    if (showSheet) {
+        when (selectedField) {
+            "Name", "Hometown", "Job", "Phone number" -> NameBottomSheet(
+                fieldName = selectedField,
+                onDismiss = {showSheet = false}
+            )
+            "Gender" -> GenderBottomSheet(
+                onDismiss = {showSheet = false}
+            )
+            "Dob" -> DobBottomSheet (
+                onDismiss = {showSheet = false}
+            )
+            "Height", "Weight" -> HWBottomSheet (
+                fieldName = selectedField,
+                onDismiss = {showSheet = false}
+            )
+            "Interest" -> InterestBottomSheet (
+                onDismiss = {showSheet = false}
+            )
+        }
+    }
+
 
     // Layout tổng
     Surface(modifier = Modifier.fillMaxSize()) {
@@ -171,12 +195,15 @@ fun EditProfileScreen(
                 Text(
                     text = "Edit profile",
                     color = Color.Black,
-                    fontSize = 22.sp,
+                    fontSize = 24.sp,
                     modifier = Modifier.align(Alignment.Center)
                 )
 
                 TextButton(
-                    onClick = { navController.navigate(NavigationItem.Profile.route) },
+                    onClick = {
+                        viewModel.onBioChange(biographyText)
+                        viewModel.saveUserToFirestore()
+                        navController.navigate(NavigationItem.Profile.route) },
                     modifier = Modifier
                         .align(Alignment.CenterEnd)
                         .padding(end = 8.dp)
@@ -234,78 +261,112 @@ fun EditProfileScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
                     .background(LightGray)
             ) {
                 // Tiểu sử
-                var biographyText by remember { mutableStateOf("") }
-
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(16.dp)
+                        .padding(vertical = 16.dp)
                 ) {
-                    // Tiêu đề
-                    Text(
-                        text = "Bio",
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ){
+                        // Dấu chấm
+                        Box(
+                            modifier = Modifier
+                                .padding(start = 8.dp)
+                                .size(5.dp)
+                                .background(SecondaryColor, shape = CircleShape)
+                        )
 
-                    // Trường nhập liệu cho tiểu sử
-                    OutlinedTextField(
+                        // Tiêu đề
+                        Text(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 4.dp),
+                            text = "Bio",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.Black,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    TextField(
                         value = biographyText,
                         onValueChange = { biographyText = it },
-                        placeholder = { Text(text = "Nhập tiểu sử của bạn ở đây...") },
+                        placeholder = { Text(text = "Something about you...") },
                         modifier = Modifier
                             .fillMaxWidth()
+                            .background(Color.White)
                             .heightIn(min = 150.dp),
+//                        colors = TextFieldDefaults.textFieldColors(
+//                            backgroundColor = Color.White,
+//                            focusedIndicatorColor = Color.Transparent,   // Ẩn đường viền khi focus (nếu cần)
+//                            unfocusedIndicatorColor = Color.Transparent    // Ẩn đường viền khi không focus (nếu cần)
+//                        ),
                         singleLine = false,
-                        maxLines = 5
+                        maxLines = 5,
                     )
                 }
 
                 // Thông tin cơ bản
                 InfoSection(
-                    title = "Basic Informations", infoButtons = listOf(
-                        InfoButton(label = "Name", rightLabel = "") { /* Xử lý khi click nút Tên */ },
-                        InfoButton(label = "Gender", rightLabel = "") { /* Xử lý khi click nút  */ },
-                        InfoButton(label = "Dob", rightLabel = "") { /* Xử lý khi click nút Ngày sinh */ },
-                ))
+                    title = "Basic Information", infoButtons = listOf(
+                        InfoButton(label = "Name", icon = Icons.Filled.Person, rightLabel = userState.name ?: "") {
+                            selectedField = "Name"
+                            showSheet = true },
+                        InfoButton(label = "Gender", icon = Icons.Filled.CheckCircle, rightLabel = userState.gender ?: "") {
+                            selectedField = "Gender"
+                            showSheet = true },
+                        InfoButton(label = "Dob", icon = Icons.Filled.DateRange, rightLabel = userState.dob ?: "") {
+                            selectedField = "Dob"
+                            showSheet = true },
+                    )
+                )
 
                 // Thông tin thêm
                 InfoSection(
-                    title = "More informations", infoButtons = listOf(
-                        InfoButton(label = "Hometown", rightLabel = "") { /* Xử lý khi click nút Tên */ },
-                        InfoButton(label = "Job", rightLabel = "") { /* Xử lý khi click nút  */ },
-                        InfoButton(label = "Height", rightLabel = "") { /* Xử lý khi click nút Ngày sinh */ },
-                        InfoButton(label = "Weight", rightLabel = "") { /* Xử lý khi click nút Ngày sinh */ },
+                    title = "More information", infoButtons = listOf(
+                        InfoButton(label = "Hometown", icon = Icons.Filled.Home, rightLabel = userState.hometown ?: "") {
+                            selectedField = "Hometown"
+                            showSheet = true },
+                        InfoButton(label = "Job", icon = Icons.Filled.Build, rightLabel = userState.job ?: "") {
+                            selectedField = "Job"
+                            showSheet = true },
+                        InfoButton(label = "Height", icon = Icons.Filled.Info, rightLabel = if (userState.height?.toInt() == 0 || userState.height.toString().isBlank()) "" else userState.height.toString()) {
+                            selectedField = "Height"
+                            showSheet = true
+                        },
+                        InfoButton(label = "Weight", icon = Icons.Filled.Info, rightLabel = if (userState.weight?.toInt() == 0 || userState.weight.toString().isBlank()) "" else userState.weight.toString()) {
+                            selectedField = "Weight"
+                            showSheet = true
+                        },
                     )
                 )
 
                 // Thông tin liên lạc
                 InfoSection(
-                    title = "Contact informations", infoButtons = listOf(
-                        InfoButton(label = "Phone Number", rightLabel = "") { /* Xử lý khi click nút Tên */ },
+                    title = "Contact information", infoButtons = listOf(
+                        InfoButton(label = "Phone Number", icon = Icons.Filled.Phone, rightLabel = userState.phoneNumber ?: "") {
+                            selectedField = "Phone number"
+                            showSheet = true },
                     )
-                )
-
-
-                // Ngôn ngữ
-                InfoSection(
-                    title = "Languages I know",
-                    infoButtons = listOf(
-                        InfoButton(label = "Languages", rightLabel = "") {},
-                    ),
                 )
 
                 // SỞ thích
                 InfoSection(
                     title = "Interests",
                     infoButtons = listOf(
-                        InfoButton(label = "Interests", rightLabel = "") { navController.navigate(NavigationItem.EditInterest.route) },
+                        InfoButton(label = "Interests", icon = Icons.Filled.Favorite, rightLabel = userState.interests.joinToString(", ")) {
+//                            navController.navigate(NavigationItem.EditInterest.route)
+                            selectedField = "Interest"
+                            showSheet = true },
                     ),
                 )
-
 
 
             }
@@ -313,84 +374,3 @@ fun EditProfileScreen(
     }
 }
 
-
-        // Dialog chỉnh sửa trường
-//        if (showEditDialog) {
-//            AlertDialog(
-//                onDismissRequest = { showEditDialog = false },
-//                title = { Text(text = "Edit $dialogField") },
-//                text = {
-//                    OutlinedTextField(
-//                        value = dialogValue,
-//                        onValueChange = { dialogValue = it },
-//                        modifier = Modifier.fillMaxWidth()
-//                    )
-//                },
-//                confirmButton = {
-//                    Button(
-//                        onClick = {
-//                            // Lưu giá trị vào ViewModel
-//                            when (dialogField) {
-//                                "Name" -> viewModel.onNameChange(dialogValue)
-//                                "Gender" -> viewModel.onGenderChange(dialogValue)
-//                                "Date of Birth" -> viewModel.onDobChange(dialogValue)
-//                                "Hometown" -> viewModel.onHometownChange(dialogValue)
-//                                "Job" -> viewModel.onJobChange(dialogValue)
-//                                "Height" -> dialogValue.toDoubleOrNull()?.let {
-//                                    viewModel.onHeightChange(it)
-//                                }
-//                                "Weight" -> dialogValue.toDoubleOrNull()?.let {
-//                                    viewModel.onWeightChange(it)
-//                                }
-//                                "Phone Number" -> viewModel.onPhoneNumberChange(dialogValue)
-//                                "Bio" -> viewModel.onBioChange(dialogValue)
-//                            }
-//                            showEditDialog = false
-//                        }
-//                    ) {
-//                        Text(text = "OK")
-//                    }
-//                },
-//                dismissButton = {
-//                    Button(onClick = { showEditDialog = false }) {
-//                        Text(text = "Cancel")
-//                    }
-//                }
-//            )
-//        }
-
-///**
-// * Data class để lưu thông tin mỗi dòng hiển thị
-// */
-//data class ProfileItemData(
-//    val label: String,
-//    val value: String,
-//    val onClick: () -> Unit
-//)
-//
-///**
-// * Composable hiển thị một dòng (label - value - nút Add/Edit)
-// */
-//@Composable
-//fun ProfileListItem(
-//    label: String,
-//    value: String,
-//    onClick: () -> Unit
-//) {
-//    Card(
-//        modifier = Modifier
-//            .fillMaxWidth()
-//            .padding(horizontal = 16.dp, vertical = 4.dp)
-//            .clickable { onClick() },
-//    ) {
-//        Row(
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .padding(16.dp),
-//            horizontalArrangement = Arrangement.SpaceBetween
-//        ) {
-//            Text(text = label, fontWeight = FontWeight.SemiBold)
-//            Text(text = value, color = Color.Gray)
-//        }
-//    }
-//}

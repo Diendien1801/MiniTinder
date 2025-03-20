@@ -47,6 +47,7 @@ android {
     }
     buildFeatures {
         compose = true
+        viewBinding = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.15"
@@ -71,14 +72,14 @@ dependencies {
     implementation("androidx.test.espresso:espresso-core:3.6.1")
     implementation("androidx.compose.animation:animation-core-lint:1.8.0-beta02")
     implementation("com.google.android.apps.common.testing.accessibility.framework:accessibility-test-framework:4.1.1")
-    implementation("org.jetbrains:annotations:15.0")
+    implementation("androidx.security:security-crypto:1.0.0")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
 
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
-//    androidTestImplementation(platform("androidx.compose:compose-bom:2024.04.01"))
+    androidTestImplementation(platform("androidx.compose:compose-bom:2024.04.01"))
 
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
@@ -104,9 +105,17 @@ dependencies {
     // firebase cloud firestore
     implementation("com.google.firebase:firebase-firestore-ktx")
 
-    // Thư viện cho các icon
-    implementation("androidx.compose.material:material-icons-extended")
+    // firebase messaging
+    implementation("com.google.firebase:firebase-messaging-ktx:24.1.0")
 
-//    implementation("com.google.accompanist:accompanist-flowlayout")
+    // cloudinary
+    implementation("com.cloudinary:cloudinary-android:3.0.2")
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+    implementation("androidx.navigation:navigation-fragment:2.7.7")
+    implementation("androidx.navigation:navigation-ui:2.7.7")
+
+    // share preference
+
 
 }
