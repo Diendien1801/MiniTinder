@@ -44,7 +44,7 @@ fun RegisterScreen(navController: NavController, registerViewModel: RegisterView
     val emailError by registerViewModel.emailError
     val passwordError by registerViewModel.passwordError
     val confirmPasswordError by registerViewModel.confirmPasswordError
-
+    val isLoading by registerViewModel.isLoading
     val gradientColors = listOf(Color(0xFFFF4458), Color(0xFFFC5B6B))
 
     var passwordVisible by remember { mutableStateOf(false) }
@@ -158,7 +158,8 @@ fun RegisterScreen(navController: NavController, registerViewModel: RegisterView
                                 showPopup = true
                             }
                         }
-                    }
+                    },
+                    isLoading = isLoading
                     )
 
                 Spacer(modifier = Modifier.height(16.dp))
