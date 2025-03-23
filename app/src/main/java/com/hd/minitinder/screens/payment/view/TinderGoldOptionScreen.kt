@@ -29,7 +29,7 @@ fun TinderGoldOptionScreen(navController: NavHostController) {
             .fillMaxSize()
             .background(
                 brush = Brush.verticalGradient(
-                    colors = listOf(Color(0xFFE6AF16), Color(0xFFFFFCF3)), // Gradient từ vàng đậm xuống vàng nhạt
+                    colors = listOf(Color(0xFFFFE8A5), Color(0xFFFFFFFF)), // Gradient từ vàng đậm xuống vàng nhạt
                     startY = 0f,
                     endY = 200f
                 )

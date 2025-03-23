@@ -32,6 +32,8 @@ import com.hd.minitinder.common.fragments.logo.LogoTinder
 
 import android.util.Log
 import androidx.compose.ui.draw.blur
+import androidx.compose.ui.graphics.ColorFilter
+import com.hd.minitinder.R
 import com.hd.minitinder.common.fragments.button.ButtonGradient
 
 @Composable
@@ -81,7 +83,7 @@ fun TinderGoldActivity(navController: NavController? = null) {
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(option.size) { index ->
-                        sortOption(option[index])
+                        SortOption(option[index])
                     }
                 }
 
@@ -162,8 +164,12 @@ fun personLikeYouItem(imageUrl: String, idUser: String, isPremium: Boolean) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(Color.Black.copy(alpha = 0.3f)) // Overlay tối
-                        .blur(12.dp) // Làm mờ
+                        .background(Color.White.copy(alpha = 0.2f))
+                        .blur(
+                            60.dp
+                        )
+
+
                 )
             }
         }
@@ -173,16 +179,25 @@ fun personLikeYouItem(imageUrl: String, idUser: String, isPremium: Boolean) {
 
 
 
-// Composable hiển thị option sắp xếp
 @Composable
-fun sortOption(text: String) {
+fun SortOption(text: String, icon: Int? = R.drawable.adjust) {
     Surface(
-        modifier = Modifier.padding(8.dp),
+        modifier = Modifier.padding(8.dp).widthIn(min = 60.dp),
         shape = RoundedCornerShape(20.dp),
         color = Color.Transparent,
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
     ) {
-
+        if (text.isEmpty()) { // Kiểm tra đúng chuẩn
+            icon?.let { // Đảm bảo icon không null
+                Image(
+                    painter = rememberAsyncImagePainter(it),
+                    contentDescription = "Sort Icon",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.size(40.dp).padding(8.dp),
+                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
+                )
+            }
+        } else {
             Text(
                 text = text,
                 fontSize = 16.sp,
@@ -190,9 +205,10 @@ fun sortOption(text: String) {
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(8.dp)
             )
-
+        }
     }
 }
+
 
 // 🔥 Thêm Preview để xem trước giao diện
 @Preview(showBackground = true)
@@ -201,4 +217,4 @@ fun PreviewTinderGoldActivity() {
     TinderGoldActivity()
 }
 
-val option = listOf("Nearby", "Top Rated", "Newest", "Oldest","Most Liked")
+val option = listOf("","Nearby", "Top Rated", "Newest", "Oldest","Most Liked")

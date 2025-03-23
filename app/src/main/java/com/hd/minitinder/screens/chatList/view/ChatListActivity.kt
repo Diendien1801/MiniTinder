@@ -23,9 +23,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -45,13 +47,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import coil.compose.rememberAsyncImagePainter
 import com.hd.minitinder.R
+import com.hd.minitinder.common.fragments.logo.LogoTinder
+import com.hd.minitinder.data.model.UserModel
 import com.hd.minitinder.navigation.NavigationItem
 import com.hd.minitinder.screens.chatList.viewmodel.ChatListViewModel
+import com.hd.minitinder.ui.theme.PrimaryColor
 
 @Composable
-fun ChatListActivity(navController: NavController,chatListViewModel: ChatListViewModel = viewModel()) {
+fun ChatListActivity(navController: NavController, chatListViewModel: ChatListViewModel = viewModel()) {
     var searchQuery by remember { mutableStateOf("") }
+
     LaunchedEffect(Unit) {
         chatListViewModel.getChatList()
     }
@@ -61,30 +68,31 @@ fun ChatListActivity(navController: NavController,chatListViewModel: ChatListVie
     }
 
     Box(
-        modifier = Modifier.fillMaxSize().background(Color.Black)
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color.Black)
-                .padding(start = 16.dp, top = 44.dp, bottom = 16.dp)
-
+                .padding(start = 16.dp, top = 20.dp, bottom = 16.dp)
         ) {
-            Text(
-                text = "New Matches",
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // New Matches - LazyRow (horizontal scrolling)
-            LazyRow {
-                items(chatListViewModel.chatList.value) { match ->
-                    MatchItem(match)
-                }
+            // Logo Tinder
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                LogoTinder(
+                    logoSize = 24.dp,
+                    textSize = 30.sp,
+                    colorLogo = MaterialTheme.colorScheme.primary,
+                    color = MaterialTheme.colorScheme.primary
+                )
             }
+
             Spacer(modifier = Modifier.height(16.dp))
+
             TextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
@@ -117,26 +125,40 @@ fun ChatListActivity(navController: NavController,chatListViewModel: ChatListVie
             )
 
             Spacer(modifier = Modifier.height(8.dp))
+
             Text(
                 text = "Messages",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White
             )
+
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Messages - LazyColumn (vertical scrolling)
-            LazyColumn {
-                items(filteredUsers) { user ->
-                    MessageItem(user)
-                    {
-                        navController.navigate(NavigationItem.DetailChat.createRoute(user.id, user.id))
+            // Nếu đang loading, hiển thị vòng xoay
+            if (chatListViewModel.isLoading.value) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(100.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = PrimaryColor)
+                }
+            } else {
+                // Nếu không loading, hiển thị danh sách chat
+                LazyColumn {
+                    items(filteredUsers) { user ->
+                        MessageItem(user) {
+                            navController.navigate(NavigationItem.DetailChat.createRoute(user.id, user.id))
+                        }
                     }
                 }
             }
         }
     }
 }
+
 @Composable
 fun MatchItem(name: String) {
     Column(

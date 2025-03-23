@@ -7,8 +7,8 @@ class ChatListRepository {
 
     private val db = FirebaseFirestore.getInstance()
 
-    fun getListChat(userId: String, onResult: (List<String>) -> Unit) {
-        val chatList = mutableListOf<String>()
+    fun getListChat(userId: String, onResult: (List<Pair<String, String>>) -> Unit) {
+        val chatList = mutableListOf<Pair<String, String>>()
 
         db.collection("matches")
             .whereEqualTo("idUser1", userId)
@@ -16,7 +16,8 @@ class ChatListRepository {
             .addOnSuccessListener { documents ->
                 for (document in documents) {
                     val idUser2 = document.getString("idUser2")
-                    idUser2?.let { chatList.add(it) }
+                    val docId = document.id
+                    idUser2?.let { chatList.add(it to docId) }
                 }
 
                 // Tiếp tục tìm những document có idUser2 = userId
@@ -26,7 +27,8 @@ class ChatListRepository {
                     .addOnSuccessListener { documents2 ->
                         for (document in documents2) {
                             val idUser1 = document.getString("idUser1")
-                            idUser1?.let { chatList.add(it) }
+                            val docId = document.id
+                            idUser1?.let { chatList.add(it to docId) }
                         }
 
                         // Trả kết quả về qua callback

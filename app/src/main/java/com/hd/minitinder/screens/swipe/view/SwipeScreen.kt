@@ -6,6 +6,7 @@ import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -43,10 +44,12 @@ import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.ThumbUp
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.hd.minitinder.R
 import com.hd.minitinder.common.fragments.logo.LogoTinder
 import com.hd.minitinder.screens.swipe.viewmodel.SwipeViewModel
 import kotlinx.coroutines.delay
@@ -201,7 +204,9 @@ fun SwipeScreen(navController: NavController, SwipeViewModel: SwipeViewModel = v
         return abs(offsetX) / 10f
     }
 
-    Box(modifier = Modifier.fillMaxSize().background(Color(0xFF121212))) {
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .background(Color(0xFF121212))) {
         if (users.isNotEmpty()) {
             val user = users.first()
             Card(
@@ -264,7 +269,11 @@ fun SwipeScreen(navController: NavController, SwipeViewModel: SwipeViewModel = v
                             }
                         )
                     }
-                    .shadow(elevation = 8.dp, shape = RoundedCornerShape(20.dp), spotColor = Color.Black)
+                    .shadow(
+                        elevation = 8.dp,
+                        shape = RoundedCornerShape(20.dp),
+                        spotColor = Color.Black
+                    )
                     .align(Alignment.Center),
                 shape = RoundedCornerShape(20.dp),
                 colors = CardDefaults.cardColors(containerColor = Color.Black)
@@ -502,16 +511,16 @@ fun SwipeScreen(navController: NavController, SwipeViewModel: SwipeViewModel = v
                             }
                         },
                         modifier = Modifier
-                            .size(54.dp)
+                            .size(60.dp)
                             .clip(CircleShape)
                             .background(Color.Transparent)
-                            .border(2.dp, Color(0xFFFFEB3B), CircleShape)
+                            .border(2.dp, Color(0xFFC8720B), CircleShape)
                             .padding(4.dp)
                     ) {
-                        Icon(
-                            imageVector = Icons.Rounded.Refresh,
+                        Image(
+                            painter = rememberAsyncImagePainter(R.drawable.reload),
                             contentDescription = "Undo",
-                            tint = Color(0xFFFFEB3B),
+                            //tint = Color(0xFFC8720B),
                             modifier = Modifier.size(24.dp)
                         )
                     }
@@ -531,17 +540,17 @@ fun SwipeScreen(navController: NavController, SwipeViewModel: SwipeViewModel = v
                             }
                         },
                         modifier = Modifier
-                            .size(72.dp)
+                            .size(60.dp)
                             .clip(CircleShape)
                             .background(Color.Transparent)
-                            .border(3.dp, Color(0xFFFF5252), CircleShape)
+                            .border(2.dp, Color(0xFFF3485B), CircleShape)
                             .padding(8.dp)
                     ) {
-                        Icon(
-                            imageVector = Icons.Rounded.Close,
+                        Image(
+                            painter = rememberAsyncImagePainter(R.drawable.dislike),
                             contentDescription = "Dislike",
-                            tint = Color(0xFFFF5252),
-                            modifier = Modifier.size(32.dp)
+                            //tint = Color(0xFFF3485B),
+                            modifier = Modifier.size(20.dp)
                         )
                     }
 
@@ -560,17 +569,17 @@ fun SwipeScreen(navController: NavController, SwipeViewModel: SwipeViewModel = v
                             }
                         },
                         modifier = Modifier
-                            .size(72.dp)
+                            .size(60.dp)
                             .clip(CircleShape)
                             .background(Color.Transparent)
-                            .border(3.dp, Color(0xFF4CAF50), CircleShape)
+                            .border(2.dp, Color(0xFF199A6A), CircleShape)
                             .padding(8.dp)
                     ) {
-                        Icon(
-                            imageVector = Icons.Rounded.Favorite,
+                        Image(
+                            painter = rememberAsyncImagePainter(R.drawable.green_heart),
                             contentDescription = "Like",
-                            tint = Color(0xFF4CAF50),
-                            modifier = Modifier.size(32.dp)
+                            //tint = Color(0xFF199A6A),
+                            modifier = Modifier.size(24.dp)
                         )
                     }
                 }
@@ -652,14 +661,41 @@ fun SwipeScreen(navController: NavController, SwipeViewModel: SwipeViewModel = v
         }
 
         // Keep the logo at the top
-        Box(
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 16.dp),
-            contentAlignment = Alignment.Center
+                .padding(start = 16.dp, top = 16.dp, end = 32.dp)
+                .height(60.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            LogoTinder(color = Color(0xFFFF7854), colorLogo = Color(0xFFFF7854), logoSize = 30.dp, textSize = 35.sp)
+            Box(
+                modifier = Modifier.padding(bottom = 16.dp)
+            ) {
+                LogoTinder(
+                    logoSize = 24.dp,
+                    textSize = 30.sp,
+                    colorLogo = MaterialTheme.colorScheme.primary,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+
+            Box(
+                modifier = Modifier.clickable {
+                    navController.navigate(com.hd.minitinder.navigation.NavigationItem.History.route)
+                }
+            ) {
+                Image(
+                    painter = rememberAsyncImagePainter(R.drawable.bell),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .padding(bottom = 16.dp),
+                    colorFilter = ColorFilter.tint(Color.Gray) // Áp dụng màu xám
+                )
+            }
         }
+
     }
 }
 
