@@ -18,7 +18,14 @@ enum class Screen{
     PAYMENTSUCCESS,
     PAYMENTOPTION,
     TINDERGOLD,
-    HISTORY
+    HISTORY,
+    WELCOME,
+    FIRSTNAME,
+    BIRTHDAY,
+    GENDERSELECTION,
+    HOMETOWN,
+    BIOSELECTION,
+    INTERESTSELECTION,
 }
 
 sealed class NavigationItem (val route: String)
@@ -44,7 +51,11 @@ sealed class NavigationItem (val route: String)
     object PaymentOption: NavigationItem(Screen.PAYMENTOPTION.name)
     object TinderGold: NavigationItem(Screen.TINDERGOLD.name)
     object History: NavigationItem(Screen.HISTORY.name)
-
-
-
+    object Welcome: NavigationItem(Screen.WELCOME.name)
+    object FirstName: NavigationItem(Screen.FIRSTNAME.name)
+    object Birthday: NavigationItem(Screen.BIRTHDAY.name)
+    object GenderSelection: NavigationItem(Screen.GENDERSELECTION.name)
+    object HomeTown: NavigationItem(Screen.HOMETOWN.name)
+    object BioSelection: NavigationItem(Screen.BIOSELECTION.name)
+    object InterestSelection: NavigationItem(Screen.INTERESTSELECTION.name)
 }

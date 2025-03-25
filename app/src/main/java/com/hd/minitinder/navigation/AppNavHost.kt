@@ -21,6 +21,8 @@ import com.hd.minitinder.screens.payment.view.TinderGoldOptionScreen
 import com.hd.minitinder.screens.profile.view.ProfileScreen
 import com.hd.minitinder.screens.profile.view.EditProfileScreen
 import com.hd.minitinder.screens.profile.view.EditInterestsScreen
+import com.hd.minitinder.screens.profileWelcome.view.FirstNameScreen
+import com.hd.minitinder.screens.profileWelcome.view.WelcomeScreen
 import com.hd.minitinder.screens.register.view.RegisterScreen
 import com.hd.minitinder.screens.swipe.view.SwipeScreen
 import com.hd.minitinder.screens.tinderGold.view.TinderGoldActivity
@@ -30,7 +32,7 @@ fun AppNavHost(
     navController: NavHostController,
     modifier: Modifier = Modifier,
     callbackManager: CallbackManager,
-    startDestination: String = NavigationItem.AuthenOption.route
+    startDestination: String = NavigationItem.Welcome.route
 ) {
     NavHost(
         navController = navController,
@@ -101,5 +103,30 @@ fun AppNavHost(
         composable(NavigationItem.PaymentOption.route) {
             TinderGoldOptionScreen(navController)
         }
+
+        composable(NavigationItem.Welcome.route) {
+            WelcomeScreen(navController)
+        }
+        composable(NavigationItem.FirstName.route) {
+            FirstNameScreen(navController)
+        }
+        composable(NavigationItem.Birthday.route) {
+            com.hd.minitinder.screens.profileWelcome.view.BirthdayScreen(navController)
+        }
+        composable (NavigationItem.GenderSelection.route) {
+            com.hd.minitinder.screens.profileWelcome.view.GenderSelectionScreen(navController)
+        }
+        composable(NavigationItem.HomeTown.route) {
+            com.hd.minitinder.screens.profileWelcome.view.HomeTownSceen(navController)
+        }
+
+        composable(NavigationItem.BioSelection.route) {
+            com.hd.minitinder.screens.profileWelcome.view.BioSelectionActivity(navController)
+        }
+
+        composable(NavigationItem.InterestSelection.route) {
+            com.hd.minitinder.screens.profileWelcome.view.InterestSelectionScreen(navController)
+        }
+
     }
 }

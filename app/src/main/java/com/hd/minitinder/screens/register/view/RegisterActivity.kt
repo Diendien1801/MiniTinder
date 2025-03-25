@@ -148,7 +148,7 @@ fun RegisterScreen(navController: NavController, registerViewModel: RegisterView
 
 
                                 Handler(Looper.getMainLooper()).postDelayed({
-                                    navController.navigate(NavigationItem.Login.route) {
+                                    navController.navigate(NavigationItem.Welcome.route) {
                                         popUpTo(NavigationItem.Register.route) { inclusive = true }
                                     }
                                 }, 3000) // Delay 3 giây
