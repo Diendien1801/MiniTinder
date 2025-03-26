@@ -73,6 +73,7 @@ dependencies {
     implementation("androidx.compose.animation:animation-core-lint:1.8.0-beta02")
     implementation("com.google.android.apps.common.testing.accessibility.framework:accessibility-test-framework:4.1.1")
     implementation("androidx.security:security-crypto:1.0.0")
+    implementation("com.google.firebase:firebase-storage-ktx:21.0.1")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")

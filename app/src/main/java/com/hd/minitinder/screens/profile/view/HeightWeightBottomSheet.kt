@@ -63,7 +63,7 @@ fun HWBottomSheet(
     // Đảm bảo cuộn đến giá trị đã chọn
     LaunchedEffect(Unit) {
         val scrollToIndex = if (content.value == 0.0) {
-            (150 - range.first)  // Vị trí cuộn nếu giá trị là 0
+            if (fieldName == "Height") (150 - range.first) else (50 - range.first)  // Vị trí cuộn nếu giá trị là 0
         } else {
             (content.value - range.first).toInt()
         }

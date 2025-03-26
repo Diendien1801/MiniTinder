@@ -105,7 +105,7 @@ fun InfoSection(
                     Spacer(modifier = Modifier.padding(start = 12.dp))
                     Icon(
                         imageVector = infoButton.icon,
-                        contentDescription = "${infoButton.label} icon"
+                        contentDescription = "${infoButton.label} icon",
                     )
                     Text(
                         modifier = Modifier
@@ -142,8 +142,6 @@ fun InfoSection(
     }
 }
 
-
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditProfileScreen(
@@ -153,7 +151,11 @@ fun EditProfileScreen(
     val viewModel: ProfileViewModel = viewModel()
     val userState by viewModel.userState.collectAsStateWithLifecycle()
 
-    var biographyText by remember(userState.bio) { mutableStateOf(userState.bio ?: "") }
+//    var biographyText by remember(userState.bio) { mutableStateOf(userState.bio) }
+    var biographyText by remember { mutableStateOf("") }
+    LaunchedEffect(userState.bio) {
+        biographyText = userState.bio
+    }
 
     // Quản lý hiển thị Bottom Sheet
     var showSheet by remember { mutableStateOf(false) }
@@ -226,7 +228,7 @@ fun EditProfileScreen(
                         .weight(1f),
                     contentAlignment = Alignment.Center
                 ) {
-                    TextButton(onClick = {}) {
+                    TextButton(onClick = { navController.navigate(NavigationItem.EditProfile.route)}) {
                         Text(
                             text = "Edit",
                             color = PrimaryColor,
@@ -247,7 +249,10 @@ fun EditProfileScreen(
                         .weight(1f),
                     contentAlignment = Alignment.Center
                 ) {
-                    TextButton(onClick = {}) {
+                    TextButton(onClick = {
+                        viewModel.onBioChange(biographyText)
+                        viewModel.saveUserToFirestore()
+                        navController.navigate(NavigationItem.Preview.route) }) {
                         Text(
                             text = "Preview",
                             color = Color.Gray,
@@ -316,13 +321,13 @@ fun EditProfileScreen(
                 // Thông tin cơ bản
                 InfoSection(
                     title = "Basic Information", infoButtons = listOf(
-                        InfoButton(label = "Name", icon = Icons.Filled.Person, rightLabel = userState.name ?: "") {
+                        InfoButton(label = "Name", icon = Icons.Filled.Person, rightLabel = userState.name) {
                             selectedField = "Name"
                             showSheet = true },
-                        InfoButton(label = "Gender", icon = Icons.Filled.CheckCircle, rightLabel = userState.gender ?: "") {
+                        InfoButton(label = "Gender", icon = Icons.Filled.CheckCircle, rightLabel = userState.gender) {
                             selectedField = "Gender"
                             showSheet = true },
-                        InfoButton(label = "Dob", icon = Icons.Filled.DateRange, rightLabel = userState.dob ?: "") {
+                        InfoButton(label = "Dob", icon = Icons.Filled.DateRange, rightLabel = userState.dob) {
                             selectedField = "Dob"
                             showSheet = true },
                     )
@@ -331,17 +336,17 @@ fun EditProfileScreen(
                 // Thông tin thêm
                 InfoSection(
                     title = "More information", infoButtons = listOf(
-                        InfoButton(label = "Hometown", icon = Icons.Filled.Home, rightLabel = userState.hometown ?: "") {
+                        InfoButton(label = "Hometown", icon = Icons.Filled.Home, rightLabel = userState.hometown) {
                             selectedField = "Hometown"
                             showSheet = true },
-                        InfoButton(label = "Job", icon = Icons.Filled.Build, rightLabel = userState.job ?: "") {
+                        InfoButton(label = "Job", icon = Icons.Filled.Build, rightLabel = userState.job) {
                             selectedField = "Job"
                             showSheet = true },
-                        InfoButton(label = "Height", icon = Icons.Filled.Info, rightLabel = if (userState.height?.toInt() == 0 || userState.height.toString().isBlank()) "" else userState.height.toString()) {
+                        InfoButton(label = "Height", icon = Icons.Filled.Info, rightLabel = if (userState.height.toInt() == 0 || userState.height.toString().isBlank()) "" else userState.height.toString()) {
                             selectedField = "Height"
                             showSheet = true
                         },
-                        InfoButton(label = "Weight", icon = Icons.Filled.Info, rightLabel = if (userState.weight?.toInt() == 0 || userState.weight.toString().isBlank()) "" else userState.weight.toString()) {
+                        InfoButton(label = "Weight", icon = Icons.Filled.Info, rightLabel = if (userState.weight.toInt() == 0 || userState.weight.toString().isBlank()) "" else userState.weight.toString()) {
                             selectedField = "Weight"
                             showSheet = true
                         },
@@ -351,7 +356,7 @@ fun EditProfileScreen(
                 // Thông tin liên lạc
                 InfoSection(
                     title = "Contact information", infoButtons = listOf(
-                        InfoButton(label = "Phone Number", icon = Icons.Filled.Phone, rightLabel = userState.phoneNumber ?: "") {
+                        InfoButton(label = "Phone Number", icon = Icons.Filled.Phone, rightLabel = userState.phoneNumber) {
                             selectedField = "Phone number"
                             showSheet = true },
                     )
@@ -362,7 +367,6 @@ fun EditProfileScreen(
                     title = "Interests",
                     infoButtons = listOf(
                         InfoButton(label = "Interests", icon = Icons.Filled.Favorite, rightLabel = userState.interests.joinToString(", ")) {
-//                            navController.navigate(NavigationItem.EditInterest.route)
                             selectedField = "Interest"
                             showSheet = true },
                     ),
