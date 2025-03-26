@@ -3,6 +3,7 @@ package com.hd.minitinder.navigation
 import ResetPasswordScreen
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -24,6 +25,7 @@ import com.hd.minitinder.screens.profile.view.EditInterestsScreen
 import com.hd.minitinder.screens.profileWelcome.view.FirstNameScreen
 import com.hd.minitinder.screens.profileWelcome.view.WelcomeScreen
 import com.hd.minitinder.screens.register.view.RegisterScreen
+import com.hd.minitinder.screens.register.viewmodel.RegisterViewModel
 import com.hd.minitinder.screens.swipe.view.SwipeScreen
 import com.hd.minitinder.screens.tinderGold.view.TinderGoldActivity
 
@@ -32,8 +34,9 @@ fun AppNavHost(
     navController: NavHostController,
     modifier: Modifier = Modifier,
     callbackManager: CallbackManager,
-    startDestination: String = NavigationItem.Welcome.route
+    startDestination: String = NavigationItem.AuthenOption.route
 ) {
+    val registerViewModel: RegisterViewModel = viewModel()
     NavHost(
         navController = navController,
         startDestination = startDestination,
@@ -43,7 +46,7 @@ fun AppNavHost(
             HomeScreen(navController)
         }
         composable(NavigationItem.Register.route) {
-            RegisterScreen(navController)
+            RegisterScreen(navController,registerViewModel)
         }
         composable(NavigationItem.Login.route) {
             LoginScreen(navController, callbackManager = callbackManager)
@@ -108,24 +111,24 @@ fun AppNavHost(
             WelcomeScreen(navController)
         }
         composable(NavigationItem.FirstName.route) {
-            FirstNameScreen(navController)
+            FirstNameScreen(navController,registerViewModel)
         }
         composable(NavigationItem.Birthday.route) {
-            com.hd.minitinder.screens.profileWelcome.view.BirthdayScreen(navController)
+            com.hd.minitinder.screens.profileWelcome.view.BirthdayScreen(navController,registerViewModel)
         }
         composable (NavigationItem.GenderSelection.route) {
-            com.hd.minitinder.screens.profileWelcome.view.GenderSelectionScreen(navController)
+            com.hd.minitinder.screens.profileWelcome.view.GenderSelectionScreen(navController,registerViewModel)
         }
         composable(NavigationItem.HomeTown.route) {
-            com.hd.minitinder.screens.profileWelcome.view.HomeTownSceen(navController)
+            com.hd.minitinder.screens.profileWelcome.view.HomeTownSceen(navController,registerViewModel)
         }
 
         composable(NavigationItem.BioSelection.route) {
-            com.hd.minitinder.screens.profileWelcome.view.BioSelectionActivity(navController)
+            com.hd.minitinder.screens.profileWelcome.view.BioSelectionActivity(navController,registerViewModel)
         }
 
         composable(NavigationItem.InterestSelection.route) {
-            com.hd.minitinder.screens.profileWelcome.view.InterestSelectionScreen(navController)
+            com.hd.minitinder.screens.profileWelcome.view.InterestSelectionScreen(navController,registerViewModel)
         }
 
     }

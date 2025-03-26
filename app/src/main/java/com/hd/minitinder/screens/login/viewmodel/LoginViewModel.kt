@@ -31,10 +31,10 @@ class LoginViewModel : ViewModel() {
 
 
     private val _email = mutableStateOf("")
-    val email: State<String> = _email
+    var email: State<String> = _email
 
     private val _password = mutableStateOf("")
-    val password: State<String> = _password
+    var password: State<String> = _password
 
     private val _errorMessage = mutableStateOf("")
     val errorMessage: State<String> = _errorMessage
@@ -58,23 +58,28 @@ class LoginViewModel : ViewModel() {
     }
 
     fun login() {
-        if (_email.value.isBlank() || _password.value.isBlank()) {
+        Log.d("LoginViewModel", "Login started with email: ${email.value}")
+
+        if (email.value.isBlank() || password.value.isBlank()) {
             _errorMessage.value = "Email and password are required!"
+            Log.e("LoginViewModel", "Validation failed: Email or password is blank")
             return
         }
 
         _isLoading.value = true
         _errorMessage.value = ""
 
-        auth.signInWithEmailAndPassword(_email.value, _password.value)
+        auth.signInWithEmailAndPassword(email.value, password.value)
             .addOnCompleteListener { task ->
                 _isLoading.value = false
                 if (task.isSuccessful) {
-                    _currentUser.value = auth.currentUser  // Cập nhật user hiện tại
+                    _currentUser.value = auth.currentUser
                     _loginSuccess.value = true
                     _errorMessage.value = "Login successful!"
+                    Log.d("LoginViewModel", "Login successful! User: ${auth.currentUser?.uid}")
                 } else {
                     _errorMessage.value = task.exception?.message ?: "Login failed!"
+                    Log.e("LoginViewModel", "Login failed: ${task.exception?.message}")
                 }
             }
     }

@@ -16,4 +16,8 @@ object Utils {
         return sdf.format(java.util.Date(timestamp))
     }
 
+    fun formatDate(day: String, month: String, year: String): String {
+        // ghép chuỗi ngày, tháng, năm thành chuỗi "dd/MM/yyyy"
+        return "$day/$month/$year"
+    }
 }

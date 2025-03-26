@@ -28,14 +28,16 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.hd.minitinder.R
 import com.hd.minitinder.common.fragments.ProgressBarStepIndicator
 import com.hd.minitinder.common.fragments.button.ButtonGradient
 import com.hd.minitinder.navigation.NavigationItem
+import com.hd.minitinder.screens.register.viewmodel.RegisterViewModel
 
 @Composable
-fun HomeTownSceen(navController: NavController) {
+fun HomeTownSceen(navController: NavController, viewModel: RegisterViewModel ) {
     var hometown by remember { mutableStateOf("") }
 
     Column(
@@ -88,8 +90,8 @@ fun HomeTownSceen(navController: NavController) {
 
             // Ô nhập liệu
             TextField(
-                value = "",
-                onValueChange = {  },
+                value = hometown,
+                onValueChange = { hometown = it },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 colors = TextFieldDefaults.colors(
@@ -118,6 +120,8 @@ fun HomeTownSceen(navController: NavController) {
             ButtonGradient(
                 buttonText = "Continue",
                 onClick = {
+
+                    viewModel.user.value.hometown = hometown
                     navController.navigate(NavigationItem.GenderSelection.route)
 
                 }

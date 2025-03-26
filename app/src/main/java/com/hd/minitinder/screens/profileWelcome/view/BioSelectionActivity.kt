@@ -28,16 +28,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.hd.minitinder.R
 import com.hd.minitinder.common.fragments.ProgressBarStepIndicator
 import com.hd.minitinder.common.fragments.button.ButtonGradient
 import com.hd.minitinder.navigation.NavigationItem
+import com.hd.minitinder.screens.register.viewmodel.RegisterViewModel
 import com.hd.minitinder.ui.theme.GradientColorsForButton
 import com.hd.minitinder.ui.theme.PrimaryColor
 
 @Composable
-fun BioSelectionActivity(nav: NavController) {
+fun BioSelectionActivity(nav: NavController,viewModel: RegisterViewModel ) {
     val options = listOf(
         "Long-term partner" to "💘",
         "Long-term, but short-term OK" to "😍",
@@ -119,6 +121,7 @@ fun BioSelectionActivity(nav: NavController) {
             ButtonGradient(
                 buttonText = "Continue",
                 onClick = {
+                    viewModel.user.value.bio = selectedOption.toString()
                     nav.navigate(NavigationItem.InterestSelection.route)
                 },
                 //modifier = Modifier.align(Alignment.End)

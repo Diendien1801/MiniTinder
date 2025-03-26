@@ -28,16 +28,18 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontWeight
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.hd.minitinder.R
 import com.hd.minitinder.common.fragments.ProgressBarStepIndicator
 import com.hd.minitinder.common.fragments.button.ButtonGradient
 import com.hd.minitinder.navigation.NavigationItem
+import com.hd.minitinder.screens.register.viewmodel.RegisterViewModel
 import com.hd.minitinder.ui.theme.GradientColorsForButton
 import com.hd.minitinder.ui.theme.PrimaryColor
 
 @Composable
-fun GenderSelectionScreen(nav: NavController) {
+fun GenderSelectionScreen(nav: NavController, viewModel: RegisterViewModel ) {
     var selectedGender by remember { mutableStateOf<String?>(null) }
     var showGender by remember { mutableStateOf(false) }
 
@@ -106,6 +108,7 @@ fun GenderSelectionScreen(nav: NavController) {
             ButtonGradient(
                 buttonText = "Continue",
                 onClick = {
+                    viewModel.user.value.gender = selectedGender.toString()
                     nav.navigate(NavigationItem.BioSelection.route)
                 }
             )

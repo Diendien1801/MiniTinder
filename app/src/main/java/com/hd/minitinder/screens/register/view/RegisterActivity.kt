@@ -37,7 +37,7 @@ import com.hd.minitinder.common.fragments.edittext.CustomOutlinedTextField
 import com.hd.minitinder.common.fragments.popup.SlidingPopup
 
 @Composable
-fun RegisterScreen(navController: NavController, registerViewModel: RegisterViewModel = viewModel()) {
+fun RegisterScreen(navController: NavController, registerViewModel: RegisterViewModel ) {
     val email by registerViewModel.email
     val password by registerViewModel.password
     val confirmPassword by registerViewModel.confirmPassword

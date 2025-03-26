@@ -29,15 +29,18 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.text.font.FontWeight
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.hd.minitinder.R
 import com.hd.minitinder.common.fragments.ProgressBarStepIndicator
 import com.hd.minitinder.common.fragments.button.ButtonGradient
 import com.hd.minitinder.navigation.NavigationItem
+import com.hd.minitinder.screens.register.viewmodel.RegisterViewModel
 import com.hd.minitinder.ui.theme.PrimaryColor
+import com.hd.minitinder.utils.Utils
 
 
 @Composable
-fun BirthdayScreen(navController: NavController) {
+fun BirthdayScreen(navController: NavController, viewModel: RegisterViewModel ) {
     var day by remember { mutableStateOf("") }
     var month by remember { mutableStateOf("") }
     var year by remember { mutableStateOf("") }
@@ -93,7 +96,8 @@ fun BirthdayScreen(navController: NavController) {
                 year = year,
                 onDayChange = { day = it },
                 onMonthChange = { month = it },
-            ) { }
+                onYearChange = { year = it },
+            )
             // Mô tả
             Text(
                 text = "Your profile shows your age, not your birth date.",
@@ -111,6 +115,7 @@ fun BirthdayScreen(navController: NavController) {
             ButtonGradient(
                 buttonText = "Continue",
                 onClick = {
+                    viewModel.user.value.dob = Utils.formatDate(day,month,year)
                     navController.navigate(NavigationItem.HomeTown.route)
                 },
 

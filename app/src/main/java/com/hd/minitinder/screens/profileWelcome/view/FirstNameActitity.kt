@@ -29,15 +29,17 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.hd.minitinder.R
 import com.hd.minitinder.common.fragments.ProgressBarStepIndicator
 import com.hd.minitinder.common.fragments.button.ButtonGradient
 import com.hd.minitinder.navigation.NavigationItem
+import com.hd.minitinder.screens.register.viewmodel.RegisterViewModel
 
 @Composable
-fun FirstNameScreen(navController: NavController) {
-    var firstName by remember { mutableStateOf("") }
+fun FirstNameScreen(navController: NavController, viewModel: RegisterViewModel ) {
+    var name by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -80,8 +82,8 @@ fun FirstNameScreen(navController: NavController) {
 
             // Ô nhập liệu
             TextField(
-                value = "",
-                onValueChange = {  },
+                value = name,
+                onValueChange = { name = it },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 colors = TextFieldDefaults.colors(
@@ -110,6 +112,7 @@ fun FirstNameScreen(navController: NavController) {
             ButtonGradient(
                 buttonText = "Continue",
                 onClick = {
+                    viewModel.user.value.name = name
                     navController.navigate(NavigationItem.Birthday.route)
                 }
             )

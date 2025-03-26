@@ -25,7 +25,7 @@ fun ProgressBarStepIndicator(currentStep: Int, totalSteps: Int = 6) {
         modifier = Modifier
             .fillMaxWidth()
             .height(6.dp)
-            .clip(RoundedCornerShape(50))
+
             .background(Color(0xFF333333)) // Màu nền thanh progress
     ) {
         Box(

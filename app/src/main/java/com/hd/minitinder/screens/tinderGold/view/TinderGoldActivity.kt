@@ -1,6 +1,8 @@
 package com.hd.minitinder.screens.tinderGold.view
 
 import TinderGoldViewModel
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -31,8 +33,12 @@ import com.hd.minitinder.common.fragments.logo.LogoTinder
 
 
 import android.util.Log
+import android.widget.ImageView
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.viewinterop.AndroidView
 import com.hd.minitinder.R
 import com.hd.minitinder.common.fragments.button.ButtonGradient
 
@@ -125,10 +131,13 @@ fun TinderGoldActivity(navController: NavController? = null) {
                     .align(Alignment.BottomCenter)
             ){
                 ButtonGradient(
+                    gradientColors = listOf(Color(0xFFE6AF16), Color(0xFFFFE8A5)),
                     buttonText = "See who Likes you",
                     onClick = {
                         navController?.navigate(com.hd.minitinder.navigation.NavigationItem.PaymentOption.route)
-                    }
+                    },
+                    textColor = Color.Black
+
                 )
             }
         }
@@ -164,12 +173,13 @@ fun personLikeYouItem(imageUrl: String, idUser: String, isPremium: Boolean) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(Color.White.copy(alpha = 0.2f))
-                        .blur(
-                            60.dp
-                        )
-
-
+                        // Màu kính mờ
+                )
+                Image(
+                    painter = painterResource(id = R.drawable.mystery), // Ảnh PNG có hiệu ứng kính mờ
+                    contentDescription = "Blur Overlay",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize().alpha(0.8f)
                 )
             }
         }
