@@ -135,5 +135,41 @@ class UserRepository {
         return isPremium
     }
 
+    fun updateUserImage(
+        userId: String,
+        imageUrls: List<String>,
+        onSuccess: () -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
+        Log.d("FirestoreDebug", "Bắt đầu cập nhật ảnh cho userId: $userId")
 
+        if (userId.isBlank()) {
+            val error = Exception("Lỗi: userId rỗng!")
+            Log.e("FirestoreDebug", error.message ?: "Lỗi không xác định")
+            onFailure(error)
+            return
+        }
+
+        if (imageUrls.isEmpty()) {
+            val error = Exception("Lỗi: Danh sách ảnh rỗng!")
+            Log.e("FirestoreDebug", error.message ?: "Lỗi không xác định")
+            onFailure(error)
+            return
+        }
+
+        val db = FirebaseFirestore.getInstance()
+        val usersRef = db.collection("users")
+
+        Log.d("FirestoreDebug", "Chuẩn bị cập nhật imageUrls: $imageUrls")
+
+        usersRef.document(userId).update("imageUrls", imageUrls)
+            .addOnSuccessListener {
+                Log.d("FirestoreDebug", "Cập nhật ảnh thành công cho userId: $userId")
+                onSuccess()
+            }
+            .addOnFailureListener { exception ->
+                Log.e("FirestoreDebug", "Lỗi khi cập nhật ảnh: ${exception.message}")
+                onFailure(exception)
+            }
+    }
 }

@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.hd.minitinder.data.model.UserModel
+import com.hd.minitinder.data.repositories.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -18,13 +19,15 @@ class ProfileViewModel : ViewModel() {
     private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
     val uid: String? = auth.currentUser?.uid
-
+    val userRepository = UserRepository()
     init {
 //        Log.d("ProfileViewModel", "Current User UID: $uid")
         uid?.let { userId ->
             loadUserFromFirestore(userId)
         }
     }
+
+
 
     /**
      * Hàm giả lập lấy dữ liệu người dùng từ Firestore.
@@ -43,6 +46,25 @@ class ProfileViewModel : ViewModel() {
                 .addOnFailureListener {
 //                    Log.e("ProfileViewModel", "Error fetching user")
                 }
+        }
+    }
+
+    /**
+     * Lưu dữ liệu người dùng lên Firestore.
+     */
+    fun updateImage(newImageUrls: List<String>) {
+        viewModelScope.launch {
+            userRepository.updateUserImage(
+                _userState.value.id,
+                newImageUrls,
+                onSuccess = {
+                    Log.d("ProfileViewModel", "Cập nhật ảnh thành công")
+                    _userState.value = _userState.value.copy(imageUrls = newImageUrls)
+                },
+                onFailure = { error ->
+                    Log.e("ProfileViewModel", "Lỗi khi cập nhật ảnh: $error")
+                }
+            )
         }
     }
 

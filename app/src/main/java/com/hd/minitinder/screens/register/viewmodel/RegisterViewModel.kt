@@ -4,9 +4,6 @@ import android.content.Context
 import android.util.Base64
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.State
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.lifecycle.*
 import com.google.firebase.auth.FirebaseAuth
 import com.hd.minitinder.data.model.UserModel

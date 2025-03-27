@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import coil.compose.rememberAsyncImagePainter
 import com.hd.minitinder.screens.profile.viewmodel.ProfileViewModel
 
 import com.hd.minitinder.navigation.NavigationItem
@@ -43,9 +44,7 @@ fun ProfileScreen(
             TopAppBar(
                 title = { Text("Profile") },
                 navigationIcon = {
-                    IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
-                    }
+
                 }
             )
         }
@@ -66,7 +65,8 @@ fun ProfileScreen(
                     .border(2.dp, Color.Gray, CircleShape)
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.ic_launcher_foreground), // Add your image resource here
+                    // url image
+                    painter = rememberAsyncImagePainter(userState.imageUrls.firstOrNull()),
                     contentDescription = "Profile Picture",
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
