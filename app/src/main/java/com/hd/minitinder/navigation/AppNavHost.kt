@@ -18,11 +18,13 @@ import com.hd.minitinder.screens.login.view.LoginScreen
 import com.hd.minitinder.screens.payment.view.PaymentQRScreen
 import com.hd.minitinder.screens.payment.view.PaymentSuccessScreen
 import com.hd.minitinder.screens.payment.view.TinderGoldOptionScreen
+import com.hd.minitinder.screens.profile.view.AddImageScreen
 import com.hd.minitinder.screens.profile.view.ProfileScreen
 import com.hd.minitinder.screens.profile.view.EditProfileScreen
-import com.hd.minitinder.screens.profile.view.EditInterestsScreen
+import com.hd.minitinder.screens.profile.view.PreviewActivity
 import com.hd.minitinder.screens.register.view.RegisterScreen
 import com.hd.minitinder.screens.swipe.view.SwipeScreen
+import com.hd.minitinder.screens.tinderGold.view.TinderGoldActivity
 
 @Composable
 fun AppNavHost(

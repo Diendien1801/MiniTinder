@@ -29,7 +29,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.hd.minitinder.navigation.NavigationItem
-import com.hd.minitinder.screens.profile.model.uploadImageToFirebase
+
 import com.hd.minitinder.screens.profile.viewmodel.ProfileViewModel
 import com.hd.minitinder.ui.theme.PrimaryColor
 
@@ -46,19 +46,7 @@ fun AddImageScreen(
     val getImageLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let {
             if (imageUrls.size < 9) {
-                uploadImageToFirebase(it,
-                    onSuccess = { downloadUrl ->
-                        // Sau khi có URL, cập nhật danh sách URL và lưu lên database
-                        imageUrls = imageUrls + downloadUrl
-                        viewModel.onImageChange(imageUrls)
-                        Log.d("aloalo",downloadUrl)
-                    },
-                    onFailure = { exception ->
-                        Log.d("aloalo","aloalo")
-                        // Xử lý lỗi nếu upload thất bại
-                        // Ví dụ: hiển thị thông báo lỗi cho người dùng
-                    }
-                )
+
             }
         }
     }
