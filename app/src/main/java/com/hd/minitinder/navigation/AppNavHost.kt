@@ -23,7 +23,6 @@ import com.hd.minitinder.screens.profile.view.EditProfileScreen
 import com.hd.minitinder.screens.profile.view.EditInterestsScreen
 import com.hd.minitinder.screens.register.view.RegisterScreen
 import com.hd.minitinder.screens.swipe.view.SwipeScreen
-import com.hd.minitinder.screens.tinderGold.view.TinderGoldActivity
 
 @Composable
 fun AppNavHost(
@@ -50,10 +49,13 @@ fun AppNavHost(
             ProfileScreen(navController)
         }
         composable(NavigationItem.EditProfile.route){
-            EditProfileScreen(navController, )
+            EditProfileScreen(navController)
         }
-        composable(NavigationItem.EditInterest.route){
-            EditInterestsScreen(navController, )
+        composable(NavigationItem.Preview.route){
+            PreviewActivity(navController)
+        }
+        composable(NavigationItem.AddImage.route){
+            AddImageScreen(navController)
         }
         composable(NavigationItem.Main.route){
             MainScreen()

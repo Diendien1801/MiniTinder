@@ -1,7 +1,9 @@
 package com.hd.minitinder.screens.profile.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.hd.minitinder.data.model.UserModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,10 +16,14 @@ class ProfileViewModel : ViewModel() {
     val userState: StateFlow<UserModel> = _userState
 
     private val firestore = FirebaseFirestore.getInstance()
+    private val auth = FirebaseAuth.getInstance()
+    val uid: String? = auth.currentUser?.uid
 
     init {
-        // Giả sử ta load user với id = "abc" (hoặc lấy từ session, v.v.)
-        loadUserFromFirestore("abc")
+//        Log.d("ProfileViewModel", "Current User UID: $uid")
+        uid?.let { userId ->
+            loadUserFromFirestore(userId)
+        }
     }
 
     /**
@@ -35,7 +41,7 @@ class ProfileViewModel : ViewModel() {
                     }
                 }
                 .addOnFailureListener {
-                    // Xử lý lỗi
+//                    Log.e("ProfileViewModel", "Error fetching user")
                 }
         }
     }
@@ -99,8 +105,11 @@ class ProfileViewModel : ViewModel() {
         _userState.value = _userState.value.copy(isPremium = isPremium)
     }
 
-    // Giả lập interests, có thể tuỳ chỉnh
     fun onInterestsChange(newInterests: List<String>) {
         _userState.value = _userState.value.copy(interests = newInterests)
+    }
+
+    fun onImageChange(newImageUrls: List<String>) {
+        _userState.value = _userState.value.copy(imageUrls = newImageUrls)
     }
 }
