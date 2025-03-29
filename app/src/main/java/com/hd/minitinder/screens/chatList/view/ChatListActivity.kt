@@ -20,6 +20,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
@@ -148,43 +149,14 @@ fun ChatListActivity(navController: NavController, chatListViewModel: ChatListVi
             } else {
                 // Nếu không loading, hiển thị danh sách chat
                 LazyColumn {
-                    items(filteredUsers) { user ->
+                    itemsIndexed(filteredUsers) { index, user ->
                         MessageItem(user) {
-                            navController.navigate(NavigationItem.DetailChat.createRoute(user.id, user.id))
+                            navController.navigate(NavigationItem.DetailChat.createRoute(chatListViewModel.chatIdList.value[index], user))
                         }
                     }
                 }
             }
         }
-    }
-}
-
-@Composable
-fun MatchItem(name: String) {
-    Column(
-        modifier = Modifier
-            .padding(end = 12.dp)
-            .width(80.dp)
-            .height(120.dp),
-        horizontalAlignment = Alignment.CenterHorizontally // Căn giữa nội dung theo chiều ngang
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.avt_temp),
-            contentDescription = name,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .width(80.dp)
-                .height(100.dp)
-                .clip(RoundedCornerShape(6.dp)) // Bo góc 6dp
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = name,
-            fontSize = 12.sp,
-            color = Color.White,
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center
-        )
     }
 }
 

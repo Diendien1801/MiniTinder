@@ -33,7 +33,9 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import coil.compose.rememberAsyncImagePainter
 import com.hd.minitinder.R
+import com.hd.minitinder.data.model.UserModel
 import com.hd.minitinder.screens.detailChat.components.DateSeparator
 import com.hd.minitinder.screens.detailChat.model.ChatMessageModel
 import com.hd.minitinder.ui.theme.PrimaryColor
@@ -42,7 +44,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DetailChatActivity(navController: NavController , chatId: String, receiverId: String) {
+fun DetailChatActivity(navController: NavController , chatId: String, receiver: UserModel) {
     val viewModel = viewModel<DetailChatViewModel>()
     val messages by viewModel.messages.collectAsState()
     val inputText = remember { mutableStateOf("") }
@@ -50,10 +52,10 @@ fun DetailChatActivity(navController: NavController , chatId: String, receiverId
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
 
-    LaunchedEffect(chatId, receiverId,context) {
+    LaunchedEffect(chatId, receiver.id,context) {
         val currentUserId = viewModel.userId.value // Lấy userId hiện tại
         if (currentUserId != null) {
-            viewModel.initChat(chatId, currentUserId, receiverId, context)
+            viewModel.initChat(chatId, currentUserId, receiver.id, context)
         } else {
             Log.e("DetailChatActivity", "UserId is null!")
         }
@@ -84,14 +86,14 @@ fun DetailChatActivity(navController: NavController , chatId: String, receiverId
             title = {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Image(
-                        painter = painterResource(id = R.drawable.avt_temp),
+                        painter = rememberAsyncImagePainter(receiver.imageUrls[0]),
                         contentDescription = "Profile Picture",
                         modifier = Modifier
                             .size(36.dp)
                             .clip(CircleShape)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Hoang Dien", fontSize = 16.sp, color = Color.White)
+                    Text(receiver.name, fontSize = 16.sp, color = Color.White)
                 }
             },
             navigationIcon = {
@@ -139,7 +141,7 @@ fun DetailChatActivity(navController: NavController , chatId: String, receiverId
                     lastDate = messageDate
                 }
 
-                ChatBubble(message, isMe = message.senderId == viewModel.getUserId())
+                ChatBubble(message, isMe = message.senderId == viewModel.getUserId(), receiver)
             }
         }
 
@@ -150,7 +152,7 @@ fun DetailChatActivity(navController: NavController , chatId: String, receiverId
             modifier = Modifier.padding(start = 10.dp, end = 10.dp)
         ){
             MessageInputBar(inputText.value, onTextChange = { inputText.value = it }) {
-                viewModel.sendMessage(inputText.value)
+                viewModel.sendMessage(context,inputText.value)
                 inputText.value = ""
             }
         }
@@ -180,7 +182,7 @@ fun DetailChatActivity(navController: NavController , chatId: String, receiverId
     }
 }
 @Composable
-fun ChatBubble(message: ChatMessageModel, isMe: Boolean) {
+fun ChatBubble(message: ChatMessageModel, isMe: Boolean, receiver: UserModel) {
     Column(
 
     ) {
@@ -190,7 +192,7 @@ fun ChatBubble(message: ChatMessageModel, isMe: Boolean) {
         ) {
             if (!isMe) {
                 Image(
-                    painter = painterResource(id = R.drawable.avt_temp),
+                    painter = rememberAsyncImagePainter(receiver.imageUrls[0]),
                     contentDescription = "Profile Picture",
                     modifier = Modifier
                         .size(30.dp)

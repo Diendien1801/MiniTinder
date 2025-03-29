@@ -18,8 +18,10 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.messaging.FirebaseMessaging
 import com.hd.minitinder.data.model.UserModel
 import com.hd.minitinder.data.repositories.UserRepository
+import com.hd.minitinder.service.MyFirebaseMessagingService
 import kotlinx.coroutines.launch
 import java.security.KeyPairGenerator
 
@@ -73,6 +75,8 @@ class LoginViewModel : ViewModel() {
                     _currentUser.value = auth.currentUser  // Cập nhật user hiện tại
                     _loginSuccess.value = true
                     _errorMessage.value = "Login successful!"
+                    // đăng ký 1 token FCM
+                    registerFCMToken()
                 } else {
                     _errorMessage.value = task.exception?.message ?: "Login failed!"
                 }
@@ -87,6 +91,8 @@ class LoginViewModel : ViewModel() {
         LoginManager.getInstance().registerCallback(callbackManager, object : FacebookCallback<LoginResult> {
             override fun onSuccess(result: LoginResult) {
                 handleFacebookAccessToken(result.accessToken, activity)
+                // đăng ký 1 token FCM
+                registerFCMToken()
             }
 
             override fun onCancel() {
@@ -155,7 +161,19 @@ class LoginViewModel : ViewModel() {
 
     }
 
-
+    // đăng ký token FCM
+    fun registerFCMToken() {
+        FirebaseMessaging.getInstance().token
+            .addOnCompleteListener { task ->
+                if (!task.isSuccessful) {
+                    Log.w("FCM", "Lấy token thất bại", task.exception)
+                    return@addOnCompleteListener
+                }
+                val token = task.result
+                Log.d("FCM", "FCM Token: $token")
+                MyFirebaseMessagingService().saveUserFCMToken(auth.currentUser?.uid.toString(), token)
+            }
+    }
 
 
 }

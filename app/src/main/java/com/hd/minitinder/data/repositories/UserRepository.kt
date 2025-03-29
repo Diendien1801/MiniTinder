@@ -7,6 +7,7 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.hd.minitinder.data.model.UserModel
+import kotlinx.coroutines.tasks.await
 
 class UserRepository {
     fun saveUserToFirestore(user: UserModel, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
@@ -133,6 +134,21 @@ class UserRepository {
                 }
                 }
         return isPremium
+    }
+
+    suspend fun getReceiverToken(receiverId: String): String? {
+        return try {
+            val document = FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(receiverId)
+                .get()
+                .await()  // Đợi dữ liệu trả về (suspend function)
+
+            document.getString("fcmToken")
+        } catch (e: Exception) {
+            Log.e("FCM", "Lỗi khi lấy token từ Firestore", e)
+            null
+        }
     }
 
 

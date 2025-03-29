@@ -6,13 +6,20 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.messaging.FirebaseMessaging
+import com.hd.minitinder.data.repositories.UserRepository
 import com.hd.minitinder.screens.detailChat.model.ChatMessageModel
 import com.hd.minitinder.screens.detailChat.repositories.ChatMessageRepository
+import com.hd.minitinder.service.ApiService
+import com.hd.minitinder.service.NotificationRequest
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 class DetailChatViewModel() : ViewModel() {
     init {
@@ -23,7 +30,7 @@ class DetailChatViewModel() : ViewModel() {
     val messages = _messages.asStateFlow()
 
     private val repository: ChatMessageRepository = ChatMessageRepository()
-
+    private val userRepository: UserRepository = UserRepository()
     private val _chatId = MutableStateFlow<String?>("")
     val chatId = _chatId.asStateFlow()
 
@@ -44,7 +51,7 @@ class DetailChatViewModel() : ViewModel() {
         listenForMessages(context)
     }
 
-    fun sendMessage(message: String) {
+    fun sendMessage(context: Context, message: String) {
         val chat = _chatId.value ?: return
         val sender = _userId.value ?: return
         val receiver = _receiverId.value ?: return
@@ -58,9 +65,43 @@ class DetailChatViewModel() : ViewModel() {
             message = message,
             type = "text"
         )
-        repository.sendMessage(chat, chatMessage, sender,receiver)
+
+        // Gửi tin nhắn đến Firestore
+        repository.sendMessage(context, chat, chatMessage, sender, receiver)
+
+        // Gửi thông báo FCM khi có tin nhắn mới
+        viewModelScope.launch {
+            try {
+                val token = withContext(Dispatchers.IO) {
+                    userRepository.getReceiverToken(receiver)
+                }
+
+                if (!token.isNullOrBlank()) {
+                    sendPushNotification(token, "Tin nhắn mới", message)
+                } else {
+                    Log.e("FCM", "Không tìm thấy token của người nhận")
+                }
+            } catch (e: Exception) {
+                Log.e("FCM", "Lỗi khi gửi thông báo: ${e.message}")
+            }
+        }
     }
 
+
+
+    // Gửi thông báo
+    suspend fun sendPushNotification(token: String, title: String, body: String) {
+        val retrofit = Retrofit.Builder()
+            .baseUrl("http://192.168.1.10:3000")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+        val apiService = retrofit.create(ApiService::class.java)
+        val request = NotificationRequest(token, title, body)
+
+        val response = apiService.sendNotification(request)
+        Log.d("FCM", "Gửi thông báo thành công: $response")
+    }
     private fun listenForMessages(context: Context) {
         val chat = _chatId.value ?: return
         // Lấy private key từ SharedPreferences
@@ -104,6 +145,7 @@ class DetailChatViewModel() : ViewModel() {
                     chatId.value?.let {
                         if (message != null) {
                             repository.sendMessage(
+                                context,
                                 it,
                                 message,
                                 senderId = userId.value.toString(),
@@ -119,6 +161,7 @@ class DetailChatViewModel() : ViewModel() {
             }
         }
     }
+
 
 
 }

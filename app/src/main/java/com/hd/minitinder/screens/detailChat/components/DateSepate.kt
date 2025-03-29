@@ -22,7 +22,7 @@ fun DateSeparator(date: String) {
     ) {
         Divider(
             modifier = Modifier
-                .weight(1f)
+                .width(40.dp)
                 .height(1.dp),
             color = Color.Gray.copy(alpha = 0.5f)
         )
@@ -34,7 +34,7 @@ fun DateSeparator(date: String) {
         )
         Divider(
             modifier = Modifier
-                .weight(1f)
+                .width(40.dp)
                 .height(1.dp),
             color = Color.Gray.copy(alpha = 0.5f)
         )
