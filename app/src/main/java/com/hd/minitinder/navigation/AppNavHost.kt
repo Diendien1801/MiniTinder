@@ -25,13 +25,14 @@ import com.hd.minitinder.screens.profile.view.PreviewActivity
 import com.hd.minitinder.screens.register.view.RegisterScreen
 import com.hd.minitinder.screens.swipe.view.SwipeScreen
 import com.hd.minitinder.screens.tinderGold.view.TinderGoldActivity
+import com.hd.minitinder.screens.recap.view.RecapScreen
 
 @Composable
 fun AppNavHost(
     navController: NavHostController,
     modifier: Modifier = Modifier,
     callbackManager: CallbackManager,
-    startDestination: String = NavigationItem.AuthenOption.route
+    startDestination: String = NavigationItem.Recap.route
 ) {
     NavHost(
         navController = navController,
@@ -104,6 +105,9 @@ fun AppNavHost(
         }
         composable(NavigationItem.PaymentOption.route) {
             TinderGoldOptionScreen(navController)
+        }
+        composable(NavigationItem.Recap.route) {
+            RecapScreen(onBackPressed = { navController.popBackStack() })
         }
     }
 }
