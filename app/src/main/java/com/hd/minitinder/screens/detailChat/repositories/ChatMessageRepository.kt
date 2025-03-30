@@ -1,9 +1,9 @@
 package com.hd.minitinder.screens.detailChat.repositories
 
-import android.content.Context
 import android.net.Uri
 import android.util.Base64
 import android.util.Log
+import androidx.privacysandbox.tools.core.model.Method
 import com.cloudinary.utils.ObjectUtils
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -16,13 +16,27 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 import kotlinx.coroutines.withContext
+
+
 import java.io.InputStream
 import java.security.KeyFactory
 import java.security.PrivateKey
 import java.security.spec.X509EncodedKeySpec
-
+import com.android.volley.toolbox.StringRequest
+import com.android.volley.toolbox.Volley
+import org.json.JSONObject
+import android.content.Context
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.Callback
+import okhttp3.Call
+import okhttp3.Response
+import java.io.IOException
+import java.io.FileInputStream
 class ChatMessageRepository {
-    fun sendMessage(chatId: String, message: ChatMessageModel, senderId: String, receiverId: String) {
+    fun sendMessage(context: Context, chatId: String, message: ChatMessageModel, senderId: String, receiverId: String) {
         val db = Firebase.firestore
 
         val senderRef = db.collection("users").document(senderId)
@@ -67,6 +81,7 @@ class ChatMessageRepository {
             Log.e("Chat", "Gửi tin nhắn thất bại", e)
         }
     }
+
 
 
     fun listenForMessages(

@@ -1,5 +1,10 @@
 package com.hd.minitinder.navigation
 
+import com.google.gson.Gson
+import com.hd.minitinder.data.model.UserModel
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
+
 
 enum class Screen{
     HOME,
@@ -35,8 +40,13 @@ sealed class NavigationItem (val route: String)
     object ResetPass: NavigationItem(Screen.RESETPASS.name)
     object AuthenOption: NavigationItem(Screen.AUTHENOPTION.name)
     object Chat: NavigationItem(Screen.CHAT.name)
-    object DetailChat : NavigationItem("detail_chat/{chatId}/{receiverId}") {
-        fun createRoute(chatId: String, receiverId: String) = "detail_chat/$chatId/$receiverId"
+    object DetailChat : NavigationItem("detail_chat/{chatId}/{receiverJson}") {
+
+        fun createRoute(chatId: String, receiver: UserModel): String {
+            val receiverJson = Gson().toJson(receiver) // Chuyển UserModel thành JSON
+            val encodedJson = URLEncoder.encode(receiverJson, StandardCharsets.UTF_8.toString()) // Mã hóa JSON để tránh lỗi URL
+            return "detail_chat/$chatId/$encodedJson"
+        }
     }
     object Swipe: NavigationItem(Screen.SWIPE.name)
     object PaymentQR : NavigationItem("${Screen.PAYMENTQR.name}/{payment}") {

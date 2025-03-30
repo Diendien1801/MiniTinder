@@ -9,6 +9,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.facebook.CallbackManager
+import com.google.gson.Gson
+import com.hd.minitinder.data.model.UserModel
 import com.hd.minitinder.screens.authenOption.view.AuthenOptionActivity
 import com.hd.minitinder.screens.chatList.view.ChatListActivity
 import com.hd.minitinder.screens.detailChat.DetailChatActivity
@@ -25,6 +27,8 @@ import com.hd.minitinder.screens.profile.view.PreviewActivity
 import com.hd.minitinder.screens.register.view.RegisterScreen
 import com.hd.minitinder.screens.swipe.view.SwipeScreen
 import com.hd.minitinder.screens.tinderGold.view.TinderGoldActivity
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
 
 @Composable
 fun AppNavHost(
@@ -75,14 +79,19 @@ fun AppNavHost(
             route = NavigationItem.DetailChat.route,
             arguments = listOf(
                 navArgument("chatId") { type = NavType.StringType },
-                navArgument("receiverId") { type = NavType.StringType }
+                navArgument("receiverJson") { type = NavType.StringType }
             )
         ) { backStackEntry ->
             val chatId = backStackEntry.arguments?.getString("chatId") ?: ""
-            val receiverId = backStackEntry.arguments?.getString("receiverId") ?: ""
+            val receiverJson = backStackEntry.arguments?.getString("receiverJson") ?: ""
 
-            DetailChatActivity(navController, chatId, receiverId)
+            // Giải mã URL và chuyển JSON về UserModel
+            val decodedJson = URLDecoder.decode(receiverJson, StandardCharsets.UTF_8.toString())
+            val receiver: UserModel = Gson().fromJson(decodedJson, UserModel::class.java)
+
+            DetailChatActivity(navController, chatId, receiver)
         }
+
         composable(NavigationItem.Swipe.route){
             SwipeScreen(navController)
         }
