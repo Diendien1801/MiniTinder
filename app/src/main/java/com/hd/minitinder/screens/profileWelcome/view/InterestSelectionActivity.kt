@@ -76,7 +76,7 @@ fun InterestSelectionScreen(nav: NavController, viewModel: RegisterViewModel ) {
         if (loginSuccess) {
             popupMessage = errorMessage
             delay(1000)
-            nav.navigate(NavigationItem.Main.route) {
+            nav.navigate(NavigationItem.Main.createRoute(NavigationItem.Swipe.route)) {
                 popUpTo(NavigationItem.InterestSelection.route) { inclusive = true }
             }
 
@@ -152,6 +152,7 @@ fun InterestSelectionScreen(nav: NavController, viewModel: RegisterViewModel ) {
                 onClick = {
                     viewModel.user.value.id = FirebaseAuth.getInstance().currentUser?.uid.toString()
                     viewModel.user.value.interests = selectedPassions.toList() // Lưu sở thích đã chọn
+                    viewModel.user.value.imageUrls = listOf("https://github.com/Nhannguyenus24/Thread-clone/blob/main/project/public/image/anonymous-user.jpg?raw=true");
                     viewModel.updateUserModelToDatabase()
 
                     loginViewModel.email = viewModel.email

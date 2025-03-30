@@ -6,7 +6,7 @@ import com.google.firebase.firestore.Exclude
 
 data class UserModel(
     var id: String = "",
-    val imageUrls: List<String> = listOf(),
+    var imageUrls: List<String> = listOf(),
     var name: String = "",
     var gender: String = "",
     var dob: String = "",
