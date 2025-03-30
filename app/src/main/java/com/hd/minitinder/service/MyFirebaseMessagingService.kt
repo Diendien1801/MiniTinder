@@ -14,10 +14,12 @@ import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.hd.minitinder.MainActivity
 import com.hd.minitinder.R
+import com.hd.minitinder.navigation.NavigationItem
 
 class MyFirebaseMessagingService : FirebaseMessagingService() {
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         remoteMessage.notification?.let {
+            Log.d("FCM", "Message Notification Body: ${remoteMessage.data["senderId"]}")
             showNotification(it.title ?: "MiniTinder", it.body ?: "Bạn có tin nhắn mới!")
         }
     }
@@ -26,7 +28,6 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         val channelId = "CHAT_CHANNEL_ID"
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-        // Tạo kênh thông báo trên Android 8+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 channelId,
@@ -36,11 +37,14 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             notificationManager.createNotificationChannel(channel)
         }
 
-        // Khi bấm vào thông báo, mở MainActivity
-        val intent = Intent(this, MainActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        // Cập nhật Intent với cờ phù hợp
+        val intent = Intent(this, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            putExtra("navigate_to", NavigationItem.Chat.route)
+        }
+
         val pendingIntent = PendingIntent.getActivity(
-            this, 0, intent, PendingIntent.FLAG_IMMUTABLE
+            this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
         val notificationBuilder = NotificationCompat.Builder(this, channelId)
@@ -54,6 +58,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
         notificationManager.notify(0, notificationBuilder.build())
     }
+
     fun saveUserFCMToken(userId: String, token: String) {
         val userRef = FirebaseFirestore.getInstance().collection("users").document(userId)
 

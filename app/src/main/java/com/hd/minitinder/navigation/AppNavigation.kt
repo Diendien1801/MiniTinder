@@ -43,7 +43,12 @@ sealed class NavigationItem (val route: String)
     object EditProfile: NavigationItem(Screen.EDITPROFILE.name)
     object Preview: NavigationItem(Screen.PREVIEW.name)
     object AddImage: NavigationItem(Screen.ADDIMAGE.name)
-    object Main: NavigationItem(Screen.MAIN.name)
+    object Main: NavigationItem("main/{initial}")
+    {
+        fun createRoute(initial: String): String {
+            return "main/$initial"
+        }
+    }
     object ResetPass: NavigationItem(Screen.RESETPASS.name)
     object AuthenOption: NavigationItem(Screen.AUTHENOPTION.name)
     object Chat: NavigationItem(Screen.CHAT.name)

@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.FirebaseMessaging
@@ -63,7 +64,8 @@ class DetailChatViewModel() : ViewModel() {
             senderId = sender,
             receiverId = receiver,
             message = message,
-            type = "text"
+            type = "text",
+            read = false
         )
 
         // Gửi tin nhắn đến Firestore
@@ -120,6 +122,9 @@ class DetailChatViewModel() : ViewModel() {
         repository.listenForMessages(chat,  userId.value.toString(),privateKey,) { newMessages ->
             viewModelScope.launch {
                 _messages.emit(newMessages)
+                markAllMessagesAsRead(context, userId.value.toString()){
+
+                }
             }
         }
     }
@@ -139,7 +144,8 @@ class DetailChatViewModel() : ViewModel() {
                             senderId = getUserId(),
                             receiverId = it,
                             message = imageUrl, // Lưu URL ảnh
-                            type = "image" // Đánh dấu tin nhắn là ảnh
+                            type = "image", // Đánh dấu tin nhắn là ảnh
+                            read = false
                         )
                     }
                     chatId.value?.let {
@@ -162,6 +168,13 @@ class DetailChatViewModel() : ViewModel() {
         }
     }
 
+    // update read all message
+    fun markAllMessagesAsRead(context: Context, currentUserId: String, onComplete: (Boolean) -> Unit) {
+        val chatId = _chatId.value ?: return
+        repository.markAllMessagesAsRead(chatId, currentUserId) { success ->
+            onComplete(success)
+        }
+    }
 
 
 }

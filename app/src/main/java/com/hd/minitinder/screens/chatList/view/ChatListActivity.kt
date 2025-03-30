@@ -60,13 +60,16 @@ import com.hd.minitinder.ui.theme.PrimaryColor
 fun ChatListActivity(navController: NavController, chatListViewModel: ChatListViewModel = viewModel()) {
     var searchQuery by remember { mutableStateOf("") }
 
+    val unreadChats by chatListViewModel.unreadChats
+
     LaunchedEffect(Unit) {
         chatListViewModel.getChatList()
     }
 
-    val filteredUsers = chatListViewModel.userList.value.filter {
-        it.name.contains(searchQuery, ignoreCase = true)
+    val filteredUsers = chatListViewModel.mappedUserList.value.filter { (user, _) ->
+        user.name.contains(searchQuery, ignoreCase = true)
     }
+
 
     Box(
         modifier = Modifier
@@ -149,9 +152,9 @@ fun ChatListActivity(navController: NavController, chatListViewModel: ChatListVi
             } else {
                 // Nếu không loading, hiển thị danh sách chat
                 LazyColumn {
-                    itemsIndexed(filteredUsers) { index, user ->
-                        MessageItem(user) {
-                            navController.navigate(NavigationItem.DetailChat.createRoute(chatListViewModel.chatIdList.value[index], user))
+                    itemsIndexed(filteredUsers) { index, pair ->
+                        MessageItem(pair.first, pair.second) {
+                            navController.navigate(NavigationItem.DetailChat.createRoute(chatListViewModel.chatIdList.value[chatListViewModel.chatList.value.indexOf(pair.first.id)], pair.first))
                         }
                     }
                 }
@@ -161,25 +164,41 @@ fun ChatListActivity(navController: NavController, chatListViewModel: ChatListVi
 }
 
 
-
 @Composable
-fun MessageItem(user: UserModel, onClick: () -> Unit) {
+fun MessageItem(user: UserModel, isUnRead: Boolean, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp)
             .clickable { onClick() } // Xử lý sự kiện khi nhấn
     ) {
-        Image(
-            painter = rememberAsyncImagePainter(
-                user.imageUrls.firstOrNull() ?: "https://github.com/Nhannguyenus24/Thread-clone/blob/main/project/public/image/anonymous-user.jpg?raw=true"
-            ),
-            contentDescription = "Profile Picture",
-            modifier = Modifier
-                .size(80.dp)
-                .clip(CircleShape)
-        )
+        Box(
+            modifier = Modifier.size(80.dp),
+            contentAlignment = Alignment.TopEnd // Canh phải trên cùng
+        ) {
+            Image(
+                painter = rememberAsyncImagePainter(
+                    user.imageUrls.firstOrNull() ?: "https://github.com/Nhannguyenus24/Thread-clone/blob/main/project/public/image/anonymous-user.jpg?raw=true"
+                ),
+                contentDescription = "Profile Picture",
+                modifier = Modifier
+                    .size(80.dp)
+                    .clip(CircleShape)
+            )
+
+            // Hiển thị chấm đỏ nếu tin nhắn chưa đọc
+            if (isUnRead) {
+                Box(
+                    modifier = Modifier
+                        .size(12.dp)
+                        .background(PrimaryColor, shape = CircleShape)
+                        .border(1.dp, Color.White, CircleShape)
+                )
+            }
+        }
+
         Spacer(modifier = Modifier.width(12.dp))
+
         Column(
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -208,5 +227,6 @@ fun MessageItem(user: UserModel, onClick: () -> Unit) {
         }
     }
 }
+
 
 

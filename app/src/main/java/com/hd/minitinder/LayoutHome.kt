@@ -23,7 +23,7 @@ import com.hd.minitinder.R
 import com.hd.minitinder.ui.theme.PrimaryColor
 
 @Composable
-fun MainScreen() {
+fun MainScreen(startDestination: String) {
     val navController = rememberNavController()
 
     // Lưu trạng thái tab được chọn, mặc định là Home
@@ -97,7 +97,7 @@ fun MainScreen() {
         AppNavHost(
             navController = navController,
             modifier = Modifier.padding(paddingValues),
-            startDestination = NavigationItem.Swipe.route,// Mặc định vào Home
+            startDestination = startDestination,// Mặc định vào Home
             callbackManager = CallbackManager.Factory.create()
 
         )

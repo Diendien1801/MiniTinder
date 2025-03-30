@@ -4,10 +4,10 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DIALOG" />
-        <DropdownSelection timestamp="2025-03-29T05:51:10.233670600Z">
+        <DropdownSelection timestamp="2025-03-30T11:39:36.216741500Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\dient\.android\avd\Medium_Phone_API_30.avd" />
+              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\dient\.android\avd\Medium_Phone_API_30_2.avd" />
             </handle>
           </Target>
         </DropdownSelection>

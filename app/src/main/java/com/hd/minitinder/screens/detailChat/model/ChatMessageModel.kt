@@ -6,5 +6,6 @@ data class ChatMessageModel(
     var message: String = "",
     var encryptForSender: String = "",
     val timestamp: Long = System.currentTimeMillis(),
-    val type: String = ""
+    val type: String = "",
+    val read: Boolean = false
 )

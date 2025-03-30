@@ -3,7 +3,6 @@ package com.hd.minitinder.screens.detailChat.repositories
 import android.net.Uri
 import android.util.Base64
 import android.util.Log
-import androidx.privacysandbox.tools.core.model.Method
 import com.cloudinary.utils.ObjectUtils
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -22,10 +21,9 @@ import java.io.InputStream
 import java.security.KeyFactory
 import java.security.PrivateKey
 import java.security.spec.X509EncodedKeySpec
-import com.android.volley.toolbox.StringRequest
-import com.android.volley.toolbox.Volley
 import org.json.JSONObject
 import android.content.Context
+import com.google.firebase.firestore.FirebaseFirestore
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.MediaType.Companion.toMediaType
@@ -156,5 +154,31 @@ class ChatMessageRepository {
             }
             return filePath
         }
+
+
+    // hàm cập nhật tất cả tin nhắn đã đọc
+    fun markAllMessagesAsRead(chatId: String, currentUserId: String, onComplete: (Boolean) -> Unit) {
+        val messagesRef = FirebaseFirestore.getInstance()
+            .collection("chats").document(chatId)
+            .collection("messages")
+
+        messagesRef.whereEqualTo("read", false)
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                val batch = FirebaseFirestore.getInstance().batch()
+
+                for (document in querySnapshot.documents) {
+                    val senderId = document.getString("senderId") ?: ""
+                    if (senderId != currentUserId) {
+                        batch.update(document.reference, "read", true)
+                    }
+                }
+
+                batch.commit()
+                    .addOnSuccessListener { onComplete(true) }
+                    .addOnFailureListener { onComplete(false) }
+            }
+            .addOnFailureListener { onComplete(false) }
+    }
 
 }

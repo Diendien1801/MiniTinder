@@ -76,7 +76,7 @@ fun LoginScreen(
         if (loginSuccess) {
             popupMessage = errorMessage
             delay(1000)
-            navController.navigate(NavigationItem.Main.route) {
+            navController.navigate(NavigationItem.Main.createRoute(NavigationItem.Swipe.route)) {
                 popUpTo(NavigationItem.Login.route) { inclusive = true }
             }
 

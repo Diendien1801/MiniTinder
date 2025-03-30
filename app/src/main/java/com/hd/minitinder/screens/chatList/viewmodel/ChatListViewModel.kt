@@ -3,21 +3,29 @@ package com.hd.minitinder.screens.chatList.viewmodel
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.hd.minitinder.data.model.UserModel
 import com.hd.minitinder.screens.chatList.repository.ChatListRepository
-import com.hd.minitinder.screens.login.viewmodel.LoginViewModel
-
+import kotlinx.coroutines.launch
 
 class ChatListViewModel : ViewModel() {
 
+    // partnerID
     var chatList = mutableStateOf<List<String>>(emptyList())
+    // Chat ID
     var chatIdList = mutableStateOf<List<String>>(emptyList())
     var userList = mutableStateOf<List<UserModel>>(emptyList())
+
+    // Trạng thái tin nhắn chưa đọc (Map: chatId -> có tin nhắn chưa đọc hay không)
+    var unreadChats = mutableStateOf<Map<String, Boolean>>(emptyMap()) // Lưu trạng thái chưa đọc
 
     var isLoading = mutableStateOf(false)
     val currentUser = FirebaseAuth.getInstance().currentUser
 
+
+    var mappedUserList = mutableStateOf<List<Pair<UserModel, Boolean>>>(emptyList())
     private val chatListRepository = ChatListRepository()
 
     fun getChatList(userId: String = currentUser?.uid ?: "") {
@@ -32,6 +40,7 @@ class ChatListViewModel : ViewModel() {
             chatIdList.value = list.map { it.second }
 
             getUserList()
+            checkUnreadMessages()
         }
     }
 
@@ -41,6 +50,27 @@ class ChatListViewModel : ViewModel() {
             isLoading.value = false // Kết thúc loading
         }
     }
+
+    fun checkUnreadMessages() {
+        val updatedUnreadChats = mutableMapOf<String, Boolean>()
+
+        viewModelScope.launch {
+            chatIdList.value.forEach { chatId ->
+                chatListRepository.checkUnreadMessage(chatId, currentUser?.uid ?: "") { isUnread ->
+                    updatedUnreadChats[chatId] = isUnread
+
+                    // Khi đã kiểm tra hết tất cả chatId, cập nhật unreadChats một lần duy nhất
+                    if (updatedUnreadChats.size == chatIdList.value.size) {
+                        unreadChats.value = updatedUnreadChats
+                        updateMappedUserList()
+                    }
+                }
+            }
+        }
+    }
+    fun updateMappedUserList() {
+        mappedUserList.value = userList.value.zip(chatIdList.value) { user, chatId ->
+            user to (unreadChats.value[chatId] ?: false)
+        }
+    }
 }
-
-

@@ -24,7 +24,6 @@ import com.hd.minitinder.screens.payment.view.TinderGoldOptionScreen
 import com.hd.minitinder.screens.profile.view.AddImageScreen
 import com.hd.minitinder.screens.profile.view.ProfileScreen
 import com.hd.minitinder.screens.profile.view.EditProfileScreen
-import com.hd.minitinder.screens.profile.view.EditInterestsScreen
 import com.hd.minitinder.screens.profileWelcome.view.FirstNameScreen
 import com.hd.minitinder.screens.profileWelcome.view.WelcomeScreen
 import com.hd.minitinder.screens.profile.view.PreviewActivity
@@ -69,8 +68,16 @@ fun AppNavHost(
         composable(NavigationItem.AddImage.route){
             AddImageScreen(navController)
         }
-        composable(NavigationItem.Main.route){
-            MainScreen()
+        composable(
+            route = NavigationItem.Main.route,
+            arguments= listOf(
+                navArgument("initial"){
+                    type = NavType.StringType
+                }
+            )
+        ){
+            val startDestination = it.arguments?.getString("initial") ?: NavigationItem.Swipe.route
+            MainScreen(startDestination)
         }
         composable(NavigationItem.ResetPass.route){
             ResetPasswordScreen(navController)
@@ -95,7 +102,7 @@ fun AppNavHost(
             val decodedJson = URLDecoder.decode(receiverJson, StandardCharsets.UTF_8.toString())
             val receiver: UserModel = Gson().fromJson(decodedJson, UserModel::class.java)
 
-            DetailChatActivity(navController, chatId, receiverId)
+            DetailChatActivity(navController, chatId, receiver)
         }
         composable(NavigationItem.Swipe.route){
             SwipeScreen(navController)
