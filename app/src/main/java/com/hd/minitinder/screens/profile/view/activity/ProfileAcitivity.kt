@@ -1,6 +1,5 @@
-package com.hd.minitinder.screens.profile.view
+package com.hd.minitinder.screens.profile.view.activity
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -21,12 +20,18 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import coil.compose.rememberAsyncImagePainter
+import com.hd.minitinder.common.fragments.logo.LogoTinder
 import com.hd.minitinder.screens.profile.viewmodel.ProfileViewModel
 
 import com.hd.minitinder.navigation.NavigationItem
+import com.hd.minitinder.screens.profile.view.ui.theme.LightGray
 
 val gradientColors = listOf(Color(0xFFFF4458), Color(0xFFFC5B6B))
 
@@ -39,15 +44,42 @@ fun ProfileScreen(
     val userState by viewModel.userState.collectAsStateWithLifecycle()
 
     Scaffold(
+        containerColor = Color.Black,
         topBar = {
-            TopAppBar(
-                title = { Text("Profile") },
-                navigationIcon = {
-                    IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
-                    }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 16.dp, top = 16.dp, end = 32.dp)
+                    .height(60.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier.padding(bottom = 16.dp)
+                ) {
+                    LogoTinder(
+                        logoSize = 24.dp,
+                        textSize = 30.sp,
+                        colorLogo = MaterialTheme.colorScheme.primary,
+                        color = MaterialTheme.colorScheme.primary
+                    )
                 }
-            )
+
+                Box(
+//                    modifier = Modifier.clickable {
+//                        navController.navigate(NavigationItem.History.route)
+//                    }
+                ) {
+                    Image(
+                        painter = rememberAsyncImagePainter(R.drawable.bell),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(40.dp)
+                            .padding(bottom = 16.dp),
+                        colorFilter = ColorFilter.tint(Color.Gray) // Áp dụng màu xám
+                    )
+                }
+            }
         }
     ) { innerPadding ->
         Column(
@@ -65,8 +97,13 @@ fun ProfileScreen(
                     .clip(CircleShape)
                     .border(2.dp, Color.Gray, CircleShape)
             ) {
+                val painter = if (userState.imageUrls.isNotEmpty()) {
+                    rememberAsyncImagePainter(userState.imageUrls.first())
+                } else {
+                    painterResource(id = R.drawable.ic_launcher_foreground)
+                }
                 Image(
-                    painter = painterResource(id = R.drawable.ic_launcher_foreground), // Add your image resource here
+                    painter = painter,
                     contentDescription = "Profile Picture",
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
@@ -79,6 +116,7 @@ fun ProfileScreen(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = userState.name,
+                    color = Color.White,
                     style = MaterialTheme.typography.headlineMedium
                 )
                 Spacer(modifier = Modifier.width(4.dp))
@@ -97,17 +135,17 @@ fun ProfileScreen(
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     IconButton(onClick = { /* Open Settings */ },
                         modifier = Modifier
-                            .background(Color.White, shape = CircleShape)
-                            .border(1.dp, Color.Black, shape = CircleShape)
+                            .background(Color.Black, shape = CircleShape)
+                            .border(1.dp, color = LightGray , shape = CircleShape)
                             .padding(2.dp)
                     ) {
-                        Icon(Icons.Filled.Settings, contentDescription = "Settings")
+                        Icon(Icons.Filled.Settings, contentDescription = "Settings", tint = Color(0xFF939BA7))
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = "Settings",
-                        color = Color.Black,
-                        style = MaterialTheme.typography.bodySmall
+                        color = LightGray,
+                        style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold)
                     )
                 }
                 // Nút sửa profile
@@ -115,17 +153,17 @@ fun ProfileScreen(
                     ) {
                     IconButton(onClick = { navController.navigate(NavigationItem.EditProfile.route) },
                         modifier = Modifier
-                            .background(Color.White, shape = CircleShape)
-                            .border(1.dp, Color.Black, shape = CircleShape)
+                            .background(Color.Black, shape = CircleShape)
+                            .border(1.dp, LightGray, shape = CircleShape)
                             .padding(2.dp)
                     ) {
-                        Icon(Icons.Filled.Edit, contentDescription = "Edit Profile")
+                        Icon(Icons.Filled.Edit, contentDescription = "Edit Profile", tint = LightGray)
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = "Edit profile",
-                        color = Color.Black,
-                        style = MaterialTheme.typography.bodySmall
+                        color = LightGray,
+                        style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold)
                     )
                 }
                 // Nút thêm hình ảnh
@@ -142,7 +180,7 @@ fun ProfileScreen(
                                 shape = CircleShape
                             )
                             .size(56.dp)
-                            .border(1.dp, Color.White, shape = CircleShape)
+                            .border(1.dp, color = Color.Transparent, shape = CircleShape)
                             .padding(8.dp)
                     ) {
                         Icon(
@@ -155,8 +193,8 @@ fun ProfileScreen(
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = "Add media",
-                        color = Color.Black,
-                        style = MaterialTheme.typography.bodySmall
+                        color = LightGray,
+                        style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold)
                     )
                 }
 
@@ -167,10 +205,12 @@ fun ProfileScreen(
             // Tinder +
             Text(
                 text = "Tinder Platinum",
+                color = Color.White,
                 style = MaterialTheme.typography.bodyLarge
             )
             Text(
                 text = "Level up every action you take on Tinder",
+                color = Color.White,
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(top = 4.dp)
             )

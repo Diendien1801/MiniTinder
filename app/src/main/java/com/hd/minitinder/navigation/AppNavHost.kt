@@ -18,20 +18,20 @@ import com.hd.minitinder.screens.login.view.LoginScreen
 import com.hd.minitinder.screens.payment.view.PaymentQRScreen
 import com.hd.minitinder.screens.payment.view.PaymentSuccessScreen
 import com.hd.minitinder.screens.payment.view.TinderGoldOptionScreen
-import com.hd.minitinder.screens.profile.view.AddImageScreen
-import com.hd.minitinder.screens.profile.view.ProfileScreen
-import com.hd.minitinder.screens.profile.view.EditProfileScreen
-import com.hd.minitinder.screens.profile.view.PreviewActivity
+import com.hd.minitinder.screens.profile.view.activity.AddImageScreen
+import com.hd.minitinder.screens.profile.view.activity.ProfileScreen
+import com.hd.minitinder.screens.profile.view.activity.EditProfileScreen
 import com.hd.minitinder.screens.register.view.RegisterScreen
 import com.hd.minitinder.screens.swipe.view.SwipeScreen
 import com.hd.minitinder.screens.tinderGold.view.TinderGoldActivity
+import com.hd.minitinder.screens.viewProfile.view.ViewProfileScreen
 
 @Composable
 fun AppNavHost(
     navController: NavHostController,
     modifier: Modifier = Modifier,
     callbackManager: CallbackManager,
-    startDestination: String = NavigationItem.AuthenOption.route
+    startDestination: String = NavigationItem.Main.route
 ) {
     NavHost(
         navController = navController,
@@ -53,12 +53,17 @@ fun AppNavHost(
         composable(NavigationItem.EditProfile.route){
             EditProfileScreen(navController)
         }
-        composable(NavigationItem.Preview.route){
-            PreviewActivity(navController)
-        }
         composable(NavigationItem.AddImage.route){
             AddImageScreen(navController)
         }
+        composable(
+            route = NavigationItem.ViewProfile.route,
+            arguments = listOf(navArgument("receiverId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val receiverId = backStackEntry.arguments?.getString("receiverId") ?: ""
+            ViewProfileScreen(navController, receiverId)
+        }
+
         composable(NavigationItem.Main.route){
             MainScreen()
         }
