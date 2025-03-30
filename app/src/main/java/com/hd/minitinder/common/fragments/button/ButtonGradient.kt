@@ -31,15 +31,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hd.minitinder.R
+import com.hd.minitinder.ui.theme.GradientColors
+import com.hd.minitinder.ui.theme.GradientColorsForButton
 
 @Composable
 fun ButtonGradient(
     buttonText: String,
     onClick: () -> Unit,
     icon: (@Composable () -> Unit)? = null,
-    isLoading: Boolean = false // ✅ Thêm trạng thái loading
+    isLoading: Boolean = false, // ✅ Thêm trạng thái loading
+    gradientColors: List<Color> = GradientColorsForButton,
+    textColor: Color = Color.White
 ) {
-    val gradientColors = listOf(Color(0xFFFD267A), Color(0xFFFF6036))
+
 
     Button(
         onClick = onClick,
@@ -53,7 +57,7 @@ fun ButtonGradient(
         shape = RoundedCornerShape(50),
         colors = ButtonDefaults.buttonColors(
             containerColor = Color.Transparent,
-            contentColor = Color.White,
+            contentColor = textColor,
             disabledContainerColor = Color.Gray.copy(alpha = 0.6f)
         ),
         contentPadding = PaddingValues()

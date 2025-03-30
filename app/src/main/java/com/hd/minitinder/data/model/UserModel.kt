@@ -5,18 +5,18 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.Exclude
 
 data class UserModel(
-    val id: String = "",
+    var id: String = "",
     val imageUrls: List<String> = listOf(),
-    val name: String = "",
-    val gender: String = "",
-    val dob: String = "",
-    val hometown: String = "",
+    var name: String = "",
+    var gender: String = "",
+    var dob: String = "",
+    var hometown: String = "",
     val job: String = "",
-    val interests: List<String> = listOf(),
+    var interests: List<String> = listOf(),
     val height: Double = 0.0,
     val weight: Double = 0.0,
     val phoneNumber: String = "",
-    val bio: String = "",
+    var bio: String = "",
     val isPremium: Boolean = false,
     val publicKey: String = ""
 ) {

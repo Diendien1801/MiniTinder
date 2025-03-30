@@ -10,8 +10,9 @@ import com.hd.minitinder.data.model.UserModel
 import com.hd.minitinder.data.repositories.UserRepository
 import kotlinx.coroutines.launch
 import java.security.KeyPairGenerator
+import javax.inject.Inject
 
-class RegisterViewModel : ViewModel() {
+class RegisterViewModel @Inject constructor() : ViewModel() {
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
 
     private val _isLoading = mutableStateOf<Boolean>(false)
@@ -38,6 +39,15 @@ class RegisterViewModel : ViewModel() {
     private val _confirmPasswordError = mutableStateOf("")
     val confirmPasswordError: State<String> = _confirmPasswordError
     private val userRepository: UserRepository = UserRepository()
+
+    private val _user = mutableStateOf<UserModel>(UserModel(
+
+    ))
+    var user: State<UserModel> = _user
+
+    fun updateUserModelToDatabase() {
+        userRepository.updateUserToDatabase(user.value)
+    }
 
     fun onEmailChange(newEmail: String) {
         _email.value = newEmail

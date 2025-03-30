@@ -37,7 +37,7 @@ import com.hd.minitinder.common.fragments.edittext.CustomOutlinedTextField
 import com.hd.minitinder.common.fragments.popup.SlidingPopup
 
 @Composable
-fun RegisterScreen(navController: NavController, registerViewModel: RegisterViewModel = viewModel()) {
+fun RegisterScreen(navController: NavController, registerViewModel: RegisterViewModel ) {
     val email by registerViewModel.email
     val password by registerViewModel.password
     val confirmPassword by registerViewModel.confirmPassword
@@ -148,7 +148,7 @@ fun RegisterScreen(navController: NavController, registerViewModel: RegisterView
 
 
                                 Handler(Looper.getMainLooper()).postDelayed({
-                                    navController.navigate(NavigationItem.Login.route) {
+                                    navController.navigate(NavigationItem.Welcome.route) {
                                         popUpTo(NavigationItem.Register.route) { inclusive = true }
                                     }
                                 }, 3000) // Delay 3 giây

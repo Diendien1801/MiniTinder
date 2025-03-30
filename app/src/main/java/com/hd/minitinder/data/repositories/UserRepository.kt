@@ -136,6 +136,25 @@ class UserRepository {
         return isPremium
     }
 
+    fun updateUserToDatabase(user: UserModel) {
+        val db = FirebaseFirestore.getInstance()
+        val userRef = db.collection("users").document(user.id)
+
+        val userMap = user.toJson() // Chỉ lấy các trường có giá trị hợp lệ
+        Log.d("Firestore", "Updating user: ${userMap}")
+        if (userMap.isNotEmpty()) {
+            userRef.update(userMap)
+                .addOnSuccessListener {
+                    Log.d("Firestore", "User updated successfully!")
+                }
+                .addOnFailureListener { exception ->
+                    Log.e("Firestore", "Error updating user: ${exception.message}")
+                }
+        } else {
+            Log.d("Firestore", "No fields to update.")
+        }
+    }
+
     suspend fun getReceiverToken(receiverId: String): String? {
         return try {
             val document = FirebaseFirestore.getInstance()

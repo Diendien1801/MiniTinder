@@ -1,6 +1,4 @@
 package com.hd.minitinder.utils
-
-import android.content.Context
 import android.net.Uri
 import java.io.File
 import java.text.SimpleDateFormat
@@ -19,6 +17,10 @@ object Utils {
         return sdf.format(java.util.Date(timestamp))
     }
 
+    fun formatDate(day: String, month: String, year: String): String {
+        // ghép chuỗi ngày, tháng, năm thành chuỗi "dd/MM/yyyy"
+        return "$day/$month/$year"
+    }
     private fun uriToFile(uri: Uri, context: Context): File {
         val inputStream = context.contentResolver.openInputStream(uri)
         val file = File(context.cacheDir, "temp_image.jpg")
