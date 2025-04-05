@@ -5,5 +5,6 @@ import com.hd.minitinder.screens.history.viewmodel.HistoryViewModel.Notification
 
 data class UserWithType(
     val user: UserModel,
-    val type: NotificationType
+    val type: NotificationType,
+    val chatId: String? = null,
 )

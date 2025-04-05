@@ -43,6 +43,8 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
 import com.hd.minitinder.common.fragments.logo.LogoTinder
+import com.hd.minitinder.data.model.UserModel
+import com.hd.minitinder.navigation.NavigationItem
 import com.hd.minitinder.screens.history.viewmodel.HistoryViewModel
 import com.hd.minitinder.ui.theme.PrimaryColor
 
@@ -77,17 +79,17 @@ fun HistoryScreen(nav: NavController) {
                     .background(Color.Black) // LazyColumn có nền đen
             ) {
                 items(users) { user ->
-                    HistoryItem("https://scontent.fsgn8-4.fna.fbcdn.net/v/t39.30808-6/475977913_" +
-                            "1362026488292271_813961950003817138_n.jpg?_nc_cat=103&ccb=1-7&_nc_sid=6ee11a&_nc" +
-                            "_eui2=AeFWrdsEbXW_Cf8LVNL-Ut6QW7ZP8AZF96xbtk_wBkX3rLVLW2dS1JDll9tL1TNvrM1Y-g3Az1V" +
-                            "W7Ha96KvDaiEt&_nc_ohc=sgY8gSdSIX8Q7kNvgGC9ePw&_nc_oc=AdjV4JxCDAmQbqA4prv_ucx5FtOFBUZd" +
-                            "AQ0t4vizoE_A22u-FpnWQqgjOBK-TNA5Isb4jggjeDL72BGLAru66ClD&_nc_zt=23&_nc_ht=scontent.fsgn8-" +
-                            "4.fna&_nc_gid=A0VWSyImDlHA7fqwydE9x00&oh=00_AYFEEPcVbWI3qSP-I8-4NmmD5MlQX4e-1LlGSpma1nd" +
-                            "zUw&oe=67D76D79",
-                        user.user.name,
-                        "11/11/2025",
-                        type = user.type
-                        )
+                    user.chatId?.let {
+                        HistoryItem(
+                            user = user.user,
+                            time =
+                            "11/11/2025",
+                            type = user.type,
+                            nav = nav,
+                            chatId = it,
+
+                            )
+                    }
                 }
             }
         }
@@ -155,15 +157,16 @@ fun HistoryCategory(name: String, isSelected: Boolean, onClick: () -> Unit) {
 
 @Composable
 fun HistoryItem(
-    avtUrl: String,
-    name: String,
+    user: UserModel,
     time: String,
-    type: HistoryViewModel.NotificationType
+    type: HistoryViewModel.NotificationType,
+    nav: NavController,
+    chatId: String,
 ) {
     val messageText = when (type) {
-        HistoryViewModel.NotificationType.MATCH -> "You matched with $name. Excited? Good. Now, go say hi."
-        HistoryViewModel.NotificationType.LIKE -> "$name liked your profile. Feeling lucky?"
-        HistoryViewModel.NotificationType.BLOCK -> "$name has been blocked. You won’t see each other again."
+        HistoryViewModel.NotificationType.MATCH -> "You matched with ${user.name}. Excited? Good. Now, go say hi."
+        HistoryViewModel.NotificationType.LIKE -> "${user.name} liked your profile. Feeling lucky?"
+        HistoryViewModel.NotificationType.BLOCK -> "${user.name} has been blocked. You won’t see each other again."
     }
 
     Surface(
@@ -184,7 +187,7 @@ fun HistoryItem(
                 color = Color.Black
             ) {
                 Image(
-                    painter = rememberAsyncImagePainter(avtUrl),
+                    painter = rememberAsyncImagePainter({user.imageUrls}),
                     contentDescription = "Avatar",
                     modifier = Modifier
                         .size(50.dp)
@@ -226,6 +229,10 @@ fun HistoryItem(
                                     .fillMaxSize()
                                     .wrapContentHeight(Alignment.CenterVertically)
                                     .padding(horizontal = 8.dp)
+                                    .clickable()
+                                    {
+                                        nav.navigate(NavigationItem.DetailChat.createRoute(chatId,user))
+                                    }
                             )
                         }
                     }
