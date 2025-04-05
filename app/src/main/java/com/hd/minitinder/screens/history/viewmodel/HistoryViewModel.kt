@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.hd.minitinder.data.model.UserModel
+import com.hd.minitinder.screens.history.model.UserWithType
 import com.hd.minitinder.screens.history.repository.HistoryRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -89,6 +90,23 @@ class HistoryViewModel :ViewModel() {
     fun updateCategory(category: String) {
         _selectedCategory.value = category // Cập nhật giá trị
     }
+    enum class NotificationType {
+        MATCH, LIKE, BLOCK
+    }
 
+    val filteredUserWithType: StateFlow<List<UserWithType>> = combine(
+        _selectedCategory, _likedUsers, _matchedUsers, _blockedUsers
+    ) { category, liked, matched, blocked ->
+        val likedMapped = liked.map { UserWithType(it, NotificationType.LIKE) }
+        val matchedMapped = matched.map { UserWithType(it, NotificationType.MATCH) }
+        val blockedMapped = blocked.map { UserWithType(it, NotificationType.BLOCK) }
+
+        when (category) {
+            "Like" -> likedMapped
+            "Match" -> matchedMapped
+            "Block" -> blockedMapped
+            else -> likedMapped + matchedMapped + blockedMapped
+        }
+    }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
 }
