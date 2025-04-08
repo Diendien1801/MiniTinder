@@ -34,6 +34,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Arrangement
 import android.content.Context
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
+
 
 // Direct color definitions instead of using theme colors
 private val PrimaryColor = Color(0xFFFF4458) // Tinder Red
@@ -48,8 +51,10 @@ private val OrangeColor = Color(0xFFFF9800)
 @Composable
 fun RecapScreen(
     onBackPressed: () -> Unit,
+    viewModel: RecapViewModel = viewModel()
 ) {
-    val viewModel = RecapViewModel()
+    val context = LocalContext.current
+
     val recapData by viewModel.recapData.collectAsState()
     val selectedPeriod by viewModel.selectedPeriod.collectAsState()
     val userInsights by viewModel.userInsights.collectAsState()
@@ -60,7 +65,9 @@ fun RecapScreen(
 
     var visibleCards by remember { mutableStateOf(0) }
     val totalCards = 8 // Increased for new cards
-
+    LaunchedEffect(Unit) {
+        viewModel.updateUsageMinutes(context)
+    }
     LaunchedEffect(key1 = true) {
         // Animate cards appearing one by one
         repeat(totalCards) { index ->
@@ -140,7 +147,7 @@ fun RecapScreen(
                             period = period,
                             isSelected = period == selectedPeriod,
                             onClick = {
-                                viewModel.selectPeriod(period)
+                                viewModel.selectPeriod(context, period)
                                 coroutineScope.launch {
                                     visibleCards = 0
                                     delay(200)

@@ -71,6 +71,16 @@ class RecapViewModel() : ViewModel() {
 
         return usageMap[packageName] ?: 0L
     }
+    fun updateUsageMinutes(context: Context) {
+        val minutes = getAppUsageMinutes(context, _selectedPeriod.value)
+        val currentData = _recapData.value
+
+        _recapData.value = currentData.copy(
+            averageActivityMinutes = minutes.toInt()
+        )
+        Log.d("RecapViewModel", "Usage minutes: $minutes")
+        _userInsights.value = generateUserInsights()
+    }
 
     private val _selectedPeriod = MutableStateFlow(RecapPeriod.Monthly)
     val selectedPeriod: StateFlow<RecapPeriod> = _selectedPeriod
@@ -81,7 +91,7 @@ class RecapViewModel() : ViewModel() {
     private val _userInsights = MutableStateFlow(generateUserInsights())
     val userInsights: StateFlow<List<UserInsight>> = _userInsights
 
-    fun selectPeriod(period: RecapPeriod) {
+    fun selectPeriod(context: Context, period: RecapPeriod) {
         _selectedPeriod.value = period
         _recapData.value = when (period) {
             RecapPeriod.Weekly -> getWeeklyRecapData()
@@ -89,6 +99,8 @@ class RecapViewModel() : ViewModel() {
             RecapPeriod.Daily -> getDailyRecapData()
         }
         _userInsights.value = generateUserInsights()
+
+        updateUsageMinutes(context)
     }
 
     private fun getInitialRecapData(): RecapData {
@@ -105,7 +117,7 @@ class RecapViewModel() : ViewModel() {
                 TopConversation("Jamie", 28),
                 TopConversation("Taylor", 22)
             ),
-            averageActivityMinutes = 24,
+            averageActivityMinutes = 500,
             commonInterests = mapOf(
                 "Travel" to 15,
                 "Music" to 12,
@@ -131,7 +143,7 @@ class RecapViewModel() : ViewModel() {
                 TopConversation("Jordan", 14),
                 TopConversation("Casey", 10)
             ),
-            averageActivityMinutes = 22,
+            averageActivityMinutes = 500,
             commonInterests = mapOf(
                 "Travel" to 4,
                 "Music" to 3,
@@ -159,7 +171,7 @@ class RecapViewModel() : ViewModel() {
                 TopConversation("Avery", 124),
                 TopConversation("Drew", 98)
             ),
-            averageActivityMinutes = 26,
+            averageActivityMinutes = 500,
             commonInterests = mapOf(
                 "Travel" to 124,
                 "Music" to 118,
