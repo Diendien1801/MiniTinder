@@ -94,7 +94,7 @@ class DetailChatViewModel() : ViewModel() {
     // Gửi thông báo
     suspend fun sendPushNotification(token: String, title: String, body: String) {
         val retrofit = Retrofit.Builder()
-            .baseUrl("http://192.168.1.10:3000")
+            .baseUrl("http://10.120.3.201:3000") //192.168.1.10
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
