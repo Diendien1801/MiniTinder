@@ -14,6 +14,7 @@ enum class Screen{
     EDITPROFILE,
     PREVIEW,
     ADDIMAGE,
+    VIEWPROFILE,
     MAIN,
     RESETPASS,
     AUTHENOPTION,
@@ -49,6 +50,10 @@ sealed class NavigationItem (val route: String)
             return "main/$initial"
         }
     }
+    object ViewProfile : NavigationItem("viewProfile/{receiverId}") {
+        fun createRoute(receiverId: String) = "ViewProfile/$receiverId"
+    }
+    object Main: NavigationItem(Screen.MAIN.name)
     object ResetPass: NavigationItem(Screen.RESETPASS.name)
     object AuthenOption: NavigationItem(Screen.AUTHENOPTION.name)
     object Chat: NavigationItem(Screen.CHAT.name)

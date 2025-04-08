@@ -27,12 +27,16 @@ import com.hd.minitinder.screens.profile.view.EditProfileScreen
 import com.hd.minitinder.screens.profileWelcome.view.FirstNameScreen
 import com.hd.minitinder.screens.profileWelcome.view.WelcomeScreen
 import com.hd.minitinder.screens.profile.view.PreviewActivity
+import com.hd.minitinder.screens.profile.view.activity.AddImageScreen
+import com.hd.minitinder.screens.profile.view.activity.ProfileScreen
+import com.hd.minitinder.screens.profile.view.activity.EditProfileScreen
 import com.hd.minitinder.screens.register.view.RegisterScreen
 import com.hd.minitinder.screens.register.viewmodel.RegisterViewModel
 import com.hd.minitinder.screens.swipe.view.SwipeScreen
 import com.hd.minitinder.screens.tinderGold.view.TinderGoldActivity
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
+import com.hd.minitinder.screens.viewProfile.view.ViewProfileScreen
 
 @Composable
 fun AppNavHost(
@@ -78,6 +82,16 @@ fun AppNavHost(
         ){
             val startDestination = it.arguments?.getString("initial") ?: NavigationItem.Swipe.route
             MainScreen(startDestination)
+        composable(
+            route = NavigationItem.ViewProfile.route,
+            arguments = listOf(navArgument("receiverId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val receiverId = backStackEntry.arguments?.getString("receiverId") ?: ""
+            ViewProfileScreen(navController, receiverId)
+        }
+
+        composable(NavigationItem.Main.route){
+            MainScreen()
         }
         composable(NavigationItem.ResetPass.route){
             ResetPasswordScreen(navController)

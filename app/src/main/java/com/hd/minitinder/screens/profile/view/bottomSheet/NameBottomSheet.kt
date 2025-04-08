@@ -1,4 +1,4 @@
-package com.hd.minitinder.screens.profile.view
+package com.hd.minitinder.screens.profile.view.bottomSheet
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border

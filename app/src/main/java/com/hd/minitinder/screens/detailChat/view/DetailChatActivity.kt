@@ -33,9 +33,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import coil.compose.rememberAsyncImagePainter
 import com.hd.minitinder.R
-import com.hd.minitinder.data.model.UserModel
 import com.hd.minitinder.screens.detailChat.components.DateSeparator
 import com.hd.minitinder.screens.detailChat.model.ChatMessageModel
 import com.hd.minitinder.ui.theme.PrimaryColor
@@ -84,7 +82,11 @@ fun DetailChatActivity(navController: NavController , chatId: String, receiver: 
         // ✅ Thanh tiêu đề
         CenterAlignedTopAppBar(
             title = {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    modifier = Modifier
+                        .clickable { navController.navigate(NavigationItem.ViewProfile.createRoute(receiverId)) }
+                        .padding(8.dp),
+                    verticalAlignment = Alignment.CenterVertically) {
                     Image(
                         painter = rememberAsyncImagePainter(receiver.imageUrls[0]),
                         contentDescription = "Profile Picture",

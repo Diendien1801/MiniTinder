@@ -47,7 +47,10 @@ fun MainScreen(startDestination: String) {
         NavigationItem.Register.route,
         NavigationItem.ResetPass.route,
         NavigationItem.AuthenOption.route,
-        NavigationItem.DetailChat.route
+        NavigationItem.DetailChat.route,
+        NavigationItem.ViewProfile.route,
+        NavigationItem.Preview.route,
+        NavigationItem.AddImage.route,
     )
 
     Scaffold(
@@ -99,7 +102,6 @@ fun MainScreen(startDestination: String) {
             modifier = Modifier.padding(paddingValues),
             startDestination = startDestination,// Mặc định vào Home
             callbackManager = CallbackManager.Factory.create()
-
         )
     }
 }
