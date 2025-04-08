@@ -26,6 +26,8 @@ enum class Screen{
     PAYMENTOPTION,
     TINDERGOLD,
     HISTORY,
+    RECAP
+    HISTORY,
     WELCOME,
     FIRSTNAME,
     BIRTHDAY,
@@ -80,4 +82,7 @@ sealed class NavigationItem (val route: String)
     object HomeTown: NavigationItem(Screen.HOMETOWN.name)
     object BioSelection: NavigationItem(Screen.BIOSELECTION.name)
     object InterestSelection: NavigationItem(Screen.INTERESTSELECTION.name)
+    object Recap: NavigationItem(Screen.RECAP.name)
+
+
 }

@@ -21,12 +21,8 @@ import com.hd.minitinder.screens.login.view.LoginScreen
 import com.hd.minitinder.screens.payment.view.PaymentQRScreen
 import com.hd.minitinder.screens.payment.view.PaymentSuccessScreen
 import com.hd.minitinder.screens.payment.view.TinderGoldOptionScreen
-import com.hd.minitinder.screens.profile.view.AddImageScreen
-import com.hd.minitinder.screens.profile.view.ProfileScreen
-import com.hd.minitinder.screens.profile.view.EditProfileScreen
 import com.hd.minitinder.screens.profileWelcome.view.FirstNameScreen
 import com.hd.minitinder.screens.profileWelcome.view.WelcomeScreen
-import com.hd.minitinder.screens.profile.view.PreviewActivity
 import com.hd.minitinder.screens.profile.view.activity.AddImageScreen
 import com.hd.minitinder.screens.profile.view.activity.ProfileScreen
 import com.hd.minitinder.screens.profile.view.activity.EditProfileScreen
@@ -34,6 +30,7 @@ import com.hd.minitinder.screens.register.view.RegisterScreen
 import com.hd.minitinder.screens.register.viewmodel.RegisterViewModel
 import com.hd.minitinder.screens.swipe.view.SwipeScreen
 import com.hd.minitinder.screens.tinderGold.view.TinderGoldActivity
+import com.hd.minitinder.screens.recap.view.RecapScreen
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 import com.hd.minitinder.screens.viewProfile.view.ViewProfileScreen
@@ -45,7 +42,6 @@ fun AppNavHost(
     callbackManager: CallbackManager,
     startDestination: String = NavigationItem.AuthenOption.route
 ) {
-    val registerViewModel: RegisterViewModel = viewModel()
     NavHost(
         navController = navController,
         startDestination = startDestination,
@@ -55,7 +51,7 @@ fun AppNavHost(
             HomeScreen(navController)
         }
         composable(NavigationItem.Register.route) {
-            RegisterScreen(navController,registerViewModel)
+            RegisterScreen(navController)
         }
         composable(NavigationItem.Login.route) {
             LoginScreen(navController, callbackManager = callbackManager)
@@ -139,6 +135,9 @@ fun AppNavHost(
         }
         composable(NavigationItem.PaymentOption.route) {
             TinderGoldOptionScreen(navController)
+        }
+        composable(NavigationItem.Recap.route) {
+            RecapScreen(onBackPressed = { navController.popBackStack() })
         }
 
         composable(NavigationItem.Welcome.route) {
