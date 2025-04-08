@@ -2,9 +2,21 @@ package com.hd.minitinder.screens.swipe.repository
 
 import com.google.firebase.firestore.FirebaseFirestore
 import com.hd.minitinder.data.model.UserModel
+import com.google.firebase.Timestamp
+import java.text.SimpleDateFormat
+import java.util.*
 
 class SwipeListRepository {
     private val db = FirebaseFirestore.getInstance();
+
+    fun getFormattedTimestamp(): String {
+        val timestamp = Timestamp.now()
+
+        val date = timestamp.toDate()
+
+        val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+        return formatter.format(date)
+    }
 
     fun getUserList(userId: String, onResult: (List<String>) -> Unit) {
         db.collection("users")
@@ -60,7 +72,8 @@ class SwipeListRepository {
     fun miss(userId1: String, userId2: String, onComplete: (Boolean) -> Unit) {
         val missData = hashMapOf(
             "idUser1" to userId1,
-            "idUser2" to userId2
+            "idUser2" to userId2,
+            "timestamp" to getFormattedTimestamp(),
         )
 
         db.collection("misses")
@@ -73,19 +86,18 @@ class SwipeListRepository {
         val likesRef = db.collection("likes")
         val matchesRef = db.collection("matches")
 
-        // Tìm xem có lượt thích ngược lại không
         likesRef.whereEqualTo("idUser1", userId2)
             .whereEqualTo("idUser2", userId)
             .get()
             .addOnSuccessListener { result ->
                 if (!result.isEmpty) {
-                    // Nếu có, xóa document này khỏi likes và thêm vào matches
                     val docId = result.documents[0].id
                     likesRef.document(docId).delete()
                         .addOnSuccessListener {
                             val matchData = hashMapOf(
                                 "idUser1" to userId,
-                                "idUser2" to userId2
+                                "idUser2" to userId2,
+                                "timestamp" to getFormattedTimestamp(),
                             )
                             matchesRef.add(matchData)
                                 .addOnSuccessListener { onComplete(true) } // Thành công
@@ -93,10 +105,10 @@ class SwipeListRepository {
                         }
                         .addOnFailureListener { onComplete(false) }
                 } else {
-                    // Nếu không có lượt thích ngược lại, thêm vào likes
                     val likeData = hashMapOf(
                         "idUser1" to userId,
-                        "idUser2" to userId2
+                        "idUser2" to userId2,
+                        "timestamp" to getFormattedTimestamp(),
                     )
                     likesRef.add(likeData)
                         .addOnSuccessListener { onComplete(true) }

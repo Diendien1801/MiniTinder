@@ -13,8 +13,64 @@ import com.hd.minitinder.screens.recap.model.TopConversation
 import com.hd.minitinder.screens.recap.model.UserInsight
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import android.app.usage.UsageStats
+import android.app.usage.UsageStatsManager
+import android.content.Context
+import androidx.compose.ui.platform.LocalContext
+import android.util.Log
 
-class RecapViewModel : ViewModel() {
+
+class RecapViewModel() : ViewModel() {
+
+    fun getAppUsageByInterval(
+        context: Context,
+        interval: Int,
+        durationInMillis: Long
+    ): Map<String, Long> {
+        val usageStatsManager = context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+
+        val endTime = System.currentTimeMillis()
+        val startTime = endTime - durationInMillis
+
+        val stats = usageStatsManager.queryUsageStats(interval, startTime, endTime)
+        val result = mutableMapOf<String, Long>()
+
+        stats?.forEach { stat ->
+            val pkg = stat.packageName
+            val time = stat.totalTimeInForeground
+            if (time > 0) {
+                result[pkg] = result.getOrDefault(pkg, 0L) + time
+            }
+        }
+
+        return result.mapValues { it.value / 1000 / 60 } // convert to minutes
+    }
+
+    fun getDailyUsage(context: Context): Map<String, Long> {
+        val oneDay = 1000L * 60 * 60 * 24
+        return getAppUsageByInterval(context, UsageStatsManager.INTERVAL_DAILY, oneDay)
+    }
+
+    fun getWeeklyUsage(context: Context): Map<String, Long> {
+        val oneWeek = 1000L * 60 * 60 * 24 * 7
+        return getAppUsageByInterval(context, UsageStatsManager.INTERVAL_DAILY, oneWeek)
+    }
+
+    fun getMonthlyUsage(context: Context): Map<String, Long> {
+        val oneMonth = 1000L * 60 * 60 * 24 * 30
+        return getAppUsageByInterval(context, UsageStatsManager.INTERVAL_DAILY, oneMonth)
+    }
+    private fun getAppUsageMinutes(context: Context, period: RecapPeriod): Long {
+        val packageName = context.packageName
+
+        val usageMap = when (period) {
+            RecapPeriod.Daily -> getDailyUsage(context)
+            RecapPeriod.Weekly -> getWeeklyUsage(context)
+            RecapPeriod.Monthly -> getMonthlyUsage(context)
+        }
+
+        return usageMap[packageName] ?: 0L
+    }
 
     private val _selectedPeriod = MutableStateFlow(RecapPeriod.Monthly)
     val selectedPeriod: StateFlow<RecapPeriod> = _selectedPeriod
@@ -30,7 +86,7 @@ class RecapViewModel : ViewModel() {
         _recapData.value = when (period) {
             RecapPeriod.Weekly -> getWeeklyRecapData()
             RecapPeriod.Monthly -> getInitialRecapData()
-            RecapPeriod.Yearly -> getYearlyRecapData()
+            RecapPeriod.Daily -> getDailyRecapData()
         }
         _userInsights.value = generateUserInsights()
     }
@@ -45,9 +101,9 @@ class RecapViewModel : ViewModel() {
             messagesSent = 186,
             messagesPerMatch = 5.8f,
             topConversations = listOf(
-                TopConversation("Alex", 42, "3 days"),
-                TopConversation("Jamie", 28, "2 days"),
-                TopConversation("Taylor", 22, "1 day")
+                TopConversation("Alex", 42),
+                TopConversation("Jamie", 28),
+                TopConversation("Taylor", 22)
             ),
             averageActivityMinutes = 24,
             commonInterests = mapOf(
@@ -71,9 +127,9 @@ class RecapViewModel : ViewModel() {
             messagesSent = 42,
             messagesPerMatch = 4.7f,
             topConversations = listOf(
-                TopConversation("Sam", 18, "2 days"),
-                TopConversation("Jordan", 14, "1 day"),
-                TopConversation("Casey", 10, "1 day")
+                TopConversation("Sam", 18),
+                TopConversation("Jordan", 14),
+                TopConversation("Casey", 10)
             ),
             averageActivityMinutes = 22,
             commonInterests = mapOf(
@@ -86,7 +142,9 @@ class RecapViewModel : ViewModel() {
         )
     }
 
-    private fun getYearlyRecapData(): RecapData {
+    private fun getDailyRecapData(): RecapData {
+//        val context = LocalContext.current
+//        val usageMinutes = getAppUsageMinutes(context, RecapPeriod.Daily)
         return RecapData(
             totalSwipes = 5842,
             rightSwipes = 1963,
@@ -96,10 +154,10 @@ class RecapViewModel : ViewModel() {
             messagesSent = 2485,
             messagesPerMatch = 5.8f,
             topConversations = listOf(
-                TopConversation("Morgan", 186, "2 weeks"),
-                TopConversation("Riley", 142, "10 days"),
-                TopConversation("Avery", 124, "8 days"),
-                TopConversation("Drew", 98, "5 days")
+                TopConversation("Morgan", 186),
+                TopConversation("Riley", 142),
+                TopConversation("Avery", 124),
+                TopConversation("Drew", 98)
             ),
             averageActivityMinutes = 26,
             commonInterests = mapOf(

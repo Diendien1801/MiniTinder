@@ -33,6 +33,7 @@ import kotlinx.coroutines.launch
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Arrangement
+import android.content.Context
 
 // Direct color definitions instead of using theme colors
 private val PrimaryColor = Color(0xFFFF4458) // Tinder Red
@@ -48,7 +49,7 @@ private val OrangeColor = Color(0xFFFF9800)
 fun RecapScreen(
     onBackPressed: () -> Unit,
 ) {
-    var viewModel = RecapViewModel()
+    val viewModel = RecapViewModel()
     val recapData by viewModel.recapData.collectAsState()
     val selectedPeriod by viewModel.selectedPeriod.collectAsState()
     val userInsights by viewModel.userInsights.collectAsState()
@@ -373,7 +374,7 @@ fun EngagementScoreCard(recapData: RecapData) {
     }
 
     val tips = when {
-        engagementScore >= 95 -> "You're a top-tier engager! Your connections are thriving."
+        engagementScore >= 95 -> "You're a top-tier engaged! Your connections are thriving."
         engagementScore >= 85 -> "You're doing everything right! Keep up the great connections."
         engagementScore >= 75 -> "You're very engaged, but try varying your conversation starters."
         engagementScore >= 65 -> "You’re doing well! Consider following up more to build stronger bonds."
@@ -571,7 +572,7 @@ fun TopConversationsCard(topConversations: List<TopConversation>) {
                         )
 
                         Text(
-                            text = "${conversation.messageCount} messages · ${conversation.duration}",
+                            text = "${conversation.messageCount} messages",
                             fontSize = 14.sp,
                             color = Color.Gray
                         )
