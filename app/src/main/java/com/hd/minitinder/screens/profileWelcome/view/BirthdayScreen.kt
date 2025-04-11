@@ -26,6 +26,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.text.font.FontWeight
@@ -49,7 +50,7 @@ fun BirthdayScreen(navController: NavController, viewModel: RegisterViewModel ) 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF111418))
+            .background(MaterialTheme.colorScheme.background)
             .padding(top = 16.dp)
     ) {
         ProgressBarStepIndicator(
@@ -59,7 +60,7 @@ fun BirthdayScreen(navController: NavController, viewModel: RegisterViewModel ) 
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFF111418))
+                .background(MaterialTheme.colorScheme.background)
                 .padding(horizontal = 24.dp, vertical = 30.dp),
 
 
@@ -83,7 +84,7 @@ fun BirthdayScreen(navController: NavController, viewModel: RegisterViewModel ) 
             // Tiêu đề
             Text(
                 text = "Your birthday?",
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onSurface,
                 fontSize = 30.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(bottom = 32.dp, top = 16.dp)
@@ -151,7 +152,7 @@ fun CustomTextField(value: String, onValueChange: (String) -> Unit, placeholder:
                 onValueChange = {
                     if (it.length <= placeholder.length) onValueChange(it)
                 },
-                textStyle = TextStyle(color = Color.White, fontSize = 20.sp, textAlign = TextAlign.Center),
+                textStyle = TextStyle(color = MaterialTheme.colorScheme.onSurface, fontSize = 20.sp, textAlign = TextAlign.Center),
                 keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
                 singleLine = true,
                 modifier = Modifier.onFocusChanged { isFocused = it.isFocused },

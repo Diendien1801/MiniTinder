@@ -25,13 +25,13 @@ fun WelcomeScreen(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF111418))
+            .background(MaterialTheme.colorScheme.background)
             .padding(horizontal = 24.dp, vertical = 30.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
             text = "Welcome to Tinder",
-            color = Color.White,
+            color = MaterialTheme.colorScheme.onSurface,
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center
@@ -87,7 +87,7 @@ fun RuleItem(title: String, description: String, linkText: String? = null) {
             // Tiêu đề đậm màu trắng
             Text(
                 text = title,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onSurface,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -101,7 +101,7 @@ fun RuleItem(title: String, description: String, linkText: String? = null) {
             linkText?.let {
                 Text(
                     text = it,
-                    color = Color(0xFFFF416C), // Màu đỏ hồng
+                    color = PrimaryColor, // Màu đỏ hồng
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold
                 )

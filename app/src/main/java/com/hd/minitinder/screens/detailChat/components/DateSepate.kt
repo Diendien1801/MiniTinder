@@ -28,7 +28,7 @@ fun DateSeparator(date: String) {
         )
         Text(
             text = date,
-            color = Color.White,
+            color =  MaterialTheme.colorScheme.onSurface,
             fontSize = 12.sp,
             modifier = Modifier.padding(horizontal = 8.dp)
         )

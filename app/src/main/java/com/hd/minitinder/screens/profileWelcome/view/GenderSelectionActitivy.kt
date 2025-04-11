@@ -14,6 +14,7 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -46,7 +47,7 @@ fun GenderSelectionScreen(nav: NavController, viewModel: RegisterViewModel ) {
     Column (
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF111418))
+            .background(MaterialTheme.colorScheme.background)
             .padding(top = 16.dp)
     ){
         ProgressBarStepIndicator(
@@ -56,7 +57,7 @@ fun GenderSelectionScreen(nav: NavController, viewModel: RegisterViewModel ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFF111418))
+                .background(MaterialTheme.colorScheme.background)
                 .padding(horizontal = 24.dp, vertical = 30.dp),
 
             ) {
@@ -81,7 +82,7 @@ fun GenderSelectionScreen(nav: NavController, viewModel: RegisterViewModel ) {
                 text = "What’s your gender?",
                 fontSize = 30.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.padding(top = 16.dp)
             )
 
@@ -157,7 +158,7 @@ fun GenderButton(text: String, isSelected: Boolean, onClick: () -> Unit) {
             ),
             contentPadding = PaddingValues()
         ) {
-            Text(text = text, fontSize = 18.sp, color = Color.White)
+            Text(text = text, fontSize = 18.sp, color =MaterialTheme.colorScheme.onSurface)
         }
     }
 }

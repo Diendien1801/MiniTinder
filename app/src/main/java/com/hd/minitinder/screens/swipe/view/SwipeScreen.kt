@@ -52,6 +52,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.hd.minitinder.R
 import com.hd.minitinder.common.fragments.logo.LogoTinder
 import com.hd.minitinder.screens.swipe.viewmodel.SwipeViewModel
+import com.hd.minitinder.ui.theme.PrimaryColor
 import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
 
@@ -206,13 +207,13 @@ fun SwipeScreen(navController: NavController, SwipeViewModel: SwipeViewModel = v
 
     Box(modifier = Modifier
         .fillMaxSize()
-        .background(Color(0xFF121212))) {
+        .background(MaterialTheme.colorScheme.background)) {
         if (users.isNotEmpty()) {
             val user = users.first()
             Card(
                 modifier = Modifier
                     .width(LocalConfiguration.current.screenWidthDp.dp * 0.94f)
-                    .height(LocalConfiguration.current.screenHeightDp.dp * 0.78f)
+                    .height(LocalConfiguration.current.screenHeightDp.dp * 0.70f)
                     .offset {
                         val offsetXPx = with(density) { offsetX.dp.toPx() }
                         IntOffset(offsetXPx.roundToInt(), 0)
@@ -675,8 +676,8 @@ fun SwipeScreen(navController: NavController, SwipeViewModel: SwipeViewModel = v
                 LogoTinder(
                     logoSize = 24.dp,
                     textSize = 30.sp,
-                    colorLogo = MaterialTheme.colorScheme.primary,
-                    color = MaterialTheme.colorScheme.primary
+                    colorLogo = PrimaryColor,
+                    color = PrimaryColor
                 )
             }
 

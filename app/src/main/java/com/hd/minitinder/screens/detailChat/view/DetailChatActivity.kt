@@ -78,7 +78,7 @@ fun DetailChatActivity(navController: NavController , chatId: String, receiver: 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black)
+            .background( MaterialTheme.colorScheme.background)
             .padding(top = 8.dp)
     ) {
         // ✅ Thanh tiêu đề
@@ -97,7 +97,7 @@ fun DetailChatActivity(navController: NavController , chatId: String, receiver: 
                             .clip(CircleShape)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text(receiver.name, fontSize = 16.sp, color = Color.White)
+                    Text(receiver.name, fontSize = 16.sp, color =  MaterialTheme.colorScheme.surface)
                 }
             },
             navigationIcon = {
@@ -105,19 +105,19 @@ fun DetailChatActivity(navController: NavController , chatId: String, receiver: 
                     Icon(
                         Icons.Filled.KeyboardArrowLeft,
                         contentDescription = "Back",
-                        tint = Color.Red,
+                        tint = PrimaryColor,
                         modifier = Modifier.size(30.dp)
                     )
                 }
             },
             actions = {
                 IconButton(onClick = { /* TODO: Mở menu */ }, modifier = Modifier.rotate(90f)) {
-                    Icon(Icons.Filled.MoreVert, contentDescription = "Menu", tint = Color.White)
+                    Icon(Icons.Filled.MoreVert, contentDescription = "Menu", tint =  MaterialTheme.colorScheme.onSurface)
                 }
             },
             colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                containerColor = Color.Black,
-                titleContentColor = Color.White
+                containerColor =  MaterialTheme.colorScheme.background,
+                titleContentColor =  MaterialTheme.colorScheme.onSurface
             )
         )
         // divider
@@ -179,7 +179,7 @@ fun DetailChatActivity(navController: NavController , chatId: String, receiver: 
                         imagePickerLauncher.launch("image/*") // Mở bộ chọn ảnh
                     },
 
-                tint = Color.White
+                tint =  MaterialTheme.colorScheme.onSurface
             )
         }
 
@@ -266,7 +266,7 @@ fun ChatBubble(message: ChatMessageModel, isMe: Boolean, receiver: UserModel) {
 @Composable
 fun MessageInputBar(inputText: String, onTextChange: (String) -> Unit, onSend: () -> Unit) {
     Surface(
-        color = Color.Black,
+        color = MaterialTheme.colorScheme.background,
         shape = RoundedCornerShape(36.dp), // Bo góc cho Surface
         modifier = Modifier
             .fillMaxWidth()

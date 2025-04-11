@@ -3,6 +3,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -24,6 +25,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.geometry.CornerRadius
@@ -90,7 +92,7 @@ fun InterestSelectionScreen(nav: NavController, viewModel: RegisterViewModel ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF111418))
+            .background(MaterialTheme.colorScheme.background)
             .padding(top = 16.dp)
     ) {
         ProgressBarStepIndicator(currentStep = 6, totalSteps = 6)
@@ -98,7 +100,7 @@ fun InterestSelectionScreen(nav: NavController, viewModel: RegisterViewModel ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFF111418))
+                .background(MaterialTheme.colorScheme.background)
                 .padding(24.dp)
         ) {
             Icon(
@@ -115,7 +117,7 @@ fun InterestSelectionScreen(nav: NavController, viewModel: RegisterViewModel ) {
                 text = "Passions",
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.padding(top = 8.dp)
             )
 
@@ -186,7 +188,9 @@ fun PassionChip(
     Box(
         modifier = Modifier
             .padding(3.dp)
-            .clickable { onSelectionChanged(!isSelected) }
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null) { onSelectionChanged(!isSelected) }
     ) {
         Canvas(
             modifier = Modifier.matchParentSize()
@@ -214,7 +218,7 @@ fun PassionChip(
             Text(
                 text = text,
                 fontSize = 14.sp,
-                color = if (isSelected) Color.White else Color.Gray
+                color = if (isSelected) MaterialTheme.colorScheme.onSurface else Color.Gray
             )
         }
     }

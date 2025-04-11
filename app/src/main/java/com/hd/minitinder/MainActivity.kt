@@ -57,6 +57,7 @@ class MainActivity : ComponentActivity() {
 
             MiniTinderTheme {
                 AppNavHost(navController = navController, callbackManager = callbackManager)
+
             }
 
             // Điều hướng sau khi giao diện đã load xong

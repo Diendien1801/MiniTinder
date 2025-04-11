@@ -18,11 +18,11 @@ val TextColorLight = Color(0xFFFFFFFF)
 
 // Background Colors
 val LightBackgroundColor = Color(0xFFFFFFFF)
-val DarkBackgroundColor = Color(0xFF000000)
+val DarkBackgroundColor = Color(0xFF111418)
 
 // Surface Colors
-val LightSurface = Color(0xFFF5F5F5)
-val DarkSurface = Color(0xFF121212)
+val LightSurface = Color(0xFFC0C0C0)
+val DarkSurface = Color(0xFF2C2C2E)    // gần như đen
 
 // Additional Colors
 val OnPrimaryLight = Color.White

@@ -87,7 +87,7 @@ fun AddImageScreen(
                 ) {
                     Text(
                         text = "Edit Info",
-                        color = Color.Black,
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.align(Alignment.Center)
@@ -113,7 +113,7 @@ fun AddImageScreen(
                     listOf("Edit", "Preview").forEach { tab ->
                         Text(
                             text = tab,
-                            color = if (selectedTab == tab) Color.Red else Color.Black,
+                            color = if (selectedTab == tab) PrimaryColor else MaterialTheme.colorScheme.onSurface,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier

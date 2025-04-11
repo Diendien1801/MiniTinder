@@ -3,6 +3,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -13,6 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -54,7 +56,7 @@ fun BioSelectionActivity(nav: NavController,viewModel: RegisterViewModel ) {
     Column (
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF111418))
+            .background(MaterialTheme.colorScheme.background)
             .padding(top = 16.dp)
     ){
         ProgressBarStepIndicator(
@@ -64,7 +66,7 @@ fun BioSelectionActivity(nav: NavController,viewModel: RegisterViewModel ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFF111418))
+                .background(MaterialTheme.colorScheme.background)
 
                 .padding(start = 24.dp, end = 24.dp, bottom = 30.dp),
             verticalArrangement = Arrangement.SpaceBetween
@@ -88,7 +90,7 @@ fun BioSelectionActivity(nav: NavController,viewModel: RegisterViewModel ) {
                     text = "What are you \nlooking for?",
                     fontSize = 30.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onSurface,
                     lineHeight = 40.sp,
                 )
 
@@ -140,7 +142,9 @@ fun SelectableBox(text: String, emoji: String, isSelected: Boolean, onClick: () 
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(16.dp))
-            .clickable { onClick() }
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null) { onClick() }
             .width(50.dp)
             .height(160.dp)
             .padding(2.dp) // Tạo khoảng cách để tránh che mất viền
@@ -163,7 +167,7 @@ fun SelectableBox(text: String, emoji: String, isSelected: Boolean, onClick: () 
             modifier = Modifier
                 .fillMaxSize()
                 .clip(RoundedCornerShape(16.dp))
-                .background(Color.Black)
+                .background(MaterialTheme.colorScheme.background)
                 .padding(vertical = 24.dp, horizontal = 8.dp),
             contentAlignment = Alignment.Center
         ) {
@@ -172,7 +176,7 @@ fun SelectableBox(text: String, emoji: String, isSelected: Boolean, onClick: () 
                 Text(
                     text = text,
                     fontSize = 14.sp,
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onSurface,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(top = 8.dp)
                 )

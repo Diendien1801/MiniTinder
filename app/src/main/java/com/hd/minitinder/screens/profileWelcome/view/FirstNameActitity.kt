@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -44,7 +45,7 @@ fun FirstNameScreen(navController: NavController, viewModel: RegisterViewModel )
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF111418))
+            .background(MaterialTheme.colorScheme.background)
             .padding(top = 16.dp)
 
     ) {
@@ -76,7 +77,7 @@ fun FirstNameScreen(navController: NavController, viewModel: RegisterViewModel )
                 fontSize = 30.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(top = 16.dp),
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onSurface,
                 lineHeight = 40.sp
             )
 
@@ -90,8 +91,8 @@ fun FirstNameScreen(navController: NavController, viewModel: RegisterViewModel )
                     focusedContainerColor = Color.Transparent,
                     unfocusedContainerColor = Color.Transparent,
                     cursorColor = Color.White,
-                    focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White
+                    focusedTextColor =MaterialTheme.colorScheme.onSurface,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onSurface
                 )
             )
 

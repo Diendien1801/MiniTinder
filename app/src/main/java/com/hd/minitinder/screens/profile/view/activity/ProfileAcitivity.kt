@@ -33,8 +33,10 @@ import com.hd.minitinder.screens.profile.viewmodel.ProfileViewModel
 
 import com.hd.minitinder.navigation.NavigationItem
 import com.hd.minitinder.screens.profile.view.ui.theme.LightGray
+import com.hd.minitinder.ui.theme.GradientColorsForButton
+import com.hd.minitinder.ui.theme.PrimaryColor
 
-val gradientColors = listOf(Color(0xFFFF4458), Color(0xFFFC5B6B))
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,7 +47,7 @@ fun ProfileScreen(
     val userState by viewModel.userState.collectAsStateWithLifecycle()
 
     Scaffold(
-        containerColor = Color.Black,
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             Row(
                 modifier = Modifier
@@ -61,8 +63,8 @@ fun ProfileScreen(
                     LogoTinder(
                         logoSize = 24.dp,
                         textSize = 30.sp,
-                        colorLogo = MaterialTheme.colorScheme.primary,
-                        color = MaterialTheme.colorScheme.primary
+                        colorLogo = PrimaryColor,
+                        color = PrimaryColor
                     )
                 }
 
@@ -117,7 +119,7 @@ fun ProfileScreen(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = userState.name,
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.headlineMedium
                 )
                 Spacer(modifier = Modifier.width(4.dp))
@@ -136,7 +138,7 @@ fun ProfileScreen(
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     IconButton(onClick = { /* Open Settings */ },
                         modifier = Modifier
-                            .background(Color.Black, shape = CircleShape)
+                            .background(MaterialTheme.colorScheme.background, shape = CircleShape)
                             .border(1.dp, color = LightGray , shape = CircleShape)
                             .padding(2.dp)
                     ) {
@@ -154,7 +156,7 @@ fun ProfileScreen(
                     ) {
                     IconButton(onClick = { navController.navigate(NavigationItem.EditProfile.route) },
                         modifier = Modifier
-                            .background(Color.Black, shape = CircleShape)
+                            .background(MaterialTheme.colorScheme.background, shape = CircleShape)
                             .border(1.dp, LightGray, shape = CircleShape)
                             .padding(2.dp)
                     ) {
@@ -174,10 +176,7 @@ fun ProfileScreen(
                     },
                         modifier = Modifier
                             .background(
-                                brush = Brush.radialGradient(
-                                    colors = gradientColors,
-                                    radius = 50f
-                                ),
+                                 PrimaryColor,
                                 shape = CircleShape
                             )
                             .size(56.dp)
@@ -206,12 +205,12 @@ fun ProfileScreen(
             // Tinder +
             Text(
                 text = "Tinder Platinum",
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.bodyLarge
             )
             Text(
                 text = "Level up every action you take on Tinder",
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(top = 4.dp)
             )

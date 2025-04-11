@@ -58,7 +58,7 @@ fun MainScreen(startDestination: String) {
             if (shouldShowBottomBar) {
                 NavigationBar(
                     containerColor = Color.Black,
-                    modifier = Modifier.height(60.dp)
+                    modifier = Modifier.height(80.dp)
                 ) {
 
                     navItems.forEachIndexed { index, item ->

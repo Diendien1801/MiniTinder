@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -26,7 +27,7 @@ fun ProgressBarStepIndicator(currentStep: Int, totalSteps: Int = 6) {
             .fillMaxWidth()
             .height(6.dp)
 
-            .background(Color(0xFF333333)) // Màu nền thanh progress
+            .background(MaterialTheme.colorScheme.background) // Màu nền thanh progress
     ) {
         Box(
             modifier = Modifier

@@ -41,6 +41,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.viewinterop.AndroidView
 import com.hd.minitinder.R
 import com.hd.minitinder.common.fragments.button.ButtonGradient
+import com.hd.minitinder.ui.theme.PrimaryColor
 
 @Composable
 fun TinderGoldActivity(navController: NavController? = null) {
@@ -56,8 +57,8 @@ fun TinderGoldActivity(navController: NavController? = null) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    //.background(MaterialTheme.colorScheme.background)
-                    .background(Color.Black)
+                    .background(MaterialTheme.colorScheme.background)
+
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -65,8 +66,8 @@ fun TinderGoldActivity(navController: NavController? = null) {
                 LogoTinder(
                     logoSize = 24.dp,
                     textSize = 30.sp,
-                    colorLogo = MaterialTheme.colorScheme.primary,
-                    color = MaterialTheme.colorScheme.primary
+                    colorLogo = PrimaryColor,
+                    color = PrimaryColor
                 )
 
                 // Title
@@ -195,7 +196,7 @@ fun SortOption(text: String, icon: Int? = R.drawable.adjust) {
         modifier = Modifier.padding(8.dp).widthIn(min = 60.dp),
         shape = RoundedCornerShape(20.dp),
         color = Color.Transparent,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
+        border = BorderStroke(1.dp, PrimaryColor)
     ) {
         if (text.isEmpty()) { // Kiểm tra đúng chuẩn
             icon?.let { // Đảm bảo icon không null
@@ -204,7 +205,7 @@ fun SortOption(text: String, icon: Int? = R.drawable.adjust) {
                     contentDescription = "Sort Icon",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.size(40.dp).padding(8.dp),
-                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
+                    colorFilter = ColorFilter.tint(PrimaryColor)
                 )
             }
         } else {
@@ -212,7 +213,7 @@ fun SortOption(text: String, icon: Int? = R.drawable.adjust) {
                 text = text,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary,
+                color = PrimaryColor,
                 modifier = Modifier.padding(8.dp)
             )
         }

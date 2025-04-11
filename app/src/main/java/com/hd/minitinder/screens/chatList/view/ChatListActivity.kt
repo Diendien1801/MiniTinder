@@ -74,12 +74,12 @@ fun ChatListActivity(navController: NavController, chatListViewModel: ChatListVi
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black)
-    ) {
+            .background(MaterialTheme.colorScheme.background)
+    ){
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.Black)
+                .background(MaterialTheme.colorScheme.background)
                 .padding(start = 16.dp, top = 20.dp, bottom = 16.dp)
         ) {
             // Logo Tinder
@@ -90,8 +90,8 @@ fun ChatListActivity(navController: NavController, chatListViewModel: ChatListVi
                 LogoTinder(
                     logoSize = 24.dp,
                     textSize = 30.sp,
-                    colorLogo = MaterialTheme.colorScheme.primary,
-                    color = MaterialTheme.colorScheme.primary
+                    colorLogo = PrimaryColor,
+                    color = PrimaryColor
                 )
             }
 
@@ -113,20 +113,21 @@ fun ChatListActivity(navController: NavController, chatListViewModel: ChatListVi
                 },
                 shape = RoundedCornerShape(16.dp),
                 colors = TextFieldDefaults.colors(
-                    unfocusedContainerColor = Color(0xFF1E1E1E),
-                    focusedContainerColor = Color(0xFF2C2C2C),
-                    unfocusedIndicatorColor = Color.Transparent,
-                    focusedIndicatorColor = Color.Transparent,
-                    cursorColor = Color.White,
-                    unfocusedTextColor = Color.White,
-                    focusedTextColor = Color.White
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                    focusedContainerColor = MaterialTheme.colorScheme.surface,
+                    unfocusedIndicatorColor = Color.Transparent, // bỏ viền mặc định
+                    focusedIndicatorColor = Color.Transparent,   // bỏ viền mặc định
+                    cursorColor = PrimaryColor,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                    focusedTextColor = MaterialTheme.colorScheme.onSurface
                 ),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 12.dp, vertical = 8.dp)
+                    .border(1.dp, Color.LightGray, RoundedCornerShape(16.dp)) // ← viền bao trọn TextField
                     .clip(RoundedCornerShape(16.dp))
-                    .background(Color(0xFF1E1E1E))
             )
+
 
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -134,7 +135,7 @@ fun ChatListActivity(navController: NavController, chatListViewModel: ChatListVi
                 text = "Messages",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.White
+                color = MaterialTheme.colorScheme.onBackground
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -207,7 +208,7 @@ fun MessageItem(user: UserModel, isUnRead: Boolean, onClick: () -> Unit) {
                 text = user.name,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.padding(bottom = 8.dp, start = 8.dp)
             )
             Text(
