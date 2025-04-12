@@ -58,6 +58,63 @@ class LoginViewModel : ViewModel() {
     fun onPasswordChange(newPassword: String) {
         _password.value = newPassword
     }
+    fun logout() {
+        // --- [Trước khi logout] ---
+        val accessTokenBefore = AccessToken.getCurrentAccessToken()
+        val profileBefore = Profile.getCurrentProfile()
+
+        Log.d("FacebookLogout", "=== Before Logout ===")
+        if (accessTokenBefore != null && !accessTokenBefore.isExpired) {
+            Log.d("FacebookLogout", "AccessToken: ${accessTokenBefore.token}")
+            Log.d("FacebookLogout", "UserId: ${accessTokenBefore.userId}")
+            Log.d("FacebookLogout", "ApplicationId: ${accessTokenBefore.applicationId}")
+            Log.d("FacebookLogout", "Permissions: ${accessTokenBefore.permissions}")
+            Log.d("FacebookLogout", "DeclinedPermissions: ${accessTokenBefore.declinedPermissions}")
+            Log.d("FacebookLogout", "Expires: ${accessTokenBefore.expires}")
+            Log.d("FacebookLogout", "LastRefresh: ${accessTokenBefore.lastRefresh}")
+        } else {
+            Log.d("FacebookLogout", "No valid Facebook access token found.")
+        }
+
+        if (profileBefore != null) {
+            Log.d("FacebookLogout", "Profile Name: ${profileBefore.name}")
+            Log.d("FacebookLogout", "Profile Id: ${profileBefore.id}")
+            Log.d("FacebookLogout", "Profile LinkUri: ${profileBefore.linkUri}")
+            Log.d("FacebookLogout", "Profile PictureUri: ${profileBefore.getProfilePictureUri(100, 100)}")
+        } else {
+            Log.d("FacebookLogout", "No Facebook profile found.")
+        }
+
+        // --- [Tiến hành logout] ---
+        FirebaseAuth.getInstance().signOut()
+        LoginManager.getInstance().logOut()
+        AccessToken.setCurrentAccessToken(null)
+        Profile.setCurrentProfile(null)
+
+        // --- [Sau khi logout] ---
+        val accessTokenAfter = AccessToken.getCurrentAccessToken()
+        val profileAfter = Profile.getCurrentProfile()
+
+        Log.d("FacebookLogout", "=== After Logout ===")
+        if (accessTokenAfter != null && !accessTokenAfter.isExpired) {
+            Log.d("FacebookLogout", "AccessToken: ${accessTokenAfter.token}")
+        } else {
+            Log.d("FacebookLogout", "AccessToken is null or expired")
+        }
+
+        if (profileAfter != null) {
+            Log.d("FacebookLogout", "Profile Name: ${profileAfter.name}")
+        } else {
+            Log.d("FacebookLogout", "Profile is null")
+        }
+
+        // --- [Cập nhật trạng thái UI] ---
+        _currentUser.value = null
+        _loginSuccess.value = false
+        _errorMessage.value = "You have been logged out."
+        Log.d("LoginViewModel", "Logout successful")
+    }
+
 
     fun login() {
         Log.d("LoginViewModel", "Login started with email: ${email.value}")
@@ -89,62 +146,81 @@ class LoginViewModel : ViewModel() {
     }
 
     fun loginWithFacebook(activity: Activity, callbackManager: CallbackManager) {
+        Log.d("LoginViewModel", "[FacebookLogin] Start loginWithFacebook")
+
+        // Đảm bảo session cũ không bị kẹt
+        LoginManager.getInstance().logOut()
+        Log.d("LoginViewModel", "[FacebookLogin] Old Facebook session cleared")
+
         _isLoadingFace.value = true
         _errorMessage.value = ""
 
         LoginManager.getInstance().logInWithReadPermissions(activity, listOf("email", "public_profile"))
+        Log.d("LoginViewModel", "[FacebookLogin] Requesting permissions...")
+
         LoginManager.getInstance().registerCallback(callbackManager, object : FacebookCallback<LoginResult> {
             override fun onSuccess(result: LoginResult) {
+                Log.d("LoginViewModel", "[FacebookLogin] Login success - AccessToken: ${result.accessToken.token}")
                 handleFacebookAccessToken(result.accessToken, activity)
-                // đăng ký 1 token FCM
                 registerFCMToken()
             }
 
             override fun onCancel() {
                 _isLoadingFace.value = false
                 _errorMessage.value = "Facebook login canceled!"
+                Log.d("LoginViewModel", "[FacebookLogin] Login canceled by user")
             }
 
             override fun onError(error: FacebookException) {
                 _isLoadingFace.value = false
                 _errorMessage.value = error.message ?: "Facebook login failed!"
+                Log.e("LoginViewModel", "[FacebookLogin] Login error: ${error.message}")
             }
         })
     }
 
     private fun handleFacebookAccessToken(token: AccessToken, context: Context) {
+        Log.d("LoginViewModel", "[FacebookLogin] Handling token: ${token.token}")
+
         val credential = FacebookAuthProvider.getCredential(token.token)
+
         auth.signInWithCredential(credential)
             .addOnCompleteListener { task ->
                 _isLoadingFace.value = false
                 if (task.isSuccessful) {
                     _currentUser.value = auth.currentUser
-                    Log.d("LoginViewModel", "User ID: ${_currentUser.value?.uid}")
                     val user = _currentUser.value
+                    Log.d("LoginViewModel", "[FacebookLogin] Firebase sign in successful - UID: ${user?.uid}")
+
                     if (user != null) {
                         val userDocRef = Firebase.firestore.collection("users").document(user.uid)
                         userDocRef.get()
                             .addOnSuccessListener { document ->
                                 if (!document.exists() || document.getString("publicKey").isNullOrEmpty()) {
-                                    // Nếu document chưa tồn tại hoặc publicKey trống, tạo key pair mới
+                                    Log.d("LoginViewModel", "[FacebookLogin] No key pair found -> Creating new")
                                     createAndSaveKeyPair(user, context)
                                 } else {
-                                    Log.d("LoginViewModel", "User already has a key pair.")
+                                    Log.d("LoginViewModel", "[FacebookLogin] User already has key pair")
                                 }
                             }
                             .addOnFailureListener { e ->
-                                Log.e("LoginViewModel", "Error checking user key: ${e.message}")
+                                Log.e("LoginViewModel", "[FacebookLogin] Firestore error: ${e.message}")
                             }
-                        // Gọi hàm checkAndSaveUser nếu cần cập nhật thông tin khác của người dùng
+
                         userRepository.checkAndSaveUser(user)
                     }
+
                     _loginSuccess.value = true
+                    Log.d("LoginViewModel", "[FacebookLogin] Login successful!${ _loginSuccess.value }")
                     _errorMessage.value = "Facebook login successful!"
                 } else {
-                    _errorMessage.value = task.exception?.message ?: "Authentication failed!"
+                    val error = task.exception?.message ?: "Unknown error"
+                    Log.e("LoginViewModel", "[FacebookLogin] Firebase sign in failed: $error")
+                    _errorMessage.value = error
                 }
             }
     }
+
 
     private fun createAndSaveKeyPair(user: FirebaseUser, context: Context) {
         // Tạo cặp khóa RSA mới

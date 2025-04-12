@@ -3,6 +3,7 @@ package com.hd.minitinder.screens.profile.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.facebook.login.LoginManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.hd.minitinder.data.model.UserModel
@@ -133,5 +134,9 @@ class ProfileViewModel : ViewModel() {
 
     fun onImageChange(newImageUrls: List<String>) {
         _userState.value = _userState.value.copy(imageUrls = newImageUrls)
+    }
+
+    fun logout() {
+
     }
 }

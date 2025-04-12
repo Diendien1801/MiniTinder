@@ -46,7 +46,7 @@ import kotlinx.coroutines.delay
 @Composable
 fun LoginScreen(
     navController: NavController,
-    loginViewModel: LoginViewModel = viewModel(),
+    loginViewModel: LoginViewModel ,
     callbackManager: CallbackManager
 ) {
     val context = LocalContext.current
@@ -75,6 +75,7 @@ fun LoginScreen(
     LaunchedEffect(loginSuccess) {
         if (loginSuccess) {
             popupMessage = errorMessage
+
             delay(1000)
             navController.navigate(NavigationItem.Main.createRoute(NavigationItem.Swipe.route)) {
                 popUpTo(NavigationItem.Login.route) { inclusive = true }

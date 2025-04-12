@@ -1,5 +1,6 @@
 package com.hd.minitinder.screens.profile.view.activity
 
+import android.content.Intent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -21,6 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -29,9 +31,11 @@ import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.hd.minitinder.common.fragments.logo.LogoTinder
 import coil.compose.rememberAsyncImagePainter
+import com.hd.minitinder.MainActivity
 import com.hd.minitinder.screens.profile.viewmodel.ProfileViewModel
 
 import com.hd.minitinder.navigation.NavigationItem
+import com.hd.minitinder.screens.login.viewmodel.LoginViewModel
 import com.hd.minitinder.screens.profile.view.ui.theme.LightGray
 import com.hd.minitinder.ui.theme.GradientColorsForButton
 import com.hd.minitinder.ui.theme.PrimaryColor
@@ -42,10 +46,12 @@ import com.hd.minitinder.ui.theme.PrimaryColor
 @Composable
 fun ProfileScreen(
     navController: NavController,
-    viewModel: ProfileViewModel = viewModel()
+    loginViewModel: LoginViewModel,
+    viewModel: ProfileViewModel = viewModel(),
+
 ) {
     val userState by viewModel.userState.collectAsStateWithLifecycle()
-
+    val context = LocalContext.current
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
@@ -197,7 +203,39 @@ fun ProfileScreen(
                         style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold)
                     )
                 }
+                //nút logout
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    IconButton (onClick = {
+                        loginViewModel.logout()
+                        // khởi tạo lại main activity
+                        val intent = Intent(context, MainActivity::class.java)
+                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        context.startActivity(intent)
 
+                    },
+                        modifier = Modifier
+                            .background(
+                                PrimaryColor,
+                                shape = CircleShape
+                            )
+                            .size(56.dp)
+                            .border(1.dp, color = Color.Transparent, shape = CircleShape)
+                            .padding(8.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Logout,
+                            contentDescription = "Logout",
+                            modifier = Modifier.size(24.dp),
+                            tint = Color.White
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Logout",
+                        color = LightGray,
+                        style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold)
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(128.dp))

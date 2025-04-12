@@ -18,6 +18,7 @@ import com.hd.minitinder.screens.detailChat.DetailChatActivity
 import com.hd.minitinder.screens.history.view.HistoryScreen
 import com.hd.minitinder.screens.home.view.HomeScreen
 import com.hd.minitinder.screens.login.view.LoginScreen
+import com.hd.minitinder.screens.login.viewmodel.LoginViewModel
 import com.hd.minitinder.screens.payment.view.PaymentQRScreen
 import com.hd.minitinder.screens.payment.view.PaymentSuccessScreen
 import com.hd.minitinder.screens.payment.view.TinderGoldOptionScreen
@@ -43,6 +44,7 @@ fun AppNavHost(
     startDestination: String = NavigationItem.AuthenOption.route
 ) {
     val registerViewModel: RegisterViewModel = viewModel()
+    val loginViewModel: LoginViewModel = viewModel()
     NavHost(
         navController = navController,
         startDestination = startDestination,
@@ -55,10 +57,10 @@ fun AppNavHost(
             RegisterScreen(navController,registerViewModel)
         }
         composable(NavigationItem.Login.route) {
-            LoginScreen(navController, callbackManager = callbackManager)
+            LoginScreen(navController, loginViewModel, callbackManager = callbackManager)
         }
         composable(NavigationItem.Profile.route){
-            ProfileScreen(navController)
+            ProfileScreen(navController,loginViewModel)
         }
         composable(NavigationItem.EditProfile.route){
             EditProfileScreen(navController)
