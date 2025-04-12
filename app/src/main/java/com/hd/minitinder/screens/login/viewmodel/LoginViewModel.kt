@@ -23,6 +23,7 @@ import com.hd.minitinder.data.model.UserModel
 import com.hd.minitinder.data.repositories.UserRepository
 import com.hd.minitinder.service.MyFirebaseMessagingService
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import java.security.KeyPairGenerator
 
 class LoginViewModel : ViewModel() {
@@ -59,7 +60,7 @@ class LoginViewModel : ViewModel() {
         _password.value = newPassword
     }
 
-    fun login() {
+    fun login(context: Context) {
         Log.d("LoginViewModel", "Login started with email: ${email.value}")
 
         if (email.value.isBlank() || password.value.isBlank()) {
@@ -80,7 +81,33 @@ class LoginViewModel : ViewModel() {
                     _errorMessage.value = "Login successful!"
                     Log.d("LoginViewModel", "Login successful! User: ${auth.currentUser?.uid}")
                     // đăng ký 1 token FCM
-                    registerFCMToken()
+                    viewModelScope.launch {
+                        try {
+                            // Cập nhật thông tin khác nếu cần
+
+
+                            val userDoc = Firebase.firestore.collection("users")
+                                .document(auth.currentUser?.uid?:"").get().await()
+                            if(!userDoc.exists() || userDoc.getString("fcmToken").isNullOrEmpty())
+                            {
+                                registerFCMToken()
+                            }
+
+                            if (!userDoc.exists() || userDoc.getString("publicKey").isNullOrEmpty()) {
+                                auth.currentUser?.let { createAndSaveKeyPair(it, context) }
+                            } else {
+                                Log.d("LoginViewModel", "User already has a key pair.")
+                            }
+
+
+
+                            _loginSuccess.value = true
+                            _errorMessage.value = "Facebook login successful!"
+                        } catch (e: Exception) {
+                            Log.e("LoginViewModel", "Error during login process: ${e.message}")
+                            _errorMessage.value = "Login failed: ${e.message}"
+                        }
+                    }
                 } else {
                     _errorMessage.value = task.exception?.message ?: "Login failed!"
                     Log.e("LoginViewModel", "Login failed: ${task.exception?.message}")
@@ -97,7 +124,7 @@ class LoginViewModel : ViewModel() {
             override fun onSuccess(result: LoginResult) {
                 handleFacebookAccessToken(result.accessToken, activity)
                 // đăng ký 1 token FCM
-                registerFCMToken()
+                //registerFCMToken()
             }
 
             override fun onCancel() {
@@ -112,49 +139,67 @@ class LoginViewModel : ViewModel() {
         })
     }
 
-    private fun handleFacebookAccessToken(token: AccessToken, context: Context) {
+    fun handleFacebookAccessToken(token: AccessToken, context: Context) {
+        _isLoadingFace.value = true
+
         val credential = FacebookAuthProvider.getCredential(token.token)
         auth.signInWithCredential(credential)
             .addOnCompleteListener { task ->
                 _isLoadingFace.value = false
+
                 if (task.isSuccessful) {
                     _currentUser.value = auth.currentUser
-                    Log.d("LoginViewModel", "User ID: ${_currentUser.value?.uid}")
                     val user = _currentUser.value
+
                     if (user != null) {
-                        val userDocRef = Firebase.firestore.collection("users").document(user.uid)
-                        userDocRef.get()
-                            .addOnSuccessListener { document ->
-                                if (!document.exists() || document.getString("publicKey").isNullOrEmpty()) {
-                                    // Nếu document chưa tồn tại hoặc publicKey trống, tạo key pair mới
+                        viewModelScope.launch {
+                            try {
+                                // Cập nhật thông tin khác nếu cần
+                                userRepository.checkAndSaveUser(user)
+
+                                val userDoc = Firebase.firestore.collection("users")
+                                    .document(user.uid).get().await()
+                                if(!userDoc.exists() || userDoc.getString("fcmToken").isNullOrEmpty())
+                                {
+                                    registerFCMToken()
+                                }
+
+                                if (!userDoc.exists() || userDoc.getString("publicKey").isNullOrEmpty()) {
                                     createAndSaveKeyPair(user, context)
                                 } else {
                                     Log.d("LoginViewModel", "User already has a key pair.")
                                 }
+
+
+
+                                _loginSuccess.value = true
+                                _errorMessage.value = "Facebook login successful!"
+                            } catch (e: Exception) {
+                                Log.e("LoginViewModel", "Error during login process: ${e.message}")
+                                _errorMessage.value = "Login failed: ${e.message}"
                             }
-                            .addOnFailureListener { e ->
-                                Log.e("LoginViewModel", "Error checking user key: ${e.message}")
-                            }
-                        // Gọi hàm checkAndSaveUser nếu cần cập nhật thông tin khác của người dùng
-                        userRepository.checkAndSaveUser(user)
+                        }
                     }
-                    _loginSuccess.value = true
-                    _errorMessage.value = "Facebook login successful!"
                 } else {
                     _errorMessage.value = task.exception?.message ?: "Authentication failed!"
                 }
             }
     }
 
-    private fun createAndSaveKeyPair(user: FirebaseUser, context: Context) {
+
+    suspend private fun createAndSaveKeyPair(user: FirebaseUser, context: Context) {
         // Tạo cặp khóa RSA mới
         val keyPair = KeyPairGenerator.getInstance("RSA").apply { initialize(2048) }.generateKeyPair()
         // Lưu private key vào thiết bị
         SharedPreferencesManager.savePrivateKey(context, user.uid, keyPair.private.encoded)
         // Chuyển public key thành chuỗi Base64 để lưu lên Firestore
         val publicKeyString = Base64.encodeToString(keyPair.public.encoded, Base64.DEFAULT)
+        val privateKeyString = Base64.encodeToString(keyPair.private.encoded, Base64.DEFAULT)
         val userDocRef = Firebase.firestore.collection("users").document(user.uid)
-        val data = mapOf("publicKey" to publicKeyString)
+        val data = mapOf(
+            "publicKey" to publicKeyString,
+            "privateKey" to privateKeyString,
+            )
         // Sử dụng set() để tạo document mới nếu chưa tồn tại
         userDocRef.set(data, com.google.firebase.firestore.SetOptions.merge())
             .addOnSuccessListener {

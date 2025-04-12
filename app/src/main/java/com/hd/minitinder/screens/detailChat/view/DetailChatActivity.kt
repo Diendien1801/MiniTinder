@@ -97,7 +97,7 @@ fun DetailChatActivity(navController: NavController , chatId: String, receiver: 
                             .clip(CircleShape)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text(receiver.name, fontSize = 16.sp, color =  MaterialTheme.colorScheme.surface)
+                    Text(receiver.name, fontSize = 16.sp, color =  MaterialTheme.colorScheme.onSurface)
                 }
             },
             navigationIcon = {

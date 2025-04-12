@@ -44,7 +44,8 @@ class UserRepository {
                     weight = 0.0,
                     phoneNumber = firebaseUser.phoneNumber ?: "",
                     bio = "",
-                    isPremium = false
+                    isPremium = false,
+
                 )
 
                 userRef.set(newUser.toJson()) // Lưu user vào Firestore
@@ -169,6 +170,33 @@ class UserRepository {
             null
         }
     }
+    suspend fun getPrivateKey(userId: String): String? {
+        return try {
+            Log.d("KeyManagement", "Bắt đầu lấy private key cho userId: $userId")
+
+            val document = FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(userId)
+                .get()
+                .await()  // Đợi dữ liệu trả về (suspend function)
+
+            Log.d("KeyManagement", "Document lấy được: ${document.data}")
+
+            val privateKey = document.getString("privateKey")
+
+            if (privateKey != null) {
+                Log.d("KeyManagement", "Private key lấy được: $privateKey")
+            } else {
+                Log.w("KeyManagement", "Không tìm thấy private key cho userId: $userId")
+            }
+
+            privateKey
+        } catch (e: Exception) {
+            Log.e("KeyManagement", "Lỗi khi lấy private key từ Firestore", e)
+            null
+        }
+    }
+
 
     fun updateUserImage(
         userId: String,
