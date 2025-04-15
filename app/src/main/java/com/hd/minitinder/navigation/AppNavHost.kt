@@ -32,6 +32,7 @@ import com.hd.minitinder.screens.register.view.RegisterScreen
 import com.hd.minitinder.screens.register.viewmodel.RegisterViewModel
 import com.hd.minitinder.screens.swipe.view.SwipeScreen
 import com.hd.minitinder.screens.tinderGold.view.TinderGoldActivity
+import com.hd.minitinder.screens.viewProfile.view.ViewProfileScreen
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 
@@ -152,6 +153,11 @@ fun AppNavHost(
         composable(NavigationItem.Recap.route) {
             RecapScreen(onBackPressed = { navController.popBackStack() })
         }
+        composable("ViewProfile/{userId}") { backStackEntry ->
+            val userId = backStackEntry.arguments?.getString("userId") ?: ""
+            ViewProfileScreen(navController = navController, userId = userId)
+        }
+
 
     }
 }

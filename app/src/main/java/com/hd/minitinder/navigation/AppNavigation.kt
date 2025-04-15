@@ -52,7 +52,7 @@ sealed class NavigationItem (val route: String)
             return "main/$initial"
         }
     }
-    object ViewProfile : NavigationItem("viewProfile/{receiverId}") {
+    object ViewProfile : NavigationItem("ViewProfile/{receiverId}") {
         fun createRoute(receiverId: String) = "ViewProfile/$receiverId"
     }
     object ResetPass: NavigationItem(Screen.RESETPASS.name)
