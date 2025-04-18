@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -44,13 +45,15 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
 import com.hd.minitinder.common.fragments.logo.LogoTinder
+import com.hd.minitinder.data.model.UserModel
+import com.hd.minitinder.navigation.NavigationItem
 import com.hd.minitinder.screens.history.viewmodel.HistoryViewModel
 import com.hd.minitinder.ui.theme.PrimaryColor
 
 @Composable
 fun HistoryScreen(nav: NavController) {
     val viewModel: HistoryViewModel = HistoryViewModel()
-    val users by viewModel.filteredUsers.collectAsState()
+    val users by viewModel.filteredUserWithType.collectAsState()
 
     Column(
         modifier = Modifier
@@ -80,7 +83,17 @@ fun HistoryScreen(nav: NavController) {
                     .background( MaterialTheme.colorScheme.background) // LazyColumn có nền đen
             ) {
                 items(users) { user ->
-                    HistoryItem("https://scontent.fsgn8-4.fna.fbcdn.net/v/t39.30808-6/475977913_1362026488292271_813961950003817138_n.jpg?_nc_cat=103&ccb=1-7&_nc_sid=6ee11a&_nc_eui2=AeFWrdsEbXW_Cf8LVNL-Ut6QW7ZP8AZF96xbtk_wBkX3rLVLW2dS1JDll9tL1TNvrM1Y-g3Az1VW7Ha96KvDaiEt&_nc_ohc=sgY8gSdSIX8Q7kNvgGC9ePw&_nc_oc=AdjV4JxCDAmQbqA4prv_ucx5FtOFBUZdAQ0t4vizoE_A22u-FpnWQqgjOBK-TNA5Isb4jggjeDL72BGLAru66ClD&_nc_zt=23&_nc_ht=scontent.fsgn8-4.fna&_nc_gid=A0VWSyImDlHA7fqwydE9x00&oh=00_AYFEEPcVbWI3qSP-I8-4NmmD5MlQX4e-1LlGSpma1ndzUw&oe=67D76D79", user.name, "11/11/2025")
+                    user.chatId?.let {
+                        HistoryItem(
+                            user = user.user,
+                            time =
+                            "11/11/2025",
+                            type = user.type,
+                            nav = nav,
+                            chatId = it,
+
+                            )
+                    }
                 }
             }
         }
@@ -148,21 +161,35 @@ fun HistoryCategory(name: String, isSelected: Boolean, onClick: () -> Unit) {
 
 
 @Composable
-fun HistoryItem(avtUrl: String , name: String, time: String) {
+fun HistoryItem(
+    user: UserModel,
+    time: String,
+    type: HistoryViewModel.NotificationType,
+    nav: NavController,
+    chatId: String,
+) {
+    val messageText = when (type) {
+        HistoryViewModel.NotificationType.MATCH -> "You matched with ${user.name}. Excited? Good. Now, go say hi."
+        HistoryViewModel.NotificationType.LIKE -> "${user.name} liked your profile. Feeling lucky?"
+        HistoryViewModel.NotificationType.BLOCK -> "${user.name} has been blocked. You won’t see each other again."
+    }
+
     Surface(
         modifier = Modifier
             .fillMaxSize()
             .padding(8.dp)
             .background( MaterialTheme.colorScheme.background), // Đảm bảo toàn bộ item có màu đen
+            .background(Color.Black),
     ) {
         Row(
             verticalAlignment = Alignment.Top,
             modifier = Modifier.background( MaterialTheme.colorScheme.background) // Row chứa thông tin có nền đen
+            modifier = Modifier.background(Color.Black)
         ) {
             Surface(
                 modifier = Modifier
                     .padding(end = 10.dp)
-                    .size(50.dp), // Đảm bảo Surface hình tròn chứa avatar có kích thước rõ ràng
+                    .size(50.dp),
                 shape = CircleShape,
                 color =  MaterialTheme.colorScheme.background // Đặt màu cho Surface này để tránh nền bị khác màu
             ) {
@@ -177,36 +204,45 @@ fun HistoryItem(avtUrl: String , name: String, time: String) {
                 )
             }
 
-            Column(
-                modifier = Modifier
-
-                    .background( MaterialTheme.colorScheme.background) // Nền đen cho Column chứa nội dung
-            ) {
+            Column(modifier = Modifier.background(Color.Black)) {
                 Text(
-                    text = "You matched with $name. Excited? Good. Now, go say hi.",
-                    color =  MaterialTheme.colorScheme.onSurface,
+                    text = messageText,
+                    color = Color.White,
                     fontWeight = FontWeight.Light,
                     fontSize = 16.sp
                 )
-                Box(
-                    modifier = Modifier
-                        .background( MaterialTheme.colorScheme.background)
-                        .padding(bottom = 20.dp,top = 10.dp)
-                        ,
-                ) {
-                    Surface(
-                        modifier = Modifier.padding(8.dp).width(180.dp).height(40.dp),
-                        shape = RoundedCornerShape(20.dp),
-                        border = BorderStroke(2.dp,  MaterialTheme.colorScheme.onSurface),
-                        color =  MaterialTheme.colorScheme.background // Đặt màu nền cho Surface này
+
+                // Chỉ hiển thị nút nếu không phải Block
+                if (type != HistoryViewModel.NotificationType.BLOCK) {
+                    Box(
+                        modifier = Modifier
+                            .background(MaterialTheme.colorScheme.background)
+                            .padding(bottom = 20.dp, top = 10.dp),
                     ) {
-                        Text(
-                            text = "SEND A MESSAGE",
-                            color =  MaterialTheme.colorScheme.onSurface,
-                            fontWeight = FontWeight.Bold,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.padding(8.dp)
-                        )
+                        Surface(
+                            modifier = Modifier
+                                .padding(8.dp)
+                                .width(180.dp)
+                                .height(40.dp),
+                            shape = RoundedCornerShape(20.dp),
+                            border = BorderStroke(1.dp, Color.White),
+                            color = MaterialTheme.colorScheme.background
+                        ) {
+                            Text(
+                                text = "SEND A MESSAGE",
+                                color = MaterialTheme.colorScheme.onSurface,
+                                fontWeight = FontWeight.Bold,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .wrapContentHeight(Alignment.CenterVertically)
+                                    .padding(horizontal = 8.dp)
+                                    .clickable()
+                                    {
+                                        nav.navigate(NavigationItem.DetailChat.createRoute(chatId,user))
+                                    }
+                            )
+                        }
                     }
                 }
                 //divider

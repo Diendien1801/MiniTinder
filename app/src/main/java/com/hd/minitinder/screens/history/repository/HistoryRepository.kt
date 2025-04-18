@@ -61,69 +61,71 @@ class HistoryRepository {
         return userList
     }
 
-    suspend fun getMatchedUsers(userId: String): List<UserModel> {
+    suspend fun getMatchedUsers(userId: String): List<Pair<UserModel, String>> {
         val db = Firebase.firestore
-        val matchedUserIds = mutableSetOf<String>() // Dùng Set để tránh trùng lặp
-        val userList = mutableListOf<UserModel>()
+        val matchedUserMap = mutableMapOf<String, String>() // Map<matchedUserId, matchId>
+        val resultList = mutableListOf<Pair<UserModel, String>>() // List<Pair<UserModel, matchId>>
 
         try {
             Log.d("FirebaseDebug", "Bắt đầu lấy danh sách match cho userId: $userId")
 
-            // Truy vấn danh sách matches có userId là idUser1 hoặc idUser2
-            val matchSnapshot = db.collection("matches")
-                .whereIn("idUser1", listOf(userId))
+            // Truy vấn matches có userId là idUser1
+            val matchSnapshot1 = db.collection("matches")
+                .whereEqualTo("idUser1", userId)
                 .get()
                 .await()
 
+            // Truy vấn matches có userId là idUser2
             val matchSnapshot2 = db.collection("matches")
-                .whereIn("idUser2", listOf(userId))
+                .whereEqualTo("idUser2", userId)
                 .get()
                 .await()
 
-            Log.d("FirebaseDebug", "Lấy dữ liệu từ collection 'matches', số lượng: ${matchSnapshot.documents.size + matchSnapshot2.documents.size}")
-
-            // Duyệt qua danh sách match
-            for (doc in matchSnapshot.documents) {
-                val matchedId = doc.getString("idUser2") // Người được match với userId
+            // Lưu matchedUserId và matchId vào map
+            for (doc in matchSnapshot1.documents) {
+                val matchedId = doc.getString("idUser2")
                 matchedId?.let {
-                    matchedUserIds.add(it)
-                    Log.d("FirebaseDebug", "Lấy được idUser2 (matched): $matchedId")
+                    matchedUserMap[it] = doc.id
+                    Log.d("FirebaseDebug", "Match found: $userId ↔ $matchedId (matchId: ${doc.id})")
                 }
             }
+
             for (doc in matchSnapshot2.documents) {
-                val matchedId = doc.getString("idUser1") // Người được match với userId
+                val matchedId = doc.getString("idUser1")
                 matchedId?.let {
-                    matchedUserIds.add(it)
-                    Log.d("FirebaseDebug", "Lấy được idUser1 (matched): $matchedId")
+                    matchedUserMap[it] = doc.id
+                    Log.d("FirebaseDebug", "Match found: $userId ↔ $matchedId (matchId: ${doc.id})")
                 }
             }
 
-            // Nếu có ID hợp lệ thì lấy thông tin từ "users"
-            if (matchedUserIds.isNotEmpty()) {
-                Log.d("FirebaseDebug", "Bắt đầu lấy thông tin người dùng với ${matchedUserIds.size} ID")
+            val matchedIds = matchedUserMap.keys.toList()
 
+            if (matchedIds.isNotEmpty()) {
                 val userSnapshot = db.collection("users")
-                    .whereIn("id", matchedUserIds.toList()) // Chuyển set thành list
+                    .whereIn("id", matchedIds)
                     .get()
                     .await()
-
-                Log.d("FirebaseDebug", "Lấy dữ liệu từ collection 'users', số lượng: ${userSnapshot.documents.size}")
 
                 for (doc in userSnapshot.documents) {
                     val user = doc.toObject(UserModel::class.java)
                     user?.let {
-                        userList.add(it)
-                        Log.d("FirebaseDebug", "Thêm user: ${user.id} - ${user.name}")
+                        val matchId = matchedUserMap[user.id]
+                        if (matchId != null) {
+                            resultList.add(Pair(user, matchId))
+                            Log.d("FirebaseDebug", "Thêm user: ${user.name}, matchId: $matchId")
+                        }
                     }
                 }
             } else {
                 Log.d("FirebaseDebug", "Không có userId nào trong danh sách match")
             }
+
         } catch (e: Exception) {
             Log.e("FirebaseError", "Lỗi khi lấy danh sách match: ${e.message}", e)
         }
 
-        return userList
+        return resultList
     }
+
 
 }

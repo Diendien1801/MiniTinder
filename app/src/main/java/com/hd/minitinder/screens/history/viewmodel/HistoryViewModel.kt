@@ -8,11 +8,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.hd.minitinder.data.model.UserModel
+import com.hd.minitinder.screens.history.model.UserWithType
 import com.hd.minitinder.screens.history.repository.HistoryRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -27,8 +29,9 @@ class HistoryViewModel :ViewModel() {
     private val _likedUsers = MutableStateFlow<List<UserModel>>(emptyList())
     val likedUsers: StateFlow<List<UserModel>> = _likedUsers
 
-    private val _matchedUsers = MutableStateFlow<List<UserModel>>(emptyList())
-    val matchedUsers: StateFlow<List<UserModel>> = _matchedUsers
+    private val _matchedUsers = MutableStateFlow<List<Pair<UserModel, String>>>(emptyList())
+    val matchedUsers: StateFlow<List<Pair<UserModel, String>>> = _matchedUsers
+
 
     private val _blockedUsers = MutableStateFlow<List<UserModel>>(emptyList())
     val blockedUsers: StateFlow<List<UserModel>> = _blockedUsers
@@ -52,7 +55,8 @@ class HistoryViewModel :ViewModel() {
         viewModelScope.launch {
             fetchLikedUsers(userId)
             fetchMatchedUsers(userId)
-            _allActivities.value = likedUsers.value + matchedUsers.value
+            _allActivities.value = likedUsers.value + matchedUsers.value.map { it.first }
+
         }
     }
 
@@ -60,9 +64,9 @@ class HistoryViewModel :ViewModel() {
             viewModelScope.launch {
                 try {
                     Log.d("HistoryViewModel", "Bắt đầu lấy danh sách matched users cho userId: $userId")
-                    val users = historyRepository.getMatchedUsers(userId) // Hàm truy vấn Firestore đã viết trước đó
-                    Log.d("HistoryViewModel", "Lấy danh sách matched users thành công, số lượng: ${users.size}")
-                    _matchedUsers.value = users
+                    val result = historyRepository.getMatchedUsers(userId) // Hàm truy vấn Firestore đã viết trước đó
+                    Log.d("HistoryViewModel", "Lấy danh sách matched users thành công, số lượng: ${result.size}")
+                    _matchedUsers.value = result
 
                 }
                 catch (e: Exception) {
@@ -89,6 +93,25 @@ class HistoryViewModel :ViewModel() {
     fun updateCategory(category: String) {
         _selectedCategory.value = category // Cập nhật giá trị
     }
+    enum class NotificationType {
+        MATCH, LIKE, BLOCK
+    }
 
+    val filteredUserWithType: StateFlow<List<UserWithType>> = combine(
+        _selectedCategory, _likedUsers, _matchedUsers, _blockedUsers
+    ) { category, liked, matched, blocked ->
+        val likedMapped = liked.map { UserWithType(it, NotificationType.LIKE) }
+        val matchedMapped = matched.map { (user, matchId) ->
+            UserWithType(user, NotificationType.MATCH, chatId = matchId)
+        }
+        val blockedMapped = blocked.map { UserWithType(it, NotificationType.BLOCK) }
+
+        when (category) {
+            "Like" -> likedMapped
+            "Match" -> matchedMapped
+            "Block" -> blockedMapped
+            else -> likedMapped + matchedMapped + blockedMapped
+        }
+    }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
 }
