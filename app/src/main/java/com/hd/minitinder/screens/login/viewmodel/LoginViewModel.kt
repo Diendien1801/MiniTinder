@@ -59,7 +59,62 @@ class LoginViewModel : ViewModel() {
     fun onPasswordChange(newPassword: String) {
         _password.value = newPassword
     }
+    fun logout() {
+        // --- [Trước khi logout] ---
+        val accessTokenBefore = AccessToken.getCurrentAccessToken()
+        val profileBefore = Profile.getCurrentProfile()
 
+        Log.d("FacebookLogout", "=== Before Logout ===")
+        if (accessTokenBefore != null && !accessTokenBefore.isExpired) {
+            Log.d("FacebookLogout", "AccessToken: ${accessTokenBefore.token}")
+            Log.d("FacebookLogout", "UserId: ${accessTokenBefore.userId}")
+            Log.d("FacebookLogout", "ApplicationId: ${accessTokenBefore.applicationId}")
+            Log.d("FacebookLogout", "Permissions: ${accessTokenBefore.permissions}")
+            Log.d("FacebookLogout", "DeclinedPermissions: ${accessTokenBefore.declinedPermissions}")
+            Log.d("FacebookLogout", "Expires: ${accessTokenBefore.expires}")
+            Log.d("FacebookLogout", "LastRefresh: ${accessTokenBefore.lastRefresh}")
+        } else {
+            Log.d("FacebookLogout", "No valid Facebook access token found.")
+        }
+
+        if (profileBefore != null) {
+            Log.d("FacebookLogout", "Profile Name: ${profileBefore.name}")
+            Log.d("FacebookLogout", "Profile Id: ${profileBefore.id}")
+            Log.d("FacebookLogout", "Profile LinkUri: ${profileBefore.linkUri}")
+            Log.d("FacebookLogout", "Profile PictureUri: ${profileBefore.getProfilePictureUri(100, 100)}")
+        } else {
+            Log.d("FacebookLogout", "No Facebook profile found.")
+        }
+
+        // --- [Tiến hành logout] ---
+        FirebaseAuth.getInstance().signOut()
+        LoginManager.getInstance().logOut()
+        AccessToken.setCurrentAccessToken(null)
+        Profile.setCurrentProfile(null)
+
+        // --- [Sau khi logout] ---
+        val accessTokenAfter = AccessToken.getCurrentAccessToken()
+        val profileAfter = Profile.getCurrentProfile()
+
+        Log.d("FacebookLogout", "=== After Logout ===")
+        if (accessTokenAfter != null && !accessTokenAfter.isExpired) {
+            Log.d("FacebookLogout", "AccessToken: ${accessTokenAfter.token}")
+        } else {
+            Log.d("FacebookLogout", "AccessToken is null or expired")
+        }
+
+        if (profileAfter != null) {
+            Log.d("FacebookLogout", "Profile Name: ${profileAfter.name}")
+        } else {
+            Log.d("FacebookLogout", "Profile is null")
+        }
+
+        // --- [Cập nhật trạng thái UI] ---
+        _currentUser.value = null
+        _loginSuccess.value = false
+        _errorMessage.value = "You have been logged out."
+        Log.d("LoginViewModel", "Logout successful")
+    }
     fun login(context: Context) {
         Log.d("LoginViewModel", "Login started with email: ${email.value}")
 

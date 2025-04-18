@@ -179,12 +179,12 @@ fun HistoryItem(
             .fillMaxSize()
             .padding(8.dp)
             .background( MaterialTheme.colorScheme.background), // Đảm bảo toàn bộ item có màu đen
-            .background(Color.Black),
+
     ) {
         Row(
             verticalAlignment = Alignment.Top,
             modifier = Modifier.background( MaterialTheme.colorScheme.background) // Row chứa thông tin có nền đen
-            modifier = Modifier.background(Color.Black)
+
         ) {
             Surface(
                 modifier = Modifier
@@ -194,7 +194,7 @@ fun HistoryItem(
                 color =  MaterialTheme.colorScheme.background // Đặt màu cho Surface này để tránh nền bị khác màu
             ) {
                 Image(
-                    painter = rememberAsyncImagePainter(avtUrl),
+                    painter = rememberAsyncImagePainter(user.imageUrls[0]),
                     contentDescription = "Avatar",
                     modifier = Modifier
                         .size(50.dp)
