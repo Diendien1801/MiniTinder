@@ -98,16 +98,16 @@ class RegisterViewModel @Inject constructor() : ViewModel() {
                         val firebaseUser = task.result?.user
                         if (firebaseUser != null) {
                             // Tạo khóa RSA
-                            val keyPair = KeyPairGenerator.getInstance("RSA").apply { initialize(2048) }.generateKeyPair()
+                            //val keyPair = KeyPairGenerator.getInstance("RSA").apply { initialize(2048) }.generateKeyPair()
                             // Lưu khóa private vào share preferences
-                            SharedPreferencesManager.savePrivateKey( context, firebaseUser.uid, keyPair.private.encoded)
+                            //SharedPreferencesManager.savePrivateKey( context, firebaseUser.uid, keyPair.private.encoded)
                             // Lưu khóa RSA vào Firestore
-                            val publicKey = Base64.encodeToString(keyPair.public.encoded, Base64.DEFAULT)
+                            //val publicKey = Base64.encodeToString(keyPair.public.encoded, Base64.DEFAULT)
                             val user = UserModel(
                                 id = firebaseUser.uid,
                                 imageUrls = listOf(),
                                 isPremium = false,
-                                publicKey = publicKey,
+                                //publicKey = publicKey,
                             )
 
                             userRepository.saveUserToFirestore(user,

@@ -13,6 +13,7 @@ import com.hd.minitinder.screens.detailChat.model.ChatMessageModel
 import com.hd.minitinder.screens.detailChat.repositories.ChatMessageRepository
 import com.hd.minitinder.service.ApiService
 import com.hd.minitinder.service.NotificationRequest
+import com.hd.minitinder.utils.EncryptionHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -41,16 +42,36 @@ class DetailChatViewModel() : ViewModel() {
     private val _receiverId = MutableStateFlow<String?>("")
     val receiverId = _receiverId.asStateFlow()
 
+    private val _privatekey = MutableStateFlow<String?>("")
+    val privatekey = _privatekey.asStateFlow()
 
 
     fun initChat(chatId: String, userId: String, receiverId: String, context: Context) {
+        Log.d("ChatInit", "Khởi tạo chat với các tham số: chatId=$chatId, userId=$userId, receiverId=$receiverId")
+
         _chatId.value = chatId
         _userId.value = userId
         _receiverId.value = receiverId
-        Log.d("Chat2", "ChatId: ${_chatId.value}, Sender: ${_userId.value}, Receiver: ${_receiverId.value}")
 
-        listenForMessages(context)
+        Log.d("ChatInit", "Giá trị đã set: ChatId=${_chatId.value}, Sender=${_userId.value}, Receiver=${_receiverId.value}")
+
+        viewModelScope.launch {
+            Log.d("ChatInit", "Bắt đầu lấy private key cho userId=$userId")
+            val privateKey = userRepository.getPrivateKey(userId)
+            _privatekey.value = privateKey
+
+            if (privateKey != null) {
+                Log.d("ChatInit", "Private key lấy được thành công ${_privatekey.value}")
+                listenForMessages(context)
+            } else {
+                Log.w("ChatInit", "Không thể lấy được private key cho userId=$userId")
+            }
+        }
+
+        Log.d("ChatInit", "Gọi hàm listenForMessages(context)")
+
     }
+
 
     fun sendMessage(context: Context, message: String) {
         val chat = _chatId.value ?: return
@@ -106,13 +127,9 @@ class DetailChatViewModel() : ViewModel() {
     }
     private fun listenForMessages(context: Context) {
         val chat = _chatId.value ?: return
+
         // Lấy private key từ SharedPreferences
-        val privateKey =
-            Firebase.auth.currentUser?.uid?.let {
-                SharedPreferencesManager.getPrivateKey(context,
-                    it
-                )
-            }
+        val privateKey = _privatekey.value?.let { EncryptionHelper.base64ToPrivateKey(it) }
 
         if (privateKey == null) {
             Log.e("Chat", "Private key is null!")

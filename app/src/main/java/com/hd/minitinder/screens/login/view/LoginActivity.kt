@@ -180,7 +180,7 @@ fun LoginScreen(
                 // Register Button
                 ButtonGradient(
                     buttonText = "Login",
-                    onClick = { loginViewModel.login() },
+                    onClick = { loginViewModel.login(context)},
                     isLoading = isLoading // ✅ Truyền trạng thái loading vào
                 )
 

@@ -31,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -67,6 +68,7 @@ fun InterestSelectionScreen(nav: NavController, viewModel: RegisterViewModel ) {
     // State điều khiển popup
     var showPopup by remember { mutableStateOf(false) }
     var popupMessage by remember { mutableStateOf("") }
+    val context = LocalContext.current
     // Trạng thái hiển thị popup
     LaunchedEffect(errorMessage) {
         if (errorMessage.isNotEmpty()) {
@@ -159,7 +161,7 @@ fun InterestSelectionScreen(nav: NavController, viewModel: RegisterViewModel ) {
 
                     loginViewModel.email = viewModel.email
                     loginViewModel.password = viewModel.password
-                    loginViewModel.login()
+                    loginViewModel.login(context)
 
 
                 } ,
