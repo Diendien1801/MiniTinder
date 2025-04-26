@@ -61,6 +61,7 @@ dependencies {
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
+    implementation("com.stripe:stripe-android:21.11.1")
     implementation("androidx.test.espresso:espresso-core:3.6.1")
     implementation("androidx.compose.animation:animation-core-lint:1.8.0-beta02")
     implementation("com.google.android.apps.common.testing.accessibility.framework:accessibility-test-framework:4.1.1")

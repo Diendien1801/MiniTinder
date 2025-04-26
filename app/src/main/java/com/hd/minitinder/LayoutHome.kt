@@ -32,8 +32,9 @@ fun MainScreen(startDestination: String) {
     val navItems = listOf(
         NavigationItem.Swipe to R.drawable.logo_tinder, // Icon tùy chỉnh từ drawable
         NavigationItem.TinderGold to R.drawable.tinder_gold,
+        NavigationItem.Recap to R.drawable.profile,
         NavigationItem.Chat to R.drawable.chat,
-        NavigationItem.Profile to R.drawable.profile
+        NavigationItem.Profile to R.drawable.profile,
     )
 
 

@@ -1,5 +1,10 @@
 package com.hd.minitinder.screens.payment.view
 
+import CheckoutRequest
+import DetailChatViewModel
+import android.content.Intent
+import android.net.Uri
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -16,14 +21,21 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavHostController
 import com.hd.minitinder.navigation.NavigationItem
+import kotlinx.coroutines.launch
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.hd.minitinder.screens.payment.viewmodel.PaymentViewModel
 
 @Composable
 fun TinderGoldOptionScreen(navController: NavHostController) {
+    val viewModel = viewModel<PaymentViewModel>()
     var paymentValue by remember { mutableStateOf("100") } // Giá trị payment
-
+    val userId = viewModel.currentUser?.uid
+    val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -62,7 +74,6 @@ fun TinderGoldOptionScreen(navController: NavHostController) {
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Truyền callback để cập nhật giá trị payment
         PlanSelection { selectedPrice ->
             paymentValue = selectedPrice
         }
@@ -74,7 +85,21 @@ fun TinderGoldOptionScreen(navController: NavHostController) {
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
-            onClick = { navController.navigate("paymentQR/$paymentValue") },
+            onClick = { coroutineScope.launch {
+                try {
+                    val response = RetrofitClient.paymentApi.createCheckoutSession(
+                        CheckoutRequest(userId = userId.toString(), price = paymentValue.toInt())
+                    )
+                    Log.i("url", response.url)
+                    val checkoutUrl = response.url
+
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(checkoutUrl))
+                    context.startActivity(intent)
+                    navController.navigate(NavigationItem.TinderGold.route)
+                } catch (e: Exception) {
+                    Log.e("Stripe", "Checkout error: ${e.message}")
+                }
+            } },
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFC107)),
             modifier = Modifier
                 .fillMaxWidth()
