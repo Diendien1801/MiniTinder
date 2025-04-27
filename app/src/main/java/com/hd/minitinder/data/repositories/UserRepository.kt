@@ -56,27 +56,21 @@ class UserRepository {
             }
         }
     }
-    fun getUserById(userId: String, onResult: (UserModel?) -> Unit) {
+    suspend fun getUserById(userId: String): UserModel? {
         val db = FirebaseFirestore.getInstance()
-        val usersRef = db.collection("users")
+        val document = try {
+            // Lấy tài liệu người dùng bất đồng bộ và đợi kết quả
+            db.collection("users").document(userId).get().await()
+        } catch (e: Exception) {
+            // Nếu có lỗi, trả về null
+            return null
+        }
 
-        Log.d("Firestore", "Fetching user with ID: $userId")
-
-        usersRef.document(userId).get()
-            .addOnSuccessListener { document ->
-                if (document.exists()) {
-                    val user = UserModel.fromJson(document)
-                    Log.d("Firestore", "User found: $user")
-                    onResult(user)
-                } else {
-                    Log.d("Firestore", "User not found: $userId")
-                    onResult(null)
-                }
-            }
-            .addOnFailureListener { e ->
-                Log.e("Firestore", "Error fetching user: $userId", e)
-                onResult(null)
-            }
+        return if (document.exists()) {
+            UserModel.fromJson(document) // Trả về đối tượng UserModel nếu tài liệu tồn tại
+        } else {
+            null // Trả về null nếu không tìm thấy tài liệu
+        }
     }
 
 
@@ -124,17 +118,16 @@ class UserRepository {
     }
 
 
-    fun isPremium(userId: String): Boolean {
+    suspend fun isPremium(userId: String): Boolean {
         val db = FirebaseFirestore.getInstance()
         val usersRef = db.collection("users")
-        var isPremium = false
-        usersRef.document(userId).get()
-            .addOnSuccessListener { document ->
-                if (document.exists()) {
-                    isPremium = document.getBoolean("isPremium") ?: false
-                }
-                }
-        return isPremium
+        val document = usersRef.document(userId).get().await()
+
+        return if (document.exists()) {
+            document.getBoolean("isPremium") ?: false
+        } else {
+            false
+        }
     }
 
     fun updateUserToDatabase(user: UserModel) {

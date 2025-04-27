@@ -46,12 +46,17 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.hd.minitinder.R
 import com.hd.minitinder.common.fragments.logo.LogoTinder
+import com.hd.minitinder.navigation.AppNavHost
+import com.hd.minitinder.navigation.NavigationItem
 import com.hd.minitinder.screens.swipe.viewmodel.SwipeViewModel
+import com.hd.minitinder.ui.theme.AppTypography
 import com.hd.minitinder.ui.theme.PrimaryColor
 import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
@@ -62,8 +67,10 @@ import com.hd.minitinder.screens.swipe.viewmodel.UserProfile
 @Composable
 fun SwipeScreen(navController: NavController, SwipeViewModel: SwipeViewModel = viewModel()) {
     val density = LocalDensity.current
+
     val users = SwipeViewModel.availableUsers;
     val currentUser by SwipeViewModel.userState.collectAsState()
+
     var swipeCount by remember { mutableIntStateOf(0) }
     var offsetX by remember { mutableFloatStateOf(0f) }
     var isAnimating by remember { mutableStateOf(false) }
@@ -404,9 +411,15 @@ fun SwipeScreen(navController: NavController, SwipeViewModel: SwipeViewModel = v
                             fontSize = 26.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.White,
-                            modifier = Modifier.padding(bottom = 4.dp)
+                            style = TextStyle(
+                                textDecoration = if (isHovered) TextDecoration.Underline else TextDecoration.None
+                            ),
+                            modifier = Modifier
+                                .padding(bottom = 4.dp)
+                                .clickable(onClick = {
+                                    navController.navigate(NavigationItem.ViewProfile.createRoute("LiBzhw67DtVuou2gCumhG6xuNER2"))
+                                })
                         )
-
                         // Location and occupation
                         Text(
                             text = "${user.occupation} • ${user.address}",

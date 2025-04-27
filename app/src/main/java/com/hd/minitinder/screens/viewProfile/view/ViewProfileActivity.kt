@@ -161,21 +161,27 @@ fun ShowConfirmDialog(
 @Composable
 fun ViewProfileScreen(navController: NavController, userId: String = "") {
     val viewModel: OtherProfileViewModel = viewModel()
-    LaunchedEffect(userId) { viewModel.loadUserProfile(userId) }
+
+    LaunchedEffect(userId) {
+        viewModel.loadUserProfile(userId)
+    }
     val userState by viewModel.userProfileState.collectAsStateWithLifecycle()
 
     userState?.let { user ->
         val imageUrls = user.imageUrls
+        var isMatch by remember { mutableStateOf(false) }
+
+        // Kiểm tra "match"
+        val currentUserId = viewModel.getCurrentUserId()
+        LaunchedEffect(currentUserId, user.id) {
+            isMatch = viewModel.isMatch(currentUserId, user.id)
+        }
 
         // Ảnh hiện tại
         var currentIndex by remember { mutableIntStateOf(0) }
         LaunchedEffect(imageUrls) {
             currentIndex = currentIndex.coerceIn(0, if (imageUrls.isNotEmpty()) imageUrls.size - 1 else 0)
         }
-
-        // Thông báo chặn/unmatch
-        var showPopup by remember { mutableStateOf(false) }
-        var popupMessage by remember { mutableStateOf("") }
 
         // Thông báo xác nhận
         var showConfirmDialog by remember { mutableStateOf("") }
@@ -404,27 +410,28 @@ fun ViewProfileScreen(navController: NavController, userId: String = "") {
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    Button(
-                        onClick = {
-                            showConfirmDialog = "Unmatch"
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF21262E),
-                            contentColor = Color.White,
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(64.dp)
-                            .clip(RoundedCornerShape(0.5.dp))
-                    ) {
-                        Text(
-                            text = "Unmatched",
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold
-                        )
+                    if (isMatch){
+                        Button(
+                            onClick = {
+                                showConfirmDialog = "Unmatch"
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFF21262E),
+                                contentColor = Color.White,
+                            ),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(64.dp)
+                                .clip(RoundedCornerShape(0.5.dp))
+                        ) {
+                            Text(
+                                text = "Unmatched",
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
                     }
-
-                    Spacer(modifier = Modifier.height(8.dp))
 
                     Button(
                         onClick = {

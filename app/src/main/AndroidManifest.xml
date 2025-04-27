@@ -35,9 +35,9 @@
         <!-- Khai báo Firebase Cloud Messaging Service -->
         <service
             android:name=".service.MyFirebaseMessagingService"
-            android:exported="false">
+            android:exported="true">
             <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
         <activity

@@ -12,11 +12,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.hd.minitinder.R
 import com.hd.minitinder.navigation.NavigationItem
 import com.hd.minitinder.ui.theme.*
 import com.hd.minitinder.screens.profile.view.ui.theme.LightGray
@@ -48,7 +50,7 @@ fun EditProfileScreen(
                         .background(DarkCharcoal)
                 ) {
                     Text(
-                        text = "Edit profile",
+                        text = stringResource(R.string.edit_profile),
                         color = Color.White,
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold,
@@ -64,7 +66,7 @@ fun EditProfileScreen(
                             .padding(end = 8.dp)
                     ) {
                         Text(
-                            text = "Done",
+                            text = stringResource(R.string.done),
                             color = Color.Blue
                         )
                     }
@@ -88,7 +90,7 @@ fun EditProfileScreen(
                             enabled = (selectedItem != 0)
                         ) {
                             Text(
-                                text = "Edit",
+                                text = stringResource(R.string.edit),
                                 color = if ((selectedItem == 0)) PrimaryColor else LightGray,
                                 fontSize = 18.sp
                             )
@@ -106,7 +108,7 @@ fun EditProfileScreen(
                             enabled = (selectedItem != 1)
                         ) {
                             Text(
-                                text = "Preview",
+                                text = stringResource(R.string.preview),
                                 color = if (selectedItem == 1) PrimaryColor else LightGray,
                                 fontSize = 18.sp
                             )

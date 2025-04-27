@@ -156,8 +156,10 @@ fun DetailChatActivity(navController: NavController , chatId: String, receiver: 
             modifier = Modifier.padding(start = 10.dp, end = 10.dp)
         ){
             MessageInputBar(inputText.value, onTextChange = { inputText.value = it }) {
-                viewModel.sendMessage(context,inputText.value)
-                inputText.value = ""
+                coroutineScope.launch {
+                    viewModel.sendMessage(context, inputText.value)
+                    inputText.value = ""
+                }
             }
         }
 

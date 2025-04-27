@@ -34,13 +34,16 @@ import com.hd.minitinder.common.fragments.logo.LogoTinder
 
 import android.util.Log
 import android.widget.ImageView
+import androidx.compose.foundation.clickable
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.viewinterop.AndroidView
 import com.hd.minitinder.R
 import com.hd.minitinder.common.fragments.button.ButtonGradient
+import com.hd.minitinder.navigation.NavigationItem
 import com.hd.minitinder.ui.theme.PrimaryColor
 
 @Composable
@@ -72,7 +75,7 @@ fun TinderGoldActivity(navController: NavController? = null) {
 
                 // Title
                 Text(
-                    text = "Upgrade to Gold to see people \n who already liked you",
+                    text = stringResource(R.string.upgrade_to_gold_to_see_people_who_already_liked_you),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White,
@@ -106,15 +109,16 @@ fun TinderGoldActivity(navController: NavController? = null) {
                         items(likedUsers.size) { index ->
                             Log.d("TinderGoldActivity", "Rendering user: ${likedUsers[index].name}")
                             personLikeYouItem(
+                                navController = navController,
                                 imageUrl = likedUsers[index].imageUrls.firstOrNull() ?: "",
-                                idUser = likedUsers[index].name,
+                                idUser = likedUsers[index].id,
                                 isPremium = isPremium ?: false,
                             )
                         }
                     }
                 } else {
                     Text(
-                        text = "No one has liked you yet!",
+                        text = stringResource(R.string.no_one_has_liked_you_yet),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.Gray,
@@ -128,12 +132,12 @@ fun TinderGoldActivity(navController: NavController? = null) {
         if(isPremium == false){
             Box (
                 modifier = Modifier
-                    .padding(horizontal = 16.dp,36.dp)
+                    .padding(horizontal = 16.dp, 36.dp)
                     .align(Alignment.BottomCenter)
             ){
                 ButtonGradient(
                     gradientColors = listOf(Color(0xFFE6AF16), Color(0xFFFFE8A5)),
-                    buttonText = "See who Likes you",
+                    buttonText = stringResource(R.string.see_who_likes_you),
                     onClick = {
                         navController?.navigate(com.hd.minitinder.navigation.NavigationItem.PaymentOption.route)
                     },
@@ -151,12 +155,21 @@ fun TinderGoldActivity(navController: NavController? = null) {
 
 
 @Composable
-fun personLikeYouItem(imageUrl: String, idUser: String, isPremium: Boolean) {
+fun personLikeYouItem(navController: NavController? = null, imageUrl: String, idUser: String, isPremium: Boolean) {
     Surface(
         shape = RoundedCornerShape(16.dp),
         modifier = Modifier
             .width(150.dp)
             .height(220.dp)
+            .clickable(onClick = {
+                if (isPremium){
+                    navController?.navigate(NavigationItem.ViewProfile.createRoute(idUser))
+                }
+                else {
+                    navController?.navigate(NavigationItem.PaymentOption.route)
+                }
+
+            })
     ) {
         Box(
             modifier = Modifier.fillMaxSize()
@@ -180,7 +193,9 @@ fun personLikeYouItem(imageUrl: String, idUser: String, isPremium: Boolean) {
                     painter = painterResource(id = R.drawable.mystery), // Ảnh PNG có hiệu ứng kính mờ
                     contentDescription = "Blur Overlay",
                     contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize().alpha(0.8f)
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .alpha(0.8f)
                 )
             }
         }
@@ -193,7 +208,9 @@ fun personLikeYouItem(imageUrl: String, idUser: String, isPremium: Boolean) {
 @Composable
 fun SortOption(text: String, icon: Int? = R.drawable.adjust) {
     Surface(
-        modifier = Modifier.padding(8.dp).widthIn(min = 60.dp),
+        modifier = Modifier
+            .padding(8.dp)
+            .widthIn(min = 60.dp),
         shape = RoundedCornerShape(20.dp),
         color = Color.Transparent,
         border = BorderStroke(1.dp, PrimaryColor)
@@ -204,7 +221,9 @@ fun SortOption(text: String, icon: Int? = R.drawable.adjust) {
                     painter = rememberAsyncImagePainter(it),
                     contentDescription = "Sort Icon",
                     contentScale = ContentScale.Crop,
-                    modifier = Modifier.size(40.dp).padding(8.dp),
+                    modifier = Modifier
+                        .size(40.dp)
+                        .padding(8.dp),
                     colorFilter = ColorFilter.tint(PrimaryColor)
                 )
             }
@@ -228,4 +247,4 @@ fun PreviewTinderGoldActivity() {
     TinderGoldActivity()
 }
 
-val option = listOf("","Nearby", "Top Rated", "Newest", "Oldest","Most Liked")
+val option = listOf("Nearby", "Top Rated", "Newest", "Oldest","Most Liked")

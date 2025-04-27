@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -62,7 +63,7 @@ fun AuthenOptionActivity(navController: NavController) {
 
 
             Text(
-                text = "By tapping ‘Create account’ or ‘Sign in’ you agree to our Terms. Learn how we process your data in our Privacy Policy and Cookies Policy.",
+                text = stringResource(R.string.by_tapping_create_account_or_sign_in_you_agree_to_our_terms_learn_how_we_process_your_data_in_our_privacy_policy_and_cookies_policy),
                 fontSize = 12.sp,
                 color = Color.White,
                 fontWeight = FontWeight.Bold,
@@ -71,11 +72,11 @@ fun AuthenOptionActivity(navController: NavController) {
             )
 
             Spacer(modifier = Modifier.height(32.dp)) // Tạo khoảng cách giữa text và nút
-            ButtonBlackWhite (buttonText = "Create account") {
+            ButtonBlackWhite (buttonText = stringResource(R.string.create_account)) {
                 navController.navigate(com.hd.minitinder.navigation.NavigationItem.Register.route)
             }
             Spacer(modifier = Modifier.height(16.dp))
-            ButtonBlackWhite (buttonText = "Sign In") {
+            ButtonBlackWhite (buttonText = stringResource(R.string.sign_in)) {
                 navController.navigate(com.hd.minitinder.navigation.NavigationItem.Login.route)
             }
 
