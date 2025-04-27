@@ -110,7 +110,7 @@ fun AddImageScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center
                 ) {
-                    listOf("Edit", "Preview").forEach { tab ->
+                    listOf("Edit").forEach { tab ->
                         Text(
                             text = tab,
                             color = if (selectedTab == tab) PrimaryColor else MaterialTheme.colorScheme.onSurface,
