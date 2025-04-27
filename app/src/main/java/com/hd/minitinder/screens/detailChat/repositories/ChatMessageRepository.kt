@@ -23,6 +23,7 @@ import java.security.PrivateKey
 import java.security.spec.X509EncodedKeySpec
 import org.json.JSONObject
 import android.content.Context
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -39,6 +40,7 @@ class ChatMessageRepository {
 
         val senderRef = db.collection("users").document(senderId)
         val receiverRef = db.collection("users").document(receiverId)
+        val chatRef = db.collection("chats").document(chatId)
 
         db.runTransaction { transaction ->
             val senderDoc = transaction.get(senderRef)
@@ -58,27 +60,31 @@ class ChatMessageRepository {
                 X509EncodedKeySpec(Base64.decode(receiverPublicKeyString, Base64.DEFAULT))
             )
 
-            // Mã hóa tin nhắn hai lần
             val encryptedForReceiver = EncryptionHelper.encryptMessage(message.message, receiverPublicKey)
             val encryptedForSender = EncryptionHelper.encryptMessage(message.message, senderPublicKey)
 
-            // Tạo bản sao của tin nhắn với nội dung đã mã hóa
             val encryptedMessage = message.copy(
                 message = encryptedForReceiver,
                 encryptForSender = encryptedForSender
             )
 
-            // Lưu vào Firestore
+            // Lưu message
             transaction.set(
-                db.collection("chats").document(chatId).collection("messages").document(),
+                chatRef.collection("messages").document(),
                 encryptedMessage
             )
+
+            // Update timestamp cho chatId
+            transaction.update(chatRef, "timestamp", FieldValue.serverTimestamp())
+
         }.addOnSuccessListener {
-            Log.d("Chat", "Tin nhắn đã được gửi!")
+            Log.d("Chat", "Tin nhắn đã được gửi và cập nhật timestamp!")
         }.addOnFailureListener { e ->
             Log.e("Chat", "Gửi tin nhắn thất bại", e)
         }
     }
+
+
 
 
 

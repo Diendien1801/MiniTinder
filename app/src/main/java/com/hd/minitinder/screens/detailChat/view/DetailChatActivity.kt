@@ -94,7 +94,8 @@ fun DetailChatActivity(navController: NavController , chatId: String, receiver: 
                         contentDescription = "Profile Picture",
                         modifier = Modifier
                             .size(36.dp)
-                            .clip(CircleShape)
+                            .clip(CircleShape),
+
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(receiver.name, fontSize = 16.sp, color =  MaterialTheme.colorScheme.onSurface)

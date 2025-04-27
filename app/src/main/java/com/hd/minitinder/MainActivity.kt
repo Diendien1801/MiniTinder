@@ -14,6 +14,9 @@ import android.app.AppOpsManager
 import android.app.AlertDialog
 import android.content.Intent
 import android.provider.Settings
+import android.util.Log
+import androidx.compose.lint.Names.Runtime.LaunchedEffect
+import androidx.compose.runtime.LaunchedEffect
 
 
 class MainActivity : ComponentActivity() {
@@ -61,9 +64,11 @@ class MainActivity : ComponentActivity() {
             }
 
             // Điều hướng sau khi giao diện đã load xong
-            intent?.getStringExtra("navigate_to")?.let { destination ->
-                if (destination == NavigationItem.Chat.route ) {
-                    navController.navigate(NavigationItem.Main.createRoute(NavigationItem.Chat.route))
+            LaunchedEffect(Unit) {
+                intent?.getStringExtra("navigate_to")?.let { destination ->
+                    if (destination == "chat") {
+                        navController.navigate(NavigationItem.Main.createRoute(NavigationItem.Chat.route))
+                    }
                 }
             }
         }

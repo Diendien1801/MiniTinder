@@ -184,8 +184,10 @@ fun MessageItem(user: UserModel, isUnRead: Boolean, onClick: () -> Unit) {
                 ),
                 contentDescription = "Profile Picture",
                 modifier = Modifier
-                    .size(80.dp)
-                    .clip(CircleShape)
+                    .size(80.dp) // Đảm bảo ảnh có kích thước đúng như Box
+                    .clip(CircleShape) // Cắt ảnh thành hình tròn
+                    .fillMaxSize(), // Đảm bảo ảnh phủ hết diện tích Box
+                contentScale = ContentScale.Crop // Cắt ảnh sao cho lấp đầy diện tích tròn
             )
 
             // Hiển thị chấm đỏ nếu tin nhắn chưa đọc
@@ -195,9 +197,11 @@ fun MessageItem(user: UserModel, isUnRead: Boolean, onClick: () -> Unit) {
                         .size(12.dp)
                         .background(PrimaryColor, shape = CircleShape)
                         .border(1.dp, Color.White, CircleShape)
+                        .align(Alignment.TopEnd) // Canh vào góc phải trên cùng
                 )
             }
         }
+
 
         Spacer(modifier = Modifier.width(12.dp))
 
