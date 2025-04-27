@@ -500,6 +500,7 @@ fun SwipeScreen(navController: NavController, SwipeViewModel: SwipeViewModel = v
                             onClick = {
                                 if (previousUser.isNotEmpty()) {
                                     previousUser.removeLast()?.let { users.add(0, it) }
+                                    SwipeViewModel.undoUser(users[0].id)
                                     currentImageIndex = 0 // Reset image index for restored user
                                     showFeedbackEffect("undo")
                                 }
