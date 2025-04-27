@@ -47,6 +47,21 @@ class SwipeListRepository {
             }
     }
 
+    fun getLikeList(userId: String, onResult: (List<String>) -> Unit) {
+        db.collection("likes")
+            .whereEqualTo("idUser1", userId)
+            .get()
+            .addOnSuccessListener { result ->
+                val missedIds = result.documents
+                    .mapNotNull { it.getString("idUser2") }
+
+                onResult(missedIds)
+            }
+            .addOnFailureListener {
+                onResult(emptyList())
+            }
+    }
+
     fun getMatchList(userId: String, onResult: (List<String>) -> Unit) {
         db.collection("matches")
             .whereIn("idUser1", listOf(userId))
