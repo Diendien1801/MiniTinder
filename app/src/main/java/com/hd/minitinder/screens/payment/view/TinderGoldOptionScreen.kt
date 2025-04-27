@@ -58,7 +58,7 @@ fun TinderGoldOptionScreen(navController: NavHostController) {
             .padding(16.dp)
     ) {
         IconButton(
-            onClick = { navController.navigate(NavigationItem.PaymentQR.createRoute("1000")) },
+            onClick = { navController.navigate(NavigationItem.History) },
             modifier = Modifier.align(Alignment.Start)
         ) {
             Icon(Icons.Default.Close, contentDescription = "Close")

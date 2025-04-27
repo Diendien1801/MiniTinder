@@ -116,7 +116,6 @@ class RecapRepository {
             .get()
             .addOnSuccessListener { chatDocs ->
                 if (chatDocs.isEmpty) {
-                    Log.d("RecapRepo", "No chats found")
                     onResult(0)
                     return@addOnSuccessListener
                 }
@@ -124,62 +123,51 @@ class RecapRepository {
                 var completedChats = 0
                 var totalMessageCount = 0
 
-                Log.d("RecapRepo", "Found ${chatDocs.size()} chat documents")
 
                 for (chatDoc in chatDocs.documents) {
                     val chatId = chatDoc.id
-                    Log.d("RecapRepo", "Processing chat ID: $chatId")
 
                     // Truy vấn tất cả tin nhắn trong subcollection "messages" của chat này
                     chatDoc.reference.collection("messages")
                         .get()
                         .addOnSuccessListener { messageSnapshot ->
-                            Log.d("RecapRepo", "Found ${messageSnapshot.size()} messages in chat $chatId")
 
                             for (messageDoc in messageSnapshot.documents) {
                                 val senderId = messageDoc.getString("senderId")
                                 val receiverId = messageDoc.getString("receiverId")
                                 val timestamp = messageDoc.getLong("timestamp") ?: 0L
 
-                                Log.d("RecapRepo", "Message: senderId=$senderId, receiverId=$receiverId, timestamp=$timestamp")
-
                                 // Kiểm tra xem tin nhắn có liên quan đến người dùng và có trong khoảng thời gian hay không
                                 if ((senderId == userId || receiverId == userId) &&
                                     timestamp / 1000 >= startTime.seconds) {
                                     totalMessageCount++
-                                    Log.d("RecapRepo", "Message counted. Total now: $totalMessageCount")
                                 }
                             }
 
                             // Đánh dấu là đã hoàn thành xử lý chat này
                             completedChats++
-                            Log.d("RecapRepo", "Completed processing $completedChats of ${chatDocs.size()} chats")
 
                             // Kiểm tra xem đã xử lý hết tất cả chat chưa
                             if (completedChats == chatDocs.size()) {
-                                Log.d("RecapRepo", "All chats processed. Final message count: $totalMessageCount")
                                 onResult(totalMessageCount)
                             }
                         }
                         .addOnFailureListener { e ->
-                            Log.e("RecapRepo", "Error getting messages for chat $chatId", e)
 
                             // Ngay cả khi lỗi, vẫn đánh dấu chat này đã được xử lý
                             completedChats++
 
                             if (completedChats == chatDocs.size()) {
-                                Log.d("RecapRepo", "All chats processed (with errors). Final message count: $totalMessageCount")
                                 onResult(totalMessageCount)
                             }
                         }
                 }
             }
             .addOnFailureListener { e ->
-                Log.e("RecapRepo", "Failed to get chats", e)
                 onResult(0)
             }
     }
-    fun getTop3Users(userId: String, startTime: Timestamp, onResult: (List<Pair<String, Int>>) -> Unit) {
+    fun getTop3Users(userId: String, startTime: Timestamp, onResult: (List<TopConversation>) -> Unit) {
         db.collection("chats")
             .get()
             .addOnSuccessListener { chats ->
@@ -241,7 +229,10 @@ class RecapRepository {
                                 // Lấy tên người dùng từ collection users
                                 fetchUserNames(topUserIds) { topUsersWithNames ->
                                     Log.d("RecapRepo", "Final top users: $topUsersWithNames")
-                                    onResult(topUsersWithNames)
+                                    val topConversations = topUsersWithNames.map { (userName, id) ->
+                                        TopConversation(name = userName, messageCount = id)
+                                    }
+                                    onResult(topConversations)
                                 }
                             }
                         }
@@ -256,7 +247,11 @@ class RecapRepository {
                                     .map { it.key to it.value }
 
                                 fetchUserNames(topUserIds) { topUsersWithNames ->
-                                    onResult(topUsersWithNames)
+                                    Log.d("RecapRepo", "Final top users: $topUsersWithNames")
+                                    val topConversations = topUsersWithNames.map { (userName, id) ->
+                                        TopConversation(name = userName, messageCount = id)
+                                    }
+                                    onResult(topConversations)
                                 }
                             }
                         }
@@ -389,7 +384,7 @@ class RecapRepository {
                                     } else 0f,
                                     messagesSent = messageCount,
                                     messagesPerMatch = messagesPerMatch,
-                                    topConversations = emptyList(),
+                                    topConversations = topConversations,
                                     averageActivityMinutes = 0,
                                     commonInterests = topInterests
                                 )

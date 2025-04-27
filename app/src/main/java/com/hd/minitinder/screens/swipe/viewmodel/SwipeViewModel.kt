@@ -60,7 +60,7 @@ class SwipeViewModel : ViewModel() {
 
     // State for available users
     val availableUsers = mutableStateListOf<UserProfile>()
-
+    val previousUsers = mutableStateListOf<UserProfile>()
     // State for loading status
     val isLoading = mutableStateOf(false)
 
@@ -69,6 +69,7 @@ class SwipeViewModel : ViewModel() {
 
     init {
         loadAvailableUsers()
+        loadPreviousUser()
     }
     private fun calculateAge(dobString: String): Int {
         try {
@@ -132,10 +133,19 @@ class SwipeViewModel : ViewModel() {
         }
     }
 
+    fun loadPreviousUser(){
+        repository.getMissUsers(currentUser?.uid.toString()) {users ->
+            previousUsers.clear()
+            previousUsers.addAll(users);
+        }
+    }
+
     fun likeUser(userId: String, onComplete: (Boolean) -> Unit = {}) {
         repository.like(currentUser?.uid.toString(), userId) { success ->
-            if (success) {
-                Log.i("Like user id:", userId);
+            repository.deleteMiss(currentUser?.uid.toString(), userId) {
+                success ->{
+                Log.i("like user id:", userId);
+            }
             }
             onComplete(success)
         }

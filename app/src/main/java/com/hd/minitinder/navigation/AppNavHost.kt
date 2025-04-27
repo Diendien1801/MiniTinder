@@ -36,6 +36,8 @@ import com.hd.minitinder.screens.tinderGold.view.TinderGoldActivity
 import com.hd.minitinder.screens.viewProfile.view.ViewProfileScreen
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
+import androidx.navigation.navDeepLink
+
 
 @Composable
 fun AppNavHost(
@@ -116,9 +118,17 @@ fun AppNavHost(
             val payment = backStackEntry.arguments?.getString("payment") ?: "0"
             PaymentQRScreen(navController, payment)
         }
-        composable(NavigationItem.PaymentSuccess.route) {
+        composable(
+            route = NavigationItem.PaymentSuccess.route,
+            deepLinks = listOf(
+                navDeepLink {
+                    uriPattern = "minitinder://payment-success"
+                }
+            )
+        ) {
             PaymentSuccessScreen(navController)
         }
+
         composable(NavigationItem.TinderGold.route) {
             TinderGoldActivity(navController)
         }

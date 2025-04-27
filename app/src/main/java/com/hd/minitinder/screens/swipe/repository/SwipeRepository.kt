@@ -77,7 +77,60 @@ class SwipeListRepository {
                 onResult(emptyList())
             }
     }
+    fun getMissUsers(currentId: String, onResult: (List<UserProfile>) -> Unit){
+        getMissList(currentId) { missedIds ->
+            db.collection("users")
+                .get()
+                .addOnSuccessListener { result ->
+                    val availableUsers = mutableListOf<UserProfile>()
 
+                    for (document in result.documents) {
+                        val userId = document.id
+                        if (userId.toString() !in missedIds) {
+                            continue
+                        }
+                        // Extract user data
+                        val id = document.getString("id") ?: ""
+                        val name = document.getString("name") ?: ""
+                        val bio = document.getString("bio") ?: ""
+                        val dob = document.getString("dob") ?: ""
+                        val occupation = document.getString("job") ?: ""
+                        val hometown = document.getString("hometown") ?: ""
+                        val gender = document.getString("gender") ?: ""
+                        // Calculate age from dob
+                        val age = calculateAge(dob)
+
+                        // Get image URLs
+                        @Suppress("UNCHECKED_CAST")
+                        val imageUrls = document.get("imageUrls") as? List<String> ?: listOf()
+
+                        // Get interests
+                        @Suppress("UNCHECKED_CAST")
+                        val interests = document.get("interests") as? List<String> ?: listOf()
+
+                        // Create UserProfile object
+                        val userProfile = UserProfile(
+                            id = id,
+                            name = name,
+                            age = age,
+                            imageUrls = imageUrls,
+                            tags = interests,
+                            address = hometown,
+                            occupation = occupation,
+                            bio = bio,
+                            gender = gender
+                        )
+
+                        availableUsers.add(userProfile)
+                    }
+
+                    onResult(availableUsers)
+                }
+                .addOnFailureListener {
+                    onResult(emptyList())
+                }
+        }
+    }
 
     fun getAvailableUsers(currentUserId: String, onResult: (List<UserProfile>) -> Unit) {
         // Get all the ids the user has interacted with (likes, misses, matches)

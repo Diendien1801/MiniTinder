@@ -70,7 +70,7 @@ fun SwipeScreen(navController: NavController, SwipeViewModel: SwipeViewModel = v
     val coroutineScope = rememberCoroutineScope()
     val cw = 300f
     val thresholdDp = cw / 2
-    val previousUser = remember { mutableStateListOf<UserProfile?>() }
+    val previousUser = SwipeViewModel.previousUsers;
 
     // Current image index for each user
     var currentImageIndex by remember { mutableIntStateOf(0) }
