@@ -2,26 +2,51 @@ package com.hd.minitinder.screens.recap.viewmodel
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Chat
-import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.ThumbUp
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.hd.minitinder.screens.recap.model.RecapData
 import com.hd.minitinder.screens.recap.model.RecapPeriod
+import com.hd.minitinder.screens.recap.model.RecapRepository
 import com.hd.minitinder.screens.recap.model.TopConversation
 import com.hd.minitinder.screens.recap.model.UserInsight
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import android.app.usage.UsageStats
 import android.app.usage.UsageStatsManager
 import android.content.Context
-import androidx.compose.ui.platform.LocalContext
 import android.util.Log
+import kotlinx.coroutines.launch
 
+class RecapViewModel(private val repository: RecapRepository = RecapRepository()) : ViewModel() {
 
-class RecapViewModel() : ViewModel() {
+    private val _selectedPeriod = MutableStateFlow(RecapPeriod.Monthly)
+    val selectedPeriod: StateFlow<RecapPeriod> = _selectedPeriod
 
+    private val _recapData = MutableStateFlow(RecapData(
+        totalSwipes = 0,
+        rightSwipes = 0,
+        leftSwipes = 0,
+        matches = 0,
+        matchRate = 0f,
+        messagesSent = 0,
+        messagesPerMatch = 0f,
+        topConversations = emptyList(),
+        averageActivityMinutes = 0,
+        commonInterests = emptyMap()
+    ))
+    val recapData: StateFlow<RecapData> = _recapData
+
+    private val _userInsights = MutableStateFlow<List<UserInsight>>(emptyList())
+    val userInsights: StateFlow<List<UserInsight>> = _userInsights
+
+    // Initialize data when ViewModel is created
+    init {
+        loadRecapData(_selectedPeriod.value)
+    }
+
+    // Giữ nguyên các phương thức đọc usage stats của bạn
     fun getAppUsageByInterval(
         context: Context,
         interval: Int,
@@ -60,6 +85,8 @@ class RecapViewModel() : ViewModel() {
         val oneMonth = 1000L * 60 * 60 * 24 * 30
         return getAppUsageByInterval(context, UsageStatsManager.INTERVAL_DAILY, oneMonth)
     }
+
+    // Giữ nguyên phương thức lấy số phút sử dụng ứng dụng
     private fun getAppUsageMinutes(context: Context, period: RecapPeriod): Long {
         val packageName = context.packageName
 
@@ -71,129 +98,122 @@ class RecapViewModel() : ViewModel() {
 
         return usageMap[packageName] ?: 0L
     }
+
     fun updateUsageMinutes(context: Context) {
-        val minutes = getAppUsageMinutes(context, _selectedPeriod.value)
-        val currentData = _recapData.value
+        try {
+            val minutes = getAppUsageMinutes(context, _selectedPeriod.value)
+            Log.d("RecapViewModel", "Raw usage minutes: $minutes")
 
-        _recapData.value = currentData.copy(
-            averageActivityMinutes = minutes.toInt()
-        )
-        Log.d("RecapViewModel", "Usage minutes: $minutes")
-        _userInsights.value = generateUserInsights()
+            // Cập nhật dữ liệu hiện có mà không thay đổi các trường khác
+            val currentData = _recapData.value
+            _recapData.value = currentData.copy(
+                averageActivityMinutes = minutes.toInt()
+            )
+
+            Log.d("RecapViewModel", "Updated usage minutes: ${_recapData.value.averageActivityMinutes}")
+
+            // Cập nhật insights sau khi có dữ liệu mới
+            _userInsights.value = generateUserInsights()
+        } catch (e: Exception) {
+            Log.e("RecapViewModel", "Error updating usage minutes: ${e.message}", e)
+        }
     }
-
-    private val _selectedPeriod = MutableStateFlow(RecapPeriod.Monthly)
-    val selectedPeriod: StateFlow<RecapPeriod> = _selectedPeriod
-
-    private val _recapData = MutableStateFlow(getInitialRecapData())
-    val recapData: StateFlow<RecapData> = _recapData
-
-    private val _userInsights = MutableStateFlow(generateUserInsights())
-    val userInsights: StateFlow<List<UserInsight>> = _userInsights
 
     fun selectPeriod(context: Context, period: RecapPeriod) {
         _selectedPeriod.value = period
-        _recapData.value = when (period) {
-            RecapPeriod.Weekly -> getWeeklyRecapData()
-            RecapPeriod.Monthly -> getInitialRecapData()
-            RecapPeriod.Daily -> getDailyRecapData()
+        loadRecapData(period)
+
+        // Đảm bảo cập nhật usage minutes sau khi tải dữ liệu
+        try {
+            updateUsageMinutes(context)
+        } catch (e: Exception) {
+            Log.e("RecapViewModel", "Error in selectPeriod: ${e.message}", e)
         }
-        _userInsights.value = generateUserInsights()
-
-        updateUsageMinutes(context)
     }
 
-    private fun getInitialRecapData(): RecapData {
-        return RecapData(
-            totalSwipes = 428,
-            rightSwipes = 134,
-            leftSwipes = 294,
-            matches = 32,
-            matchRate = 23.9f,
-            messagesSent = 186,
-            messagesPerMatch = 5.8f,
-            topConversations = listOf(
-                TopConversation("Alex", 42),
-                TopConversation("Jamie", 28),
-                TopConversation("Taylor", 22)
-            ),
-            averageActivityMinutes = 500,
-            commonInterests = mapOf(
-                "Travel" to 15,
-                "Music" to 12,
-                "Food" to 9,
-                "Movies" to 8,
-                "Hiking" to 7,
-                "Photography" to 5
-            )
-        )
+    private fun loadRecapData(period: RecapPeriod) {
+        viewModelScope.launch {
+            try {
+                repository.getRecapData(period) { data ->
+                    // Lưu lại giá trị averageActivityMinutes hiện tại trước khi cập nhật
+                    val currentMinutes = _recapData.value.averageActivityMinutes
+
+                    _recapData.value = data.copy(
+                        // Giữ nguyên giá trị minutes đã có
+                        averageActivityMinutes = currentMinutes,
+                        // Thêm các giá trị tạm thời cho các trường chưa có trong repository
+                        topConversations = getTopConversationsForPeriod(period),
+                        commonInterests = getCommonInterestsForPeriod(period)
+                    )
+
+                    _userInsights.value = generateUserInsights()
+
+                    Log.d("RecapViewModel", "Loaded recap data for period: $period")
+                }
+            } catch (e: Exception) {
+                Log.e("RecapViewModel", "Error loading recap data: ${e.message}", e)
+            }
+        }
     }
 
-    private fun getWeeklyRecapData(): RecapData {
-        return RecapData(
-            totalSwipes = 112,
-            rightSwipes = 38,
-            leftSwipes = 74,
-            matches = 9,
-            matchRate = 23.7f,
-            messagesSent = 42,
-            messagesPerMatch = 4.7f,
-            topConversations = listOf(
-                TopConversation("Sam", 18),
-                TopConversation("Jordan", 14),
-                TopConversation("Casey", 10)
-            ),
-            averageActivityMinutes = 500,
-            commonInterests = mapOf(
-                "Travel" to 4,
-                "Music" to 3,
-                "Food" to 3,
-                "Sports" to 2,
-                "Art" to 1
+    // Các phương thức cung cấp dữ liệu tạm thời
+    private fun getTopConversationsForPeriod(period: RecapPeriod): List<TopConversation> {
+        return when (period) {
+            RecapPeriod.Daily -> listOf(
+                TopConversation("Sam", 15),
+                TopConversation("Jordan", 8)
             )
-        )
+            RecapPeriod.Weekly -> listOf(
+                TopConversation("Sam", 38),
+                TopConversation("Jordan", 24),
+                TopConversation("Casey", 16)
+            )
+            RecapPeriod.Monthly -> listOf(
+                TopConversation("Alex", 82),
+                TopConversation("Jamie", 64),
+                TopConversation("Taylor", 48)
+            )
+        }
     }
 
-    private fun getDailyRecapData(): RecapData {
-//        val context = LocalContext.current
-//        val usageMinutes = getAppUsageMinutes(context, RecapPeriod.Daily)
-        return RecapData(
-            totalSwipes = 5842,
-            rightSwipes = 1963,
-            leftSwipes = 3879,
-            matches = 428,
-            matchRate = 21.8f,
-            messagesSent = 2485,
-            messagesPerMatch = 5.8f,
-            topConversations = listOf(
-                TopConversation("Morgan", 186),
-                TopConversation("Riley", 142),
-                TopConversation("Avery", 124),
-                TopConversation("Drew", 98)
-            ),
-            averageActivityMinutes = 500,
-            commonInterests = mapOf(
-                "Travel" to 124,
-                "Music" to 118,
-                "Food" to 98,
-                "Movies" to 86,
-                "Sports" to 72,
-                "Art" to 65,
-                "Books" to 56,
-                "Photography" to 48,
-                "Hiking" to 42
+    private fun getCommonInterestsForPeriod(period: RecapPeriod): Map<String, Int> {
+        return when (period) {
+            RecapPeriod.Daily -> mapOf(
+                "Travel" to 3,
+                "Music" to 2,
+                "Food" to 2
             )
-        )
+            RecapPeriod.Weekly -> mapOf(
+                "Travel" to 8,
+                "Music" to 6,
+                "Food" to 5,
+                "Sports" to 4,
+                "Art" to 3
+            )
+            RecapPeriod.Monthly -> mapOf(
+                "Travel" to 22,
+                "Music" to 18,
+                "Food" to 14,
+                "Movies" to 12,
+                "Hiking" to 10,
+                "Photography" to 8
+            )
+        }
     }
 
     private fun generateUserInsights(): List<UserInsight> {
         val period = _selectedPeriod.value.name.lowercase()
         val data = _recapData.value
 
-        val swipeRatio = data.rightSwipes.toFloat() / data.totalSwipes.toFloat()
+        val swipeRatio = if (data.totalSwipes > 0) {
+            data.rightSwipes.toFloat() / data.totalSwipes.toFloat()
+        } else 0f
+
         val responsiveness = data.messagesPerMatch
         val consistency = data.averageActivityMinutes
         val matchRate = data.matchRate
+
+        Log.d("RecapViewModel", "Generating insights with consistency: $consistency minutes")
 
         return listOf(
             UserInsight(
@@ -204,9 +224,9 @@ class RecapViewModel() : ViewModel() {
                     swipeRatio < 0.15 -> "You have very high standards for matches."
                     swipeRatio < 0.2 -> "You're quite selective when choosing who to swipe right on."
                     swipeRatio < 0.3 -> "You take your time to find the right match."
-                    swipeRatio < 0.4 -> "You’re moderately selective in making connections."
+                    swipeRatio < 0.4 -> "You're moderately selective in making connections."
                     swipeRatio < 0.5 -> "You have a balanced approach to swiping."
-                    swipeRatio < 0.6 -> "You’re fairly open to making new connections."
+                    swipeRatio < 0.6 -> "You're fairly open to making new connections."
                     swipeRatio < 0.8 -> "You explore a wide range of potential matches."
                     else -> "You're very open and swipe right on most profiles!"
                 },
@@ -217,11 +237,11 @@ class RecapViewModel() : ViewModel() {
                 description = when {
                     responsiveness == 0f -> "You rarely start or continue conversations."
                     responsiveness < 2 -> "You tend to be quite reserved in messaging."
-                    responsiveness < 4 -> "You reply occasionally but don’t chat much."
+                    responsiveness < 4 -> "You reply occasionally but don't chat much."
                     responsiveness < 6 -> "You engage but keep your messages short."
                     responsiveness < 8 -> "You respond regularly and maintain conversations."
                     responsiveness < 10 -> "You're quite chatty with your matches!"
-                    responsiveness < 12 -> "You’re an engaging conversationalist."
+                    responsiveness < 12 -> "You're an engaging conversationalist."
                     responsiveness < 15 -> "You love chatting and building connections!"
                     responsiveness < 20 -> "You initiate and keep conversations lively."
                     else -> "You're a messaging pro! Your engagement is top-tier."
@@ -234,10 +254,10 @@ class RecapViewModel() : ViewModel() {
                     consistency < 5 -> "You barely use the app during the $period."
                     consistency < 10 -> "You check in once in a while, but not frequently."
                     consistency < 15 -> "You use the app occasionally without a set routine."
-                    consistency < 20 -> "You’re somewhat active but not daily."
+                    consistency < 20 -> "You're somewhat active but not daily."
                     consistency < 25 -> "You engage consistently but not excessively."
                     consistency < 30 -> "You maintain a good balance of activity."
-                    consistency < 40 -> "You’re highly active on the app."
+                    consistency < 40 -> "You're highly active on the app."
                     consistency < 50 -> "You spend a lot of time connecting with others!"
                     consistency < 60 -> "You're almost always active during the $period."
                     else -> "You're on the app all the time! True dedication."
@@ -247,7 +267,7 @@ class RecapViewModel() : ViewModel() {
             UserInsight(
                 title = "Match Success",
                 description = when {
-                    matchRate < 5 -> "You’re struggling to get matches. Maybe update your profile?"
+                    matchRate < 5 -> "You're struggling to get matches. Maybe update your profile?"
                     matchRate < 10 -> "You get a few matches, but there's room to improve."
                     matchRate < 15 -> "Your profile is starting to attract attention."
                     matchRate < 20 -> "You have a decent match rate. Keep engaging!"
@@ -256,11 +276,10 @@ class RecapViewModel() : ViewModel() {
                     matchRate < 35 -> "You're getting strong interest from matches!"
                     matchRate < 40 -> "You have a high match rate! People like what they see."
                     matchRate < 50 -> "You're one of the most popular profiles!"
-                    else -> "Your match rate is through the roof! You’re a superstar!"
+                    else -> "Your match rate is through the roof! You're a superstar!"
                 },
                 icon = Icons.Default.Favorite
             )
         )
     }
-
 }

@@ -3,17 +3,16 @@ package com.hd.minitinder.screens.swipe.repository
 import com.google.firebase.firestore.FirebaseFirestore
 import com.hd.minitinder.data.model.UserModel
 import com.google.firebase.Timestamp
+import com.hd.minitinder.screens.swipe.viewmodel.UserProfile
 import java.text.SimpleDateFormat
 import java.util.*
 
 class SwipeListRepository {
-    private val db = FirebaseFirestore.getInstance();
+    private val db = FirebaseFirestore.getInstance()
 
     fun getFormattedTimestamp(): String {
         val timestamp = Timestamp.now()
-
         val date = timestamp.toDate()
-
         val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
         return formatter.format(date)
     }
@@ -39,8 +38,21 @@ class SwipeListRepository {
             .addOnSuccessListener { result ->
                 val missedIds = result.documents
                     .mapNotNull { it.getString("idUser2") }
-
                 onResult(missedIds)
+            }
+            .addOnFailureListener {
+                onResult(emptyList())
+            }
+    }
+
+    fun getLikeList(userId: String, onResult: (List<String>) -> Unit) {
+        db.collection("likes")
+            .whereEqualTo("idUser1", userId)
+            .get()
+            .addOnSuccessListener { result ->
+                val likedIds = result.documents
+                    .mapNotNull { it.getString("idUser2") }
+                onResult(likedIds)
             }
             .addOnFailureListener {
                 onResult(emptyList())
@@ -62,18 +74,106 @@ class SwipeListRepository {
                                 val id2 = it.getString("idUser2")
                                 if (id1 == userId) id2 else id1
                             }
-                        onResult(matchedIds.distinct()) // Trả về danh sách không trùng lặp
+                        onResult(matchedIds.distinct())
                     }
                     .addOnFailureListener { onResult(emptyList()) }
             }
             .addOnFailureListener { onResult(emptyList()) }
     }
 
+    fun getAvailableUsers(currentUserId: String, onResult: (List<UserProfile>) -> Unit) {
+        // First get all the ids the user has interacted with (likes, misses, matches)
+        getLikeList(currentUserId) { likedIds ->
+            getMissList(currentUserId) { missedIds ->
+                getMatchList(currentUserId) { matchedIds ->
+                    // Combine all interacted ids
+                    val interactedIds = (likedIds + missedIds + matchedIds).distinct()
+
+                    // Get all users
+                    db.collection("users")
+                        .get()
+                        .addOnSuccessListener { result ->
+                            val availableUsers = mutableListOf<UserProfile>()
+
+                            for (document in result.documents) {
+                                val userId = document.id
+
+                                // Skip if it's the current user or if the user has interacted with them
+                                if (userId == currentUserId || userId in interactedIds) {
+                                    continue
+                                }
+
+                                // Extract user data
+                                val id = document.getString("id") ?: ""
+                                val name = document.getString("name") ?: ""
+                                val bio = document.getString("bio") ?: ""
+                                val dob = document.getString("dob") ?: ""
+                                val occupation = document.getString("job") ?: ""
+                                val hometown = document.getString("hometown") ?: ""
+
+                                // Calculate age from dob
+                                val age = calculateAge(dob)
+
+                                // Get image URLs
+                                @Suppress("UNCHECKED_CAST")
+                                val imageUrls = document.get("imageUrls") as? List<String> ?: listOf()
+
+                                // Get interests
+                                @Suppress("UNCHECKED_CAST")
+                                val interests = document.get("interests") as? List<String> ?: listOf()
+
+                                // Create UserProfile object
+                                val userProfile = UserProfile(
+                                    id = id,
+                                    name = name,
+                                    age = age,
+                                    imageUrls = imageUrls,
+                                    tags = interests,
+                                    address = hometown,
+                                    occupation = occupation,
+                                    bio = bio
+                                )
+
+                                availableUsers.add(userProfile)
+                            }
+
+                            onResult(availableUsers)
+                        }
+                        .addOnFailureListener {
+                            onResult(emptyList())
+                        }
+                }
+            }
+        }
+    }
+
+    // Helper function to calculate age from date of birth string
+    private fun calculateAge(dobString: String): Int {
+        try {
+            val dateFormat = SimpleDateFormat("d/M/yyyy", Locale.getDefault())
+            val dob = dateFormat.parse(dobString) ?: return 0
+
+            val dobCalendar = Calendar.getInstance().apply { time = dob }
+            val currentCalendar = Calendar.getInstance()
+
+            var age = currentCalendar.get(Calendar.YEAR) - dobCalendar.get(Calendar.YEAR)
+
+            // Adjust age if birthday hasn't occurred yet this year
+            if (currentCalendar.get(Calendar.DAY_OF_YEAR) < dobCalendar.get(Calendar.DAY_OF_YEAR)) {
+                age--
+            }
+
+            return age
+        } catch (e: Exception) {
+            return 0
+        }
+    }
+
     fun miss(userId1: String, userId2: String, onComplete: (Boolean) -> Unit) {
         val missData = hashMapOf(
             "idUser1" to userId1,
             "idUser2" to userId2,
-            "timestamp" to getFormattedTimestamp(),
+            "timestamp" to  Timestamp.now(),
         )
 
         db.collection("misses")
@@ -97,10 +197,10 @@ class SwipeListRepository {
                             val matchData = hashMapOf(
                                 "idUser1" to userId,
                                 "idUser2" to userId2,
-                                "timestamp" to getFormattedTimestamp(),
+                                "timestamp" to  Timestamp.now(),
                             )
                             matchesRef.add(matchData)
-                                .addOnSuccessListener { onComplete(true) } // Thành công
+                                .addOnSuccessListener { onComplete(true) }
                                 .addOnFailureListener { onComplete(false) }
                         }
                         .addOnFailureListener { onComplete(false) }
@@ -108,7 +208,7 @@ class SwipeListRepository {
                     val likeData = hashMapOf(
                         "idUser1" to userId,
                         "idUser2" to userId2,
-                        "timestamp" to getFormattedTimestamp(),
+                        "timestamp" to  Timestamp.now(),
                     )
                     likesRef.add(likeData)
                         .addOnSuccessListener { onComplete(true) }
@@ -145,10 +245,9 @@ class SwipeListRepository {
                             .addOnFailureListener { onComplete(false) }
                     }
                 } else {
-                    onComplete(false) // Không tìm thấy document để xóa
+                    onComplete(false)
                 }
             }
             .addOnFailureListener { onComplete(false) }
     }
-
 }

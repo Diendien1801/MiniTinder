@@ -257,7 +257,7 @@ fun ProfileScreen(
 
             // Nút tinder +
             Button(
-                onClick = { /* Navigate to Tinder Platinum */ },
+                onClick = { navController.navigate(NavigationItem.TinderGold.route) },
                 colors = ButtonColors(
                     containerColor = Color(0xFFFF4C5C),
                     contentColor = Color.White,
