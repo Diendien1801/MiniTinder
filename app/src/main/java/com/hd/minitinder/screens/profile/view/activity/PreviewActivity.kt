@@ -53,7 +53,7 @@ fun PreviewActivity(
                 modifier = Modifier
                     .fillMaxSize()
                     .align(Alignment.Center),
-                contentScale = ContentScale.Fit,
+                contentScale = ContentScale.Crop,
 
             )
 
