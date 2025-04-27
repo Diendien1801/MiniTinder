@@ -228,6 +228,7 @@ fun SwipeScreen(navController: NavController, SwipeViewModel: SwipeViewModel = v
                                     isAnimating = true
                                     coroutineScope.launch {
                                         animateOffsetX(-1000f)
+                                        SwipeViewModel.missUser(users[0].id)
                                         previousUser.add(users.removeFirst())
                                         swipeCount++
                                         offsetX = 0f
@@ -239,6 +240,7 @@ fun SwipeScreen(navController: NavController, SwipeViewModel: SwipeViewModel = v
                                     isAnimating = true
                                     coroutineScope.launch {
                                         animateOffsetX(1000f)
+                                        SwipeViewModel.likeUser(users[0].id)
                                         previousUser.add(users.removeFirst())
                                         swipeCount++
                                         offsetX = 0f

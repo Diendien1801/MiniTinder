@@ -1,5 +1,6 @@
 package com.hd.minitinder.screens.swipe.repository
 
+import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
 import com.hd.minitinder.data.model.UserModel
 import com.google.firebase.Timestamp
@@ -62,34 +63,30 @@ class SwipeListRepository {
     fun getMatchList(userId: String, onResult: (List<String>) -> Unit) {
         db.collection("matches")
             .whereIn("idUser1", listOf(userId))
+            .whereIn("idUser2", listOf(userId))
             .get()
-            .addOnSuccessListener { result1 ->
-                db.collection("matches")
-                    .whereIn("idUser2", listOf(userId))
-                    .get()
-                    .addOnSuccessListener { result2 ->
-                        val matchedIds = (result1.documents + result2.documents)
-                            .mapNotNull {
-                                val id1 = it.getString("idUser1")
-                                val id2 = it.getString("idUser2")
-                                if (id1 == userId) id2 else id1
-                            }
-                        onResult(matchedIds.distinct())
-                    }
-                    .addOnFailureListener { onResult(emptyList()) }
+            .addOnSuccessListener { result ->
+                val matchedIds = result.documents.mapNotNull {
+                    val id1 = it.getString("idUser1")
+                    val id2 = it.getString("idUser2")
+                    if (id1 == userId) id2 else id1
+                }
+                onResult(matchedIds.distinct())
             }
-            .addOnFailureListener { onResult(emptyList()) }
+            .addOnFailureListener {
+                onResult(emptyList())
+            }
     }
 
+
     fun getAvailableUsers(currentUserId: String, onResult: (List<UserProfile>) -> Unit) {
-        // First get all the ids the user has interacted with (likes, misses, matches)
+        // Get all the ids the user has interacted with (likes, misses, matches)
         getLikeList(currentUserId) { likedIds ->
             getMissList(currentUserId) { missedIds ->
                 getMatchList(currentUserId) { matchedIds ->
-                    // Combine all interacted ids
+                    // Combine all interacted ids and ensure uniqueness
                     val interactedIds = (likedIds + missedIds + matchedIds).distinct()
-
-                    // Get all users
+                    // Get all users from Firestore
                     db.collection("users")
                         .get()
                         .addOnSuccessListener { result ->
@@ -99,7 +96,7 @@ class SwipeListRepository {
                                 val userId = document.id
 
                                 // Skip if it's the current user or if the user has interacted with them
-                                if (userId == currentUserId || userId in interactedIds) {
+                                if (userId == currentUserId || userId.toString() in interactedIds) {
                                     continue
                                 }
 
@@ -110,7 +107,7 @@ class SwipeListRepository {
                                 val dob = document.getString("dob") ?: ""
                                 val occupation = document.getString("job") ?: ""
                                 val hometown = document.getString("hometown") ?: ""
-
+                                val gender = document.getString("gender") ?: ""
                                 // Calculate age from dob
                                 val age = calculateAge(dob)
 
@@ -131,7 +128,8 @@ class SwipeListRepository {
                                     tags = interests,
                                     address = hometown,
                                     occupation = occupation,
-                                    bio = bio
+                                    bio = bio,
+                                    gender = gender
                                 )
 
                                 availableUsers.add(userProfile)
