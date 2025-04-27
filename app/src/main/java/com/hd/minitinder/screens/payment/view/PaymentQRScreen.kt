@@ -7,12 +7,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
+import com.hd.minitinder.R
 import kotlinx.coroutines.delay
 
 @Composable
@@ -39,7 +41,7 @@ fun PaymentQRScreen(navController: NavHostController, payment: String) {
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = "PAYMENT",
+            text = stringResource(R.string.payment),
             fontSize = 32.sp,
             fontWeight = FontWeight.Bold,
             color = Color.Black
@@ -48,7 +50,7 @@ fun PaymentQRScreen(navController: NavHostController, payment: String) {
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "Scan to Pay",
+            text = stringResource(R.string.scan_to_pay),
             fontSize = 20.sp,
             fontWeight = FontWeight.SemiBold,
             color = Color.Gray
@@ -68,7 +70,7 @@ fun PaymentQRScreen(navController: NavHostController, payment: String) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Total Payment: ",
+                text = stringResource(R.string.total_payment),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black
@@ -84,7 +86,7 @@ fun PaymentQRScreen(navController: NavHostController, payment: String) {
 
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "Time Remaining:",
+            text = stringResource(R.string.time_remaining),
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
             color = Color.Black
@@ -99,7 +101,7 @@ fun PaymentQRScreen(navController: NavHostController, payment: String) {
         Spacer(modifier = Modifier.height(32.dp))
 
         Text(
-            text = "Thank you for your support",
+            text = stringResource(R.string.thank_you_for_your_support),
             fontSize = 16.sp,
             fontWeight = FontWeight.Medium,
             color = Color.Gray
@@ -113,7 +115,7 @@ fun PaymentQRScreen(navController: NavHostController, payment: String) {
                 .fillMaxWidth()
                 .height(50.dp)
         ) {
-            Text(text = "Trở lại trang chủ", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            Text(text = stringResource(R.string.back_to_homepage), fontSize = 18.sp, fontWeight = FontWeight.Bold)
         }
 
 

@@ -53,8 +53,8 @@ fun PreviewActivity(
                 modifier = Modifier
                     .fillMaxSize()
                     .align(Alignment.Center),
-                contentScale = ContentScale.FillWidth,
-                alignment = Alignment.TopCenter
+                contentScale = ContentScale.Fit,
+
             )
 
             // Chia màn hình thành 2 vùng nhấn bằng Row

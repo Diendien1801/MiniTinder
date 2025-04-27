@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -101,13 +102,13 @@ fun LoginScreen(
             Column(horizontalAlignment = Alignment.Start,
                 modifier = Modifier.padding(36.dp)) {
                 Text(
-                    text = "Hello",
+                    text = stringResource(R.string.hello),
                     fontSize = 32.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color.White
                 )
                 Text(
-                    text = "Sign In!",
+                    text = stringResource(R.string.sign_in2),
                     fontSize = 32.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color.White
@@ -147,7 +148,7 @@ fun LoginScreen(
                 CustomOutlinedTextField(
                     value = password,
                     onValueChange = { loginViewModel.onPasswordChange(it) },
-                    placeholderText = "Password",
+                    placeholderText = stringResource(R.string.password),
                     leadingIcon = Icons.Default.Lock,
                     contentDescription = "Password Icon",
                     isPassword = true,
@@ -162,7 +163,7 @@ fun LoginScreen(
                         .background(Color.Transparent)
                 )
                 Text(
-                    text = "Forgot password?",
+                    text = stringResource(R.string.forgot_password),
                     color = Color.Black,
                     textAlign = TextAlign.End, // Căn phải nội dung văn bản
                     fontSize = 14.sp,
@@ -179,7 +180,7 @@ fun LoginScreen(
 
                 // Register Button
                 ButtonGradient(
-                    buttonText = "Login",
+                    buttonText = stringResource(R.string.login),
                     onClick = { loginViewModel.login(context)},
                     isLoading = isLoading // ✅ Truyền trạng thái loading vào
                 )
@@ -187,7 +188,7 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
                 ButtonGradient("" +
-                        "Login with Facebook",
+                        stringResource(R.string.login_with_facebook),
                     onClick = {
                         activity?.let { loginViewModel.loginWithFacebook(it, callbackManager) }
                     },
@@ -205,7 +206,7 @@ fun LoginScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    text = "Don't have an account?",
+                    text = stringResource(R.string.don_t_have_an_account),
                     color = Color.Black,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold
@@ -214,7 +215,8 @@ fun LoginScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Register Button
-                ButtonGradient("Register",
+                ButtonGradient(
+                    stringResource(R.string.register),
                     onClick = {
                         // pop login screen
                         navController.navigate(NavigationItem.Register.route) {

@@ -31,6 +31,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.ui.res.stringResource
 
 import com.hd.minitinder.common.fragments.button.ButtonGradient
 import com.hd.minitinder.common.fragments.edittext.CustomOutlinedTextField
@@ -73,8 +74,8 @@ fun RegisterScreen(navController: NavController, registerViewModel: RegisterView
                 horizontalAlignment = Alignment.Start,
                 modifier = Modifier.padding(36.dp)
             ) {
-                Text("Create Your", fontSize = 32.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
-                Text("Account", fontSize = 32.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
+                Text(stringResource(R.string.create_your), fontSize = 32.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
+                Text(stringResource(R.string.account), fontSize = 32.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
             }
         }
 
@@ -110,7 +111,7 @@ fun RegisterScreen(navController: NavController, registerViewModel: RegisterView
                 CustomOutlinedTextField(
                     value = password,
                     onValueChange = { registerViewModel.onPasswordChange(it) },
-                    placeholderText = "Password",
+                    placeholderText = stringResource(R.string.password),
                     leadingIcon = Icons.Default.Lock,
                     contentDescription = "Password Icon",
                     isPassword = true,
@@ -125,7 +126,7 @@ fun RegisterScreen(navController: NavController, registerViewModel: RegisterView
                 CustomOutlinedTextField(
                     value = confirmPassword,
                     onValueChange = { registerViewModel.onConfirmPasswordChange(it) },
-                    placeholderText = "Confirm Password",
+                    placeholderText = stringResource(R.string.confirm_password),
                     leadingIcon = Icons.Default.Lock,
                     contentDescription = "Confirm Password Icon",
                     isPassword = true,
@@ -137,7 +138,7 @@ fun RegisterScreen(navController: NavController, registerViewModel: RegisterView
                 Spacer(modifier = Modifier.height(44.dp))
 
                 // Register Button
-                ButtonGradient("Register",
+                ButtonGradient(stringResource(R.string.register),
                     onClick = {
                         registerViewModel.register(context){ success ->
                             if (success) {
@@ -165,7 +166,7 @@ fun RegisterScreen(navController: NavController, registerViewModel: RegisterView
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    text = "Already have an account?",
+                    text = stringResource(R.string.already_have_an_account),
                     color = Color.Black,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold
@@ -174,7 +175,7 @@ fun RegisterScreen(navController: NavController, registerViewModel: RegisterView
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Login Button
-                ButtonGradient("Login",
+                ButtonGradient(stringResource(R.string.login),
                     onClick = {
                         navController.navigate(NavigationItem.Login.route) {
                             popUpTo(NavigationItem.Register.route) { inclusive = true }

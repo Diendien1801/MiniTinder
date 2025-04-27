@@ -42,6 +42,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -101,7 +102,7 @@ fun ChatListActivity(navController: NavController, chatListViewModel: ChatListVi
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
                 placeholder = {
-                    Text("Search users...", color = Color.Gray)
+                    Text(stringResource(R.string.search_users), color = Color.Gray)
                 },
                 singleLine = true,
                 leadingIcon = {

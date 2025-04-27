@@ -97,10 +97,12 @@ class DetailChatViewModel() : ViewModel() {
             try {
                 val token = withContext(Dispatchers.IO) {
                     userRepository.getReceiverToken(receiver)
+
                 }
 
                 if (!token.isNullOrBlank()) {
                     sendPushNotification(token, "Tin nhắn mới", message)
+                    //Log.d("FCM", "token: $token")
                 } else {
                     Log.e("FCM", "Không tìm thấy token của người nhận")
                 }
@@ -115,7 +117,7 @@ class DetailChatViewModel() : ViewModel() {
     // Gửi thông báo
     suspend fun sendPushNotification(token: String, title: String, body: String) {
         val retrofit = Retrofit.Builder()
-            .baseUrl("http://10.120.3.201:3000") //192.168.1.10
+            .baseUrl("http://192.168.1.9:3000") //192.168.1.9
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
@@ -123,7 +125,7 @@ class DetailChatViewModel() : ViewModel() {
         val request = NotificationRequest(token, title, body)
 
         val response = apiService.sendNotification(request)
-        Log.d("FCM", "Gửi thông báo thành công: $response")
+        Log.d("FCM", "Gửi thông báo thành công: ${response}")
     }
     private fun listenForMessages(context: Context) {
         val chat = _chatId.value ?: return

@@ -20,9 +20,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.hd.minitinder.R
 import com.hd.minitinder.screens.profile.view.bottomSheet.DobBottomSheet
 import com.hd.minitinder.screens.profile.view.bottomSheet.GenderBottomSheet
 import com.hd.minitinder.screens.profile.view.bottomSheet.HWBottomSheet
@@ -38,7 +40,7 @@ data class InfoButton(
     val label: String,
     val rightLabel: String,
     val icon: ImageVector,
-    val onClick: () -> Unit,
+    val onClick:  () -> Unit,
 )
 
 @Composable
@@ -152,17 +154,19 @@ fun EditFieldScreen(
 
     if (showSheet) {
         when (selectedField) {
-            "Name", "Hometown", "Job", "Phone number" -> NameBottomSheet(
+            stringResource(R.string.name), stringResource(R.string.hometown), stringResource(R.string.job), stringResource(
+                R.string.phone_number
+            ) -> NameBottomSheet(
                 fieldName = selectedField,
                 onDismiss = { showSheet = false }
             )
-            "Gender" -> GenderBottomSheet(onDismiss = { showSheet = false })
-            "Dob" -> DobBottomSheet(onDismiss = { showSheet = false })
-            "Height", "Weight" -> HWBottomSheet(
+            stringResource(R.string.gender) -> GenderBottomSheet(onDismiss = { showSheet = false })
+            stringResource(R.string.dob) -> DobBottomSheet(onDismiss = { showSheet = false })
+            stringResource(R.string.height), stringResource(R.string.weight) -> HWBottomSheet(
                 fieldName = selectedField,
                 onDismiss = { showSheet = false }
             )
-            "Interest" -> InterestBottomSheet(onDismiss = { showSheet = false })
+            stringResource(R.string.interest) -> InterestBottomSheet(onDismiss = { showSheet = false })
         }
     }
     // Nội dung chính với nền tối
@@ -209,7 +213,7 @@ fun EditFieldScreen(
                     biographyText = newText
                     viewModel.onBioChange(newText) },
                 placeholder = {
-                    Text(text = "Something about you...", color = Color.LightGray)
+                    Text(text = stringResource(R.string.something_about_you), color = Color.LightGray)
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -233,17 +237,17 @@ fun EditFieldScreen(
 
         // Các phần thông tin khác (Basic Information, More information, Contact information, Interests)
         InfoSection(
-            title = "Basic Information",
+            title = stringResource(R.string.basic_information),
             infoButtons = listOf(
-                InfoButton(label = "Name", icon = Icons.Default.Person, rightLabel = userState.name) {
+                InfoButton(label = stringResource(R.string.name), icon = Icons.Default.Person, rightLabel = userState.name) {
                     selectedField = "Name"
                     showSheet = true
                 },
-                InfoButton(label = "Gender", icon = Icons.Default.Wc, rightLabel = userState.gender) {
+                InfoButton(label = stringResource(R.string.gender), icon = Icons.Default.Wc, rightLabel = userState.gender) {
                     selectedField = "Gender"
                     showSheet = true
                 },
-                InfoButton(label = "Dob", icon = Icons.Default.Cake, rightLabel = userState.dob) {
+                InfoButton(label = stringResource(R.string.dob), icon = Icons.Default.Cake, rightLabel = userState.dob) {
                     selectedField = "Dob"
                     showSheet = true
                 },
@@ -253,16 +257,16 @@ fun EditFieldScreen(
         InfoSection(
             title = "More information",
             infoButtons = listOf(
-                InfoButton(label = "Hometown", icon = Icons.Default.Place, rightLabel = userState.hometown) {
+                InfoButton(label = stringResource(R.string.hometown), icon = Icons.Default.Place, rightLabel = userState.hometown) {
                     selectedField = "Hometown"
                     showSheet = true
                 },
-                InfoButton(label = "Job", icon = Icons.Default.Work, rightLabel = userState.job) {
+                InfoButton(label = stringResource(R.string.job), icon = Icons.Default.Work, rightLabel = userState.job) {
                     selectedField = "Job"
                     showSheet = true
                 },
                 InfoButton(
-                    label = "Height",
+                    label = stringResource(R.string.height),
                     icon = Icons.Default.Height,
                     rightLabel = if (userState.height.toInt() == 0 || userState.height.toString().isBlank()) "" else userState.height.toString()
                 ) {
@@ -270,7 +274,7 @@ fun EditFieldScreen(
                     showSheet = true
                 },
                 InfoButton(
-                    label = "Weight",
+                    label = stringResource(R.string.weight),
                     icon = Icons.Default.MonitorWeight,
                     rightLabel = if (userState.weight.toInt() == 0 || userState.weight.toString().isBlank()) "" else userState.weight.toString()
                 ) {
@@ -281,9 +285,9 @@ fun EditFieldScreen(
         )
 
         InfoSection(
-            title = "Contact information",
+            title = stringResource(R.string.contact_information),
             infoButtons = listOf(
-                InfoButton(label = "Phone Number", icon = Icons.Default.Phone, rightLabel = userState.phoneNumber) {
+                InfoButton(label = stringResource(R.string.phone_number), icon = Icons.Default.Phone, rightLabel = userState.phoneNumber) {
                     selectedField = "Phone number"
                     showSheet = true
                 },
@@ -291,9 +295,9 @@ fun EditFieldScreen(
         )
 
         InfoSection(
-            title = "Interests",
+            title = stringResource(R.string.interests),
             infoButtons = listOf(
-                InfoButton(label = "Interests", icon = Icons.Default.Favorite, rightLabel = userState.interests.joinToString(", ")) {
+                InfoButton(label = stringResource(R.string.interests), icon = Icons.Default.Favorite, rightLabel = userState.interests.joinToString(", ")) {
                     selectedField = "Interest"
                     showSheet = true
                 },

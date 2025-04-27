@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">MiniTinder</string>
     <string name="title_activity_register">RegisterActivity</string>
@@ -37,7 +38,6 @@
     <string name="messages">Messages</string>
     <string name="daily_activity">Daily Activity</string>
     <string name="min">%1$s min</string>
-    <string name="per_day">per day</string>
     <string name="average_per_match">Average %1$s per match</string>
     <string name="that_s_of_your_right_swipes">That\'s %1$s% of your right swipes!</string>
     <string name="thanks_for_reviewing_your_stats">Thanks for reviewing your stats!</string>

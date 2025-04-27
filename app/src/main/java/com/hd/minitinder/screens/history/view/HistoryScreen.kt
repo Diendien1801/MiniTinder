@@ -35,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -44,6 +45,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
+import com.hd.minitinder.R
 import com.hd.minitinder.common.fragments.logo.LogoTinder
 import com.hd.minitinder.data.model.UserModel
 import com.hd.minitinder.navigation.NavigationItem
@@ -58,10 +60,10 @@ fun HistoryScreen(nav: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background( MaterialTheme.colorScheme.background) // Set toàn bộ màn hình về đen
+            .background(MaterialTheme.colorScheme.background) // Set toàn bộ màn hình về đen
     ) {
         Text(
-            text = "Activity",
+            text = stringResource(R.string.activity),
             color =  MaterialTheme.colorScheme.onSurface,
             modifier = Modifier
                 .fillMaxWidth()
@@ -74,13 +76,13 @@ fun HistoryScreen(nav: NavController) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background( MaterialTheme.colorScheme.background) // Box chứa danh sách cũng có nền đen
+                .background(MaterialTheme.colorScheme.background) // Box chứa danh sách cũng có nền đen
         ) {
             LazyColumn(
                 modifier = Modifier
                     .padding(16.dp)
                     .fillMaxSize()
-                    .background( MaterialTheme.colorScheme.background) // LazyColumn có nền đen
+                    .background(MaterialTheme.colorScheme.background) // LazyColumn có nền đen
             ) {
                 items(users) { user ->
                     user.chatId?.let {
@@ -130,9 +132,11 @@ fun HistoryCategory(name: String, isSelected: Boolean, onClick: () -> Unit) {
             .padding(8.dp)
             .height(30.dp)
             .width(70.dp)
-            .background( MaterialTheme.colorScheme.background)
-            .clickable (interactionSource = remember { MutableInteractionSource() },
-                indication = null){ onClick() }, // Bắt sự kiện nhấn
+            .background(MaterialTheme.colorScheme.background)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) { onClick() }, // Bắt sự kiện nhấn
 
         shape = RoundedCornerShape(16.dp),
         shadowElevation = 4.dp,
@@ -143,7 +147,7 @@ fun HistoryCategory(name: String, isSelected: Boolean, onClick: () -> Unit) {
             contentAlignment = Alignment.Center,
             modifier = Modifier
                 .fillMaxSize()
-                .background( MaterialTheme.colorScheme.background)
+                .background(MaterialTheme.colorScheme.background)
 
         ) {
             Text(
@@ -169,16 +173,25 @@ fun HistoryItem(
     chatId: String,
 ) {
     val messageText = when (type) {
-        HistoryViewModel.NotificationType.MATCH -> "You matched with ${user.name}. Excited? Good. Now, go say hi."
-        HistoryViewModel.NotificationType.LIKE -> "${user.name} liked your profile. Feeling lucky?"
-        HistoryViewModel.NotificationType.BLOCK -> "${user.name} has been blocked. You won’t see each other again."
+        HistoryViewModel.NotificationType.MATCH -> stringResource(
+            R.string.you_matched_with_excited_good_now_go_say_hi,
+            user.name
+        )
+        HistoryViewModel.NotificationType.LIKE -> stringResource(
+            R.string.liked_your_profile_feeling_lucky,
+            user.name
+        )
+        HistoryViewModel.NotificationType.BLOCK -> stringResource(
+            R.string.has_been_blocked_you_won_t_see_each_other_again,
+            user.name
+        )
     }
 
     Surface(
         modifier = Modifier
             .fillMaxSize()
             .padding(8.dp)
-            .background( MaterialTheme.colorScheme.background), // Đảm bảo toàn bộ item có màu đen
+            .background(MaterialTheme.colorScheme.background), // Đảm bảo toàn bộ item có màu đen
 
     ) {
         Row(
@@ -204,7 +217,7 @@ fun HistoryItem(
                 )
             }
 
-            Column(modifier = Modifier.background(Color.Black)) {
+            Column(modifier = Modifier.background(MaterialTheme.colorScheme.background)) {
                 Text(
                     text = messageText,
                     color = Color.White,
@@ -239,7 +252,12 @@ fun HistoryItem(
                                     .padding(horizontal = 8.dp)
                                     .clickable()
                                     {
-                                        nav.navigate(NavigationItem.DetailChat.createRoute(chatId,user))
+                                        nav.navigate(
+                                            NavigationItem.DetailChat.createRoute(
+                                                chatId,
+                                                user
+                                            )
+                                        )
                                     }
                             )
                         }

@@ -16,8 +16,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavHostController
+import com.hd.minitinder.R
 import com.hd.minitinder.navigation.NavigationItem
 
 @Composable
@@ -29,7 +31,10 @@ fun TinderGoldOptionScreen(navController: NavHostController) {
             .fillMaxSize()
             .background(
                 brush = Brush.verticalGradient(
-                    colors = listOf(Color(0xFFFFE8A5), Color(0xFFFFFFFF)), // Gradient từ vàng đậm xuống vàng nhạt
+                    colors = listOf(
+                        Color(0xFFFFE8A5),
+                        Color(0xFFFFFFFF)
+                    ), // Gradient từ vàng đậm xuống vàng nhạt
                     startY = 0f,
                     endY = 200f
                 )
@@ -47,17 +52,19 @@ fun TinderGoldOptionScreen(navController: NavHostController) {
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "See who Likes You and match with them instantly with Tinder Gold™.",
+            text = stringResource(R.string.see_who_likes_you_and_match_with_them_instantly_with_tinder_gold),
             fontSize = 20.sp,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
+            color = Color.DarkGray
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Select a plan",
+            text = stringResource(R.string.select_a_plan),
             fontSize = 16.sp,
-            fontWeight = FontWeight.SemiBold
+            fontWeight = FontWeight.SemiBold,
+            color = Color.DarkGray
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -103,7 +110,7 @@ fun PlanSelection(onPlanSelected: (String) -> Unit) {
                     .padding(4.dp)
                     .border(
                         2.dp,
-                        if (isSelected) Color(0xFFFFC107) else Color.Gray, // Yellow border when selected
+                        if (isSelected) Color(0xFFFFC107) else Color.DarkGray, // Yellow border when selected
                         RoundedCornerShape(8.dp)
                     )
                     .clickable {
@@ -134,7 +141,7 @@ fun PlanSelection(onPlanSelected: (String) -> Unit) {
                             )
                         }
                     }
-                    Text(text = "$${plan.second}/mth", color = Color.Gray)
+                    Text(text = "$${plan.second}/mth", color = Color.DarkGray)
                 }
             }
         }
@@ -144,19 +151,19 @@ fun PlanSelection(onPlanSelected: (String) -> Unit) {
 @Composable
 fun IncludedFeatures() {
     val features = listOf(
-        "Unlimited likes",
-        "See who Likes You",
-        "Unlimited Rewinds",
-        "1 free Boost per month",
-        "5 free Super Likes per week",
-        "Passport™ - Match and chat with people anywhere in the world",
-        "Control who sees you",
-        "Control who you see",
-        "Hide ads"
+        stringResource(R.string.unlimited_likes),
+        stringResource(R.string.see_who_likes_you),
+        stringResource(R.string.unlimited_rewinds),
+        stringResource(R.string._1_free_boost_per_month),
+        stringResource(R.string._5_free_super_likes_per_week),
+        stringResource(R.string.passport_match_and_chat_with_people_anywhere_in_the_world),
+        stringResource(R.string.control_who_sees_you),
+        stringResource(R.string.control_who_you_see),
+        stringResource(R.string.hide_ads)
     )
 
     Column {
-        Text(text = "Included with Tinder Gold™", fontWeight = FontWeight.Bold)
+        Text(text = stringResource(R.string.included_with_tinder_gold), fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(8.dp))
         features.forEach {
             Row(
@@ -165,7 +172,7 @@ fun IncludedFeatures() {
             ) {
                 Icon(Icons.Default.Check, contentDescription = "Check", tint = Color.Green)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(text = it)
+                Text(text = it, color = Color.DarkGray)
             }
         }
     }
