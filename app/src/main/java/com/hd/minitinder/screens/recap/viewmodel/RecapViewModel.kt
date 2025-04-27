@@ -142,8 +142,6 @@ class RecapViewModel(private val repository: RecapRepository = RecapRepository()
                         // Giữ nguyên giá trị minutes đã có
                         averageActivityMinutes = currentMinutes,
                         // Thêm các giá trị tạm thời cho các trường chưa có trong repository
-                        topConversations = getTopConversationsForPeriod(period),
-                        commonInterests = getCommonInterestsForPeriod(period)
                     )
 
                     _userInsights.value = generateUserInsights()
@@ -176,30 +174,6 @@ class RecapViewModel(private val repository: RecapRepository = RecapRepository()
         }
     }
 
-    private fun getCommonInterestsForPeriod(period: RecapPeriod): Map<String, Int> {
-        return when (period) {
-            RecapPeriod.Daily -> mapOf(
-                "Travel" to 3,
-                "Music" to 2,
-                "Food" to 2
-            )
-            RecapPeriod.Weekly -> mapOf(
-                "Travel" to 8,
-                "Music" to 6,
-                "Food" to 5,
-                "Sports" to 4,
-                "Art" to 3
-            )
-            RecapPeriod.Monthly -> mapOf(
-                "Travel" to 22,
-                "Music" to 18,
-                "Food" to 14,
-                "Movies" to 12,
-                "Hiking" to 10,
-                "Photography" to 8
-            )
-        }
-    }
 
     private fun generateUserInsights(): List<UserInsight> {
         val period = _selectedPeriod.value.name.lowercase()

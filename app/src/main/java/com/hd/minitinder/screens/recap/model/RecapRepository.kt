@@ -1,9 +1,11 @@
 package com.hd.minitinder.screens.recap.model
 
+import android.util.Log
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.util.Calendar
+import com.google.firebase.Timestamp
 
 enum class RecapPeriod {
     Daily,
@@ -38,43 +40,36 @@ data class RecapData(
 class RecapRepository {
     private val db = FirebaseFirestore.getInstance()
     val currentUser = FirebaseAuth.getInstance().currentUser
-    private fun getPeriodTime(period: RecapPeriod): Long {
+    private fun getPeriodTime(period: RecapPeriod): Timestamp {
         val calendar = Calendar.getInstance()
 
-        // Calculate start time based on the period
-        val startTime = when (period) {
-            RecapPeriod.Daily -> {
-                calendar.add(Calendar.DAY_OF_YEAR, -1)
-                calendar.timeInMillis
-            }
-            RecapPeriod.Weekly -> {
-                calendar.add(Calendar.WEEK_OF_YEAR, -1)
-                calendar.timeInMillis
-            }
-            RecapPeriod.Monthly -> {
-                calendar.add(Calendar.MONTH, -1)
-                calendar.timeInMillis
-            }
+        when (period) {
+            RecapPeriod.Daily -> calendar.add(Calendar.DAY_OF_YEAR, -1)
+            RecapPeriod.Weekly -> calendar.add(Calendar.WEEK_OF_YEAR, -1)
+            RecapPeriod.Monthly -> calendar.add(Calendar.MONTH, -1)
         }
 
-        return startTime
+        return Timestamp(calendar.timeInMillis / 1000, 0)
     }
     fun getMissList(userId: String, period: RecapPeriod, onResult: (List<String>) -> Unit) {
         val startTime = getPeriodTime(period)
+
         db.collection("misses")
             .whereEqualTo("idUser1", userId)
             .whereGreaterThanOrEqualTo("timestamp", startTime)
             .get()
             .addOnSuccessListener { result ->
+
                 val missedIds = result.documents
                     .mapNotNull { it.getString("idUser2") }
 
                 onResult(missedIds)
             }
-            .addOnFailureListener {
+            .addOnFailureListener { e ->
                 onResult(emptyList())
             }
     }
+
     fun getLikeList(userId: String, period: RecapPeriod, onResult: (List<String>) -> Unit) {
         val startTime = getPeriodTime(period)
         db.collection("likes")
@@ -94,35 +89,230 @@ class RecapRepository {
     fun getMatchList(userId: String, period: RecapPeriod, onResult: (List<String>) -> Unit) {
         val startTime = getPeriodTime(period)
         db.collection("matches")
-            .whereIn("idUser1", listOf(userId))
             .whereGreaterThanOrEqualTo("timestamp", startTime)
+            .whereIn("idUser1", listOf(userId))
+            .whereIn("idUser2", listOf(userId))
             .get()
-            .addOnSuccessListener { result1 ->
-                db.collection("matches")
-                    .whereIn("idUser2", listOf(userId))
-                    .get()
-                    .addOnSuccessListener { result2 ->
-                        val matchedIds = (result1.documents + result2.documents)
-                            .mapNotNull {
-                                val id1 = it.getString("idUser1")
-                                val id2 = it.getString("idUser2")
-                                if (id1 == userId) id2 else id1
-                            }
-                        onResult(matchedIds.distinct()) // Trả về danh sách không trùng lặp
+            .addOnSuccessListener { result ->
+                // Combine both "idUser1" and "idUser2" values into a single list of matched users
+                val matchedIds = result.documents.mapNotNull {
+                    val id1 = it.getString("idUser1")
+                    val id2 = it.getString("idUser2")
+                    when {
+                        id1 == userId -> id2
+                        id2 == userId -> id1
+                        else -> null
                     }
-                    .addOnFailureListener { onResult(emptyList()) }
+                }
+
+                // Return a distinct list of matched IDs (no duplicates)
+                onResult(matchedIds.distinct())
             }
             .addOnFailureListener { onResult(emptyList()) }
     }
-    fun getMessageSent(userId: String, period: RecapPeriod, onResult: Int) {
 
+    fun getMessageCount(userId: String, startTime: Timestamp, onResult: (Int) -> Unit) {
+        db.collection("chats")
+            .get()
+            .addOnSuccessListener { chatDocs ->
+                if (chatDocs.isEmpty) {
+                    Log.d("RecapRepo", "No chats found")
+                    onResult(0)
+                    return@addOnSuccessListener
+                }
+
+                var completedChats = 0
+                var totalMessageCount = 0
+
+                Log.d("RecapRepo", "Found ${chatDocs.size()} chat documents")
+
+                for (chatDoc in chatDocs.documents) {
+                    val chatId = chatDoc.id
+                    Log.d("RecapRepo", "Processing chat ID: $chatId")
+
+                    // Truy vấn tất cả tin nhắn trong subcollection "messages" của chat này
+                    chatDoc.reference.collection("messages")
+                        .get()
+                        .addOnSuccessListener { messageSnapshot ->
+                            Log.d("RecapRepo", "Found ${messageSnapshot.size()} messages in chat $chatId")
+
+                            for (messageDoc in messageSnapshot.documents) {
+                                val senderId = messageDoc.getString("senderId")
+                                val receiverId = messageDoc.getString("receiverId")
+                                val timestamp = messageDoc.getLong("timestamp") ?: 0L
+
+                                Log.d("RecapRepo", "Message: senderId=$senderId, receiverId=$receiverId, timestamp=$timestamp")
+
+                                // Kiểm tra xem tin nhắn có liên quan đến người dùng và có trong khoảng thời gian hay không
+                                if ((senderId == userId || receiverId == userId) &&
+                                    timestamp / 1000 >= startTime.seconds) {
+                                    totalMessageCount++
+                                    Log.d("RecapRepo", "Message counted. Total now: $totalMessageCount")
+                                }
+                            }
+
+                            // Đánh dấu là đã hoàn thành xử lý chat này
+                            completedChats++
+                            Log.d("RecapRepo", "Completed processing $completedChats of ${chatDocs.size()} chats")
+
+                            // Kiểm tra xem đã xử lý hết tất cả chat chưa
+                            if (completedChats == chatDocs.size()) {
+                                Log.d("RecapRepo", "All chats processed. Final message count: $totalMessageCount")
+                                onResult(totalMessageCount)
+                            }
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e("RecapRepo", "Error getting messages for chat $chatId", e)
+
+                            // Ngay cả khi lỗi, vẫn đánh dấu chat này đã được xử lý
+                            completedChats++
+
+                            if (completedChats == chatDocs.size()) {
+                                Log.d("RecapRepo", "All chats processed (with errors). Final message count: $totalMessageCount")
+                                onResult(totalMessageCount)
+                            }
+                        }
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("RecapRepo", "Failed to get chats", e)
+                onResult(0)
+            }
+    }
+    fun getTop3Users(userId: String, startTime: Timestamp, onResult: (List<Pair<String, Int>>) -> Unit) {
+        db.collection("chats")
+            .get()
+            .addOnSuccessListener { chats ->
+                if (chats.isEmpty) {
+                    Log.d("RecapRepo", "No chats found")
+                    onResult(emptyList())
+                    return@addOnSuccessListener
+                }
+
+                var completedChats = 0
+                val messageCountMap = mutableMapOf<String, Int>()
+                Log.d("RecapRepo", "Found ${chats.size()} chat documents")
+
+                for (chat in chats.documents) {
+                    val chatId = chat.id
+                    Log.d("RecapRepo", "Processing chat ID: $chatId for top users")
+
+                    chat.reference.collection("messages")
+                        .get()
+                        .addOnSuccessListener { messages ->
+                            Log.d("RecapRepo", "Found ${messages.size()} messages in chat $chatId")
+
+                            for (message in messages.documents) {
+                                val senderId = message.getString("senderId") ?: ""
+                                val receiverId = message.getString("receiverId") ?: ""
+                                val timestamp = message.getLong("timestamp") ?: 0L
+
+                                if (timestamp / 1000 >= startTime.seconds) {
+                                    when {
+                                        senderId == userId && receiverId.isNotEmpty() -> {
+                                            messageCountMap[receiverId] = messageCountMap.getOrDefault(receiverId, 0) + 1
+                                            Log.d("RecapRepo", "Counted message from $userId to $receiverId, total: ${messageCountMap[receiverId]}")
+                                        }
+                                        receiverId == userId && senderId.isNotEmpty() -> {
+                                            messageCountMap[senderId] = messageCountMap.getOrDefault(senderId, 0) + 1
+                                            Log.d("RecapRepo", "Counted message from $senderId to $userId, total: ${messageCountMap[senderId]}")
+                                        }
+                                    }
+                                }
+                            }
+
+                            completedChats++
+                            Log.d("RecapRepo", "Completed processing $completedChats of ${chats.size()} chats for top users")
+
+                            if (completedChats == chats.size()) {
+                                Log.d("RecapRepo", "All chats processed. Top users count: ${messageCountMap.size}")
+                                // Lấy top 3 user có nhiều tin nhắn nhất
+                                val topUserIds = messageCountMap.entries
+                                    .sortedByDescending { it.value }
+                                    .take(3)
+                                    .map { it.key to it.value }
+
+                                if (topUserIds.isEmpty()) {
+                                    Log.d("RecapRepo", "No top users found")
+                                    onResult(emptyList())
+                                    return@addOnSuccessListener
+                                }
+
+                                // Lấy tên người dùng từ collection users
+                                fetchUserNames(topUserIds) { topUsersWithNames ->
+                                    Log.d("RecapRepo", "Final top users: $topUsersWithNames")
+                                    onResult(topUsersWithNames)
+                                }
+                            }
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e("RecapRepo", "Error getting messages for chat $chatId", e)
+                            completedChats++
+
+                            if (completedChats == chats.size()) {
+                                val topUserIds = messageCountMap.entries
+                                    .sortedByDescending { it.value }
+                                    .take(3)
+                                    .map { it.key to it.value }
+
+                                fetchUserNames(topUserIds) { topUsersWithNames ->
+                                    onResult(topUsersWithNames)
+                                }
+                            }
+                        }
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("RecapRepo", "Failed to get chats for top users", e)
+                onResult(emptyList())
+            }
+    }
+
+    // Hàm trợ giúp để lấy tên người dùng từ danh sách ID
+    private fun fetchUserNames(userIdsWithCount: List<Pair<String, Int>>, onComplete: (List<Pair<String, Int>>) -> Unit) {
+        if (userIdsWithCount.isEmpty()) {
+            onComplete(emptyList())
+            return
+        }
+
+        val result = mutableListOf<Pair<String, Int>>()
+        var completedQueries = 0
+
+        for ((userId, count) in userIdsWithCount) {
+            db.collection("users").document(userId)
+                .get()
+                .addOnSuccessListener { userDoc ->
+                    // Lấy tên người dùng từ document, nếu không có thì sử dụng ID
+                    val name = userDoc.getString("name") ?: userDoc.getString("displayName") ?: userId
+
+                    Log.d("RecapRepo", "Fetched name for user $userId: $name")
+                    result.add(Pair(name, count))
+
+                    completedQueries++
+                    if (completedQueries == userIdsWithCount.size) {
+                        // Sắp xếp lại kết quả theo số lượng tin nhắn (giảm dần)
+                        val sortedResult = result.sortedByDescending { it.second }
+                        onComplete(sortedResult)
+                    }
+                }
+                .addOnFailureListener { e ->
+                    Log.e("RecapRepo", "Error fetching user info for $userId", e)
+                    // Nếu không lấy được thông tin, sử dụng ID làm tên
+                    result.add(Pair(userId, count))
+
+                    completedQueries++
+                    if (completedQueries == userIdsWithCount.size) {
+                        val sortedResult = result.sortedByDescending { it.second }
+                        onComplete(sortedResult)
+                    }
+                }
+        }
     }
     fun getFavoriteTopics(
         likedUsers: List<String>,
         matchedUsers: List<String>,
         onResult: (Map<String, Int>) -> Unit
     ) {
-        // Combine and remove duplicates
         val targetUsers = (likedUsers + matchedUsers).distinct()
 
         if (targetUsers.isEmpty()) {
@@ -178,26 +368,34 @@ class RecapRepository {
     // Function to get total swipes and matches for a specific period
     fun getRecapData(period: RecapPeriod, onResult: (RecapData) -> Unit) {
         val startTime = getPeriodTime(period)
-
-        getMatchList(currentUser?.uid.toString(), period) { matches ->
-            getMissList(currentUser?.uid.toString(), period) { misses ->
-                getLikeList(currentUser?.uid.toString(), period) { likes ->
+        val id = currentUser?.uid.toString()
+        getMatchList(id, period) { matches ->
+            getMissList(id, period) { misses ->
+                getLikeList(id, period) { likes ->
                     getFavoriteTopics(likes, matches) { topInterests ->
-                        val recapData = RecapData(
-                            totalSwipes = matches.size + likes.size + misses.size,
-                            rightSwipes = matches.size + likes.size,
-                            leftSwipes = misses.size,
-                            matches = matches.size,
-                            matchRate = if (matches.size + likes.size > 0) {
-                                matches.size / (matches.size + likes.size).toFloat()
-                            } else 0f,
-                            messagesSent = 0,
-                            messagesPerMatch = 0f,
-                            topConversations = emptyList(),
-                            averageActivityMinutes = 0,
-                            commonInterests = topInterests
-                        )
-                        onResult(recapData)
+                        getMessageCount(id, startTime) { messageCount ->
+                            getTop3Users(id, startTime) { topConversations ->
+                                val messagesPerMatch = if (matches.size > 0) {
+                                    messageCount.toFloat() / matches.size
+                                } else 0f
+
+                                val recapData = RecapData(
+                                    totalSwipes = matches.size + likes.size + misses.size,
+                                    rightSwipes = matches.size + likes.size,
+                                    leftSwipes = misses.size,
+                                    matches = matches.size,
+                                    matchRate = if (matches.size + likes.size > 0) {
+                                        matches.size / (matches.size + likes.size).toFloat()
+                                    } else 0f,
+                                    messagesSent = messageCount,
+                                    messagesPerMatch = messagesPerMatch,
+                                    topConversations = emptyList(),
+                                    averageActivityMinutes = 0,
+                                    commonInterests = topInterests
+                                )
+                                onResult(recapData)
+                            }
+                        }
                     }
                 }
             }
