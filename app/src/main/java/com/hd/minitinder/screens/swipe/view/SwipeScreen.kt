@@ -60,26 +60,17 @@ import com.hd.minitinder.ui.theme.AppTypography
 import com.hd.minitinder.ui.theme.PrimaryColor
 import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
-
-
-data class UserProfile(
-    val name: String,
-    val age: Int,
-    val imageUrls: List<String>,
-    val tags: List<String>,
-    val address: String,
-    val occupation: String,
-    val bio: String
-)
+import com.hd.minitinder.screens.swipe.viewmodel.UserProfile
 
 @OptIn(ExperimentalLayoutApi::class)
 @SuppressLint("NewApi")
 @Composable
 fun SwipeScreen(navController: NavController, SwipeViewModel: SwipeViewModel = viewModel()) {
     val density = LocalDensity.current
-    val users = SwipeViewModel.users;
 
-    var isHovered by remember { mutableStateOf(false) }
+    val users = SwipeViewModel.availableUsers;
+    val currentUser by SwipeViewModel.userState.collectAsState()
+
     var swipeCount by remember { mutableIntStateOf(0) }
     var offsetX by remember { mutableFloatStateOf(0f) }
     var isAnimating by remember { mutableStateOf(false) }
@@ -515,28 +506,30 @@ fun SwipeScreen(navController: NavController, SwipeViewModel: SwipeViewModel = v
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     // Undo button
-                    IconButton(
-                        onClick = {
-                            if (previousUser.isNotEmpty()) {
-                                previousUser.removeLast()?.let { users.add(0, it) }
-                                currentImageIndex = 0 // Reset image index for restored user
-                                showFeedbackEffect("undo")
-                            }
-                        },
-                        modifier = Modifier
-                            .size(60.dp)
-                            .clip(CircleShape)
-                            .background(Color.Transparent)
-                            .border(2.dp, Color(0xFFC8720B), CircleShape)
-                            .padding(4.dp)
-                    ) {
-                        Image(
-                            painter = rememberAsyncImagePainter(R.drawable.reload),
-                            contentDescription = "Undo",
-                            //tint = Color(0xFFC8720B),
-                            modifier = Modifier.size(24.dp)
-                        )
+                    if (currentUser.isPremium) {
+                        IconButton(
+                            onClick = {
+                                if (previousUser.isNotEmpty()) {
+                                    previousUser.removeLast()?.let { users.add(0, it) }
+                                    currentImageIndex = 0 // Reset image index for restored user
+                                    showFeedbackEffect("undo")
+                                }
+                            },
+                            modifier = Modifier
+                                .size(60.dp)
+                                .clip(CircleShape)
+                                .background(Color.Transparent)
+                                .border(2.dp, Color(0xFFC8720B), CircleShape)
+                                .padding(4.dp)
+                        ) {
+                            Image(
+                                painter = rememberAsyncImagePainter(R.drawable.reload),
+                                contentDescription = "Undo",
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
                     }
+
 
                     // Dislike button
                     IconButton(
@@ -544,6 +537,7 @@ fun SwipeScreen(navController: NavController, SwipeViewModel: SwipeViewModel = v
                             isAnimating = true
                             coroutineScope.launch {
                                 animateOffsetX(-1000f)
+                                SwipeViewModel.missUser(users[0].id)
                                 previousUser.add(users.removeFirst())
                                 swipeCount++
                                 offsetX = 0f
@@ -573,6 +567,7 @@ fun SwipeScreen(navController: NavController, SwipeViewModel: SwipeViewModel = v
                             isAnimating = true
                             coroutineScope.launch {
                                 animateOffsetX(1000f)
+                                SwipeViewModel.likeUser(users[0].id)
                                 previousUser.add(users.removeFirst())
                                 swipeCount++
                                 offsetX = 0f
@@ -658,7 +653,7 @@ fun SwipeScreen(navController: NavController, SwipeViewModel: SwipeViewModel = v
                     text = "No more profiles left!",
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White,
+                    color = Color.Black,
                     textAlign = TextAlign.Center
                 )
 
@@ -667,7 +662,7 @@ fun SwipeScreen(navController: NavController, SwipeViewModel: SwipeViewModel = v
                 Text(
                     text = "Check back later for new matches",
                     fontSize = 16.sp,
-                    color = Color.White.copy(alpha = 0.7f),
+                    color = Color.Black.copy(alpha = 0.7f),
                     textAlign = TextAlign.Center
                 )
             }

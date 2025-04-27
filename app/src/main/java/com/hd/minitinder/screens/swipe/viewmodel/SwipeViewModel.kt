@@ -3,75 +3,111 @@ package com.hd.minitinder.screens.swipe.viewmodel
 import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
-import com.hd.minitinder.screens.chatList.repository.ChatListRepository
-import com.hd.minitinder.screens.swipe.view.UserProfile
+import com.google.firebase.firestore.FirebaseFirestore
+import com.hd.minitinder.screens.swipe.repository.SwipeListRepository
+import com.hd.minitinder.data.model.UserModel
+import com.hd.minitinder.data.repositories.UserRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
 data class UserProfile(
+    val id: String,
     val name: String,
     val age: Int,
-    val imageUrls: List<String>, // Changed to list of image URLs
+    val imageUrls: List<String>,
     val tags: List<String>,
     val address: String,
     val occupation: String,
     val bio: String
 )
-class SwipeViewModel: ViewModel() {
 
-    val users = mutableStateListOf(
-            UserProfile(
-                name = "Alice",
-                age = 24,
-                imageUrls = listOf(
-                    "https://randomuser.me/api/portraits/women/1.jpg",
-                    "https://randomuser.me/api/portraits/women/11.jpg",
-                    "https://randomuser.me/api/portraits/women/21.jpg"
-                ),
-                tags = listOf("badminton", "coffee", "travel", "photography", "cooking", "hiking"),
-                address = "1234 Elm Street, Springfield",
-                occupation = "Software Developer",
-                bio = "Passionate about coding and tech innovations. Alice has been working in the tech industry for over 5 years and enjoys experimenting with new technologies like AI and machine learning. In her free time, she loves to contribute to open-source projects and stay up-to-date with the latest developments in the world of programming."
-            ),
-            UserProfile(
-                name = "Bob",
-                age = 27,
-                imageUrls = listOf(
-                    "https://randomuser.me/api/portraits/men/2.jpg",
-                    "https://randomuser.me/api/portraits/men/12.jpg",
-                    "https://randomuser.me/api/portraits/men/22.jpg"
-                ),
-                tags = listOf("badminton", "coffee", "travel", "photography", "cooking", "hiking"),
-                address = "5678 Oak Avenue, Seattle",
-                occupation = "Graphic Designer",
-                bio = "Loves creating beautiful visual designs. Bob is passionate about transforming concepts into compelling visuals that resonate with audiences. With over 6 years of experience in graphic design, he has worked on various branding projects, advertising campaigns, and digital art. His creative journey is driven by his desire to merge aesthetics with functionality in every project."
-            ),
-            UserProfile(
-                name = "Charlie",
-                age = 22,
-                imageUrls = listOf(
-                    "https://randomuser.me/api/portraits/women/3.jpg",
-                    "https://randomuser.me/api/portraits/women/13.jpg",
-                    "https://randomuser.me/api/portraits/women/23.jpg"
-                ),
-                tags = listOf("badminton", "coffee", "travel", "photography", "cooking", "hiking"),
-                address = "9102 Pine Road, Miami",
-                occupation = "Marketing Specialist",
-                bio = "Creative thinker, always striving to bring fresh ideas. Charlie has been working in marketing for the past 3 years, specializing in digital marketing strategies. She thrives on finding innovative ways to engage with target audiences and loves analyzing data to measure the success of campaigns. When she's not brainstorming new marketing ideas, she enjoys exploring the latest trends in social media and content creation."
-            ),
-            UserProfile(
-                name = "David",
-                age = 29,
-                imageUrls = listOf(
-                    "https://randomuser.me/api/portraits/men/4.jpg",
-                    "https://randomuser.me/api/portraits/men/14.jpg",
-                    "https://randomuser.me/api/portraits/men/24.jpg"
-                ),
-                tags = listOf("badminton", "coffee", "travel", "photography", "cooking", "hiking"),
-                address = "4321 Maple Lane, San Francisco",
-                occupation = "Project Manager",
-                bio = "Focused on delivering projects on time with excellent team coordination. David has managed diverse projects across multiple industries, ensuring they are completed successfully while maintaining high standards. He believes in effective communication, teamwork, and problem-solving to tackle challenges. With a background in both engineering and management, he enjoys bridging the gap between technical and non-technical teams to drive results."
-            )
-        )
+class SwipeViewModel : ViewModel() {
+    val currentUser = FirebaseAuth.getInstance().currentUser
+    private val _userState = MutableStateFlow(UserModel())
+    val userState: StateFlow<UserModel> = _userState
+
+    private val firestore = FirebaseFirestore.getInstance()
+    init {
+        currentUser?.uid?.let { userId ->
+            loadUserFromFirestore(userId)
+        }
+    }
+    private fun loadUserFromFirestore(userId: String) {
+        viewModelScope.launch {
+            firestore.collection("users")
+                .document(userId)
+                .get()
+                .addOnSuccessListener { document ->
+                    if (document.exists()) {
+                        val user = UserModel.fromJson(document)
+                        _userState.value = user
+                    }
+                }
+                .addOnFailureListener {
+//                    Log.e("ProfileViewModel", "Error fetching user")
+                }
+        }
+    }
+    private val repository = SwipeListRepository()
+    private val auth = FirebaseAuth.getInstance()
+
+    // State for available users
+    val availableUsers = mutableStateListOf<UserProfile>()
+
+    // State for loading status
+    val isLoading = mutableStateOf(false)
+
+    // State for error messages
+    val errorMessage = mutableStateOf<String?>(null)
+
+    init {
+        loadAvailableUsers()
+    }
+
+    fun loadAvailableUsers() {
+
+        isLoading.value = true
+        errorMessage.value = null
+
+        repository.getAvailableUsers(currentUser?.uid.toString()) { users ->
+            availableUsers.clear()
+            availableUsers.addAll(users)
+            isLoading.value = false
+
+            if (users.isEmpty()) {
+                errorMessage.value = "No available users found"
+            }
+        }
+    }
+
+    fun likeUser(userId: String, onComplete: (Boolean) -> Unit = {}) {
+        repository.like(currentUser?.uid.toString(), userId) { success ->
+            if (success) {
+                Log.i("Like user id:", userId);
+            }
+            onComplete(success)
+        }
+    }
+
+    fun missUser(userId: String, onComplete: (Boolean) -> Unit = {}) {
+        repository.miss(currentUser?.uid.toString(), userId) { success ->
+            if (success) {
+                Log.i("Miss user id:", userId);
+            }
+            onComplete(success)
+        }
+    }
+
+    fun undoUser(userId: String, onComplete: (Boolean) -> Unit = {}) {
+        repository.deleteMiss(currentUser?.uid.toString(), userId) { success ->
+            if (success) {
+                Log.i("Undo user id:", userId);
+            }
+            onComplete(success)
+        }
+    }
 }
