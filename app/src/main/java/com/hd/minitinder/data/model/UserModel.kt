@@ -1,6 +1,5 @@
 package com.hd.minitinder.data.model
 
-
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.Exclude
 
@@ -22,7 +21,6 @@ data class UserModel(
     val fcmToken: String = "",
     val privateKey: String = ""
 ) {
-    // Chuyển đối tượng UserModel thành Map để lưu lên Firestore
     fun toJson(): Map<String, Any> {
         return mapOf(
             "id" to id,
@@ -45,7 +43,6 @@ data class UserModel(
     }
 
     companion object {
-        // Chuyển Map từ Firestore thành UserModel
         fun fromJson(snapshot: DocumentSnapshot): UserModel {
             return UserModel(
                 id = snapshot.getString("id") ?: "",
