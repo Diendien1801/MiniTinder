@@ -34,6 +34,7 @@ import com.hd.minitinder.common.fragments.logo.LogoTinder
 
 import android.util.Log
 import android.widget.ImageView
+import androidx.compose.foundation.clickable
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.ColorFilter
@@ -41,6 +42,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.viewinterop.AndroidView
 import com.hd.minitinder.R
 import com.hd.minitinder.common.fragments.button.ButtonGradient
+import com.hd.minitinder.navigation.NavigationItem
 import com.hd.minitinder.ui.theme.PrimaryColor
 
 @Composable
@@ -106,8 +108,9 @@ fun TinderGoldActivity(navController: NavController? = null) {
                         items(likedUsers.size) { index ->
                             Log.d("TinderGoldActivity", "Rendering user: ${likedUsers[index].name}")
                             personLikeYouItem(
+                                navController = navController,
                                 imageUrl = likedUsers[index].imageUrls.firstOrNull() ?: "",
-                                idUser = likedUsers[index].name,
+                                idUser = likedUsers[index].id,
                                 isPremium = isPremium ?: false,
                             )
                         }
@@ -151,12 +154,21 @@ fun TinderGoldActivity(navController: NavController? = null) {
 
 
 @Composable
-fun personLikeYouItem(imageUrl: String, idUser: String, isPremium: Boolean) {
+fun personLikeYouItem(navController: NavController? = null, imageUrl: String, idUser: String, isPremium: Boolean) {
     Surface(
         shape = RoundedCornerShape(16.dp),
         modifier = Modifier
             .width(150.dp)
             .height(220.dp)
+            .clickable(onClick = {
+                if (isPremium){
+                    navController?.navigate(NavigationItem.ViewProfile.createRoute(idUser))
+                }
+                else {
+                    navController?.navigate(NavigationItem.PaymentOption.route)
+                }
+
+            })
     ) {
         Box(
             modifier = Modifier.fillMaxSize()
